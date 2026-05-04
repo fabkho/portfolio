@@ -29,6 +29,16 @@ export default defineNuxtConfig({
     description: 'Full-stack developer. Open-source contributor.'
   },
 
+  content: {
+    build: {
+      markdown: {
+        shiki: {
+          theme: 'dark-plus'
+        }
+      }
+    }
+  },
+
   routeRules: {
     '/': { prerender: true }
   },

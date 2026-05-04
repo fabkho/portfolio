@@ -109,14 +109,13 @@ useHead({
 }
 
 .blog-article :deep(pre) {
-  background: var(--color-ink);
-  color: var(--color-bg);
+  background: #1e1e1e;
   padding: 1.5rem;
   font-family: var(--font-mono);
   font-size: var(--text-base);
   overflow-x: auto;
-  margin-bottom: 1.5rem;
-  border: 1px solid var(--color-ink);
+  margin: 0;
+  border: none;
 }
 
 .blog-article :deep(code) {
@@ -125,9 +124,10 @@ useHead({
 }
 
 .blog-article :deep(:not(pre) > code) {
-  background: var(--color-ink-faint);
-  padding: 0.15rem 0.4rem;
-  border-radius: 2px;
+  background: rgba(44, 44, 42, 0.06);
+  border: 1px solid var(--color-ink-faint);
+  padding: 0.1rem 0.4rem;
+  border-radius: 0;
 }
 
 .blog-article :deep(table) {

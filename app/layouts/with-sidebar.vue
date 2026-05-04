@@ -3,7 +3,7 @@
     <TheHeader />
     <main id="main-content" class="schematic-area">
       <SchematicBackground />
-      <div class="relative z-10">
+      <div class="scroll-content">
         <slot />
       </div>
     </main>
@@ -24,6 +24,7 @@
   grid-template-columns: 1fr var(--sidebar-width);
   grid-template-rows: auto 1fr auto;
   min-height: calc(100vh - 4rem);
+  height: calc(100vh - 4rem);
   gap: 1rem;
 }
 
@@ -31,8 +32,39 @@
   grid-column: 1 / 2;
   border: 1px solid var(--color-ink);
   position: relative;
-  padding: 2rem;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.scroll-content {
+  position: relative;
+  z-index: 10;
+  padding: 2rem;
+  overflow-y: auto;
+  flex: 1;
+
+  /* Custom scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ink-faint) transparent;
+}
+
+.scroll-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scroll-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-content::-webkit-scrollbar-thumb {
+  background-color: var(--color-ink-faint);
+  border-radius: 0;
+  border: 1px solid var(--color-bg);
+}
+
+.scroll-content::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-ink);
 }
 
 .data-sidebar {
@@ -40,15 +72,38 @@
   border: 1px solid var(--color-ink);
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ink-faint) transparent;
+}
+
+.data-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.data-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.data-sidebar::-webkit-scrollbar-thumb {
+  background-color: var(--color-ink-faint);
+  border-radius: 0;
 }
 
 @media (max-width: 1024px) {
   .drafting-board {
     grid-template-columns: 1fr;
+    height: auto;
+    min-height: 100vh;
   }
 
   .schematic-area {
     grid-column: 1 / -1;
+    overflow: visible;
+  }
+
+  .scroll-content {
+    overflow-y: visible;
   }
 
   .data-sidebar {
