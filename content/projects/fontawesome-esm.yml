@@ -1,0 +1,8 @@
+tag: "BUILD TOOL"
+label: "FONTAWESOME-ESM"
+title: "FontAwesome ESM"
+description: "Converts FontAwesome CommonJS icons to ES Modules for lazy CDN loading."
+specs: ["ROLLUP", "NPM", "VUE"]
+url: "https://github.com/fabkho/fontawesome-chunks"
+featured: false
+order: 5
