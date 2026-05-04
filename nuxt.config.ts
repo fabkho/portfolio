@@ -2,8 +2,16 @@
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
-    '@nuxt/ui',
-    '@nuxt/content'
+    '@nuxt/content',
+    '@nuxt/fonts',
+    '@nuxt/image',
+    '@nuxt/a11y',
+    '@nuxt/hints',
+    '@nuxtjs/seo',
+    '@nuxthub/core',
+    '@vueuse/nuxt',
+    'nuxt-studio',
+    '@nuxt/test-utils/module'
   ],
 
   devtools: {
@@ -25,5 +33,32 @@ export default defineNuxtConfig({
         braceStyle: '1tbs'
       }
     }
+  },
+
+  fonts: {
+    families: [
+      {
+        name: 'IBM Plex Mono',
+        weights: [400, 500, 600, 700]
+      },
+      {
+        name: 'Inter',
+        weights: [300, 400, 500, 600, 700]
+      }
+    ]
+  },
+
+  studio: {
+    gitInfo: {
+      name: 'portfolio',
+      owner: 'fabkho',
+      url: 'https://github.com/fabkho/portfolio'
+    }
+  },
+
+  site: {
+    url: 'https://fabkho.dev',
+    name: 'Fabian Kirchhoff',
+    description: 'Full-stack developer. Open-source contributor.'
   }
 })
