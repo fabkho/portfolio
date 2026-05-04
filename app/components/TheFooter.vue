@@ -2,13 +2,13 @@
   <footer class="flex items-center justify-between border border-ink p-4 mt-8">
     <div class="flex items-center gap-2">
       <span class="accent-dot" />
-      <span class="text-xs uppercase">indicates active system / primary focus</span>
+      <span class="text-sm uppercase">indicates active system / primary focus</span>
     </div>
     <a
       href="https://github.com/fabkho"
       target="_blank"
       rel="noopener noreferrer"
-      class="text-xs uppercase hover:text-accent transition-colors"
+      class="text-sm uppercase hover:text-accent transition-colors"
     >
       initiate external link: github
     </a>

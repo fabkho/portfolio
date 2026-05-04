@@ -5,10 +5,10 @@ const subtitle = useRouteSubtitle()
 <template>
   <header class="header">
     <div class="header-cell title-main">
-      <h1 class="font-sans font-light text-3xl uppercase tracking-[-0.02em]">
+      <h1 class="font-sans font-light text-4xl uppercase tracking-[-0.02em]">
         Fabian Kirchhoff
       </h1>
-      <div class="text-xs uppercase tracking-[0.1em] text-ink-muted">
+      <div class="text-base uppercase tracking-[0.1em] text-ink-muted">
         {{ subtitle }}
       </div>
     </div>
@@ -122,7 +122,7 @@ const subtitle = useRouteSubtitle()
   position: relative;
   z-index: 1;
   font-family: var(--font-sans);
-  font-size: var(--text-sm);
+  font-size: var(--text-md);
   text-transform: uppercase;
   padding: 1rem 1.25rem;
   border-right: 1px solid var(--color-ink);
