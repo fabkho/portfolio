@@ -1,0 +1,587 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fabian Kirchhoff / Schematics</title>
+<style>
+:root {
+  /* Warm eggshell / drafting paper */
+  --bg: #F5F2EB;
+  /* Charcoal / drafting ink */
+  --ink: #2C2C2A;
+  --ink-faint: rgba(44, 44, 42, 0.4);
+  /* The rare accent color - drafting red */
+  --accent: #D44D3A; 
+  
+  --font-mono: 'IBM Plex Mono', 'Courier New', Courier, monospace;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Times New Roman', Times, serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  line-height: 1.4;
+  padding: 2rem;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Subtle paper texture */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: -1;
+  mix-blend-mode: multiply;
+}
+
+/* Diagonal hatching pattern for the line-art shading feel */
+.hatch-bg {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--ink-faint),
+    var(--ink-faint) 1px,
+    transparent 1px,
+    transparent 6px
+  );
+}
+
+.hatch-accent {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(212, 77, 58, 0.4),
+    rgba(212, 77, 58, 0.4) 1px,
+    transparent 1px,
+    transparent 6px
+  );
+}
+
+/* The framing / title block */
+.drafting-board {
+  max-width: 1400px;
+  margin: 0 auto;
+  border: 1px solid var(--ink);
+  padding: 1rem;
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  grid-template-rows: auto 1fr auto;
+  min-height: calc(100vh - 4rem);
+  gap: 1rem;
+}
+
+/* Header Title Block */
+.title-block {
+  grid-column: 1 / -1;
+  border: 1px solid var(--ink);
+  display: flex;
+  justify-content: space-between;
+}
+
+.title-cell {
+  padding: 1.5rem;
+  border-right: 1px solid var(--ink);
+}
+.title-cell:last-child {
+  border-right: none;
+}
+
+.title-main {
+  flex-grow: 1;
+}
+
+.title-main h1 {
+  font-family: var(--font-sans);
+  font-weight: 300;
+  font-size: 3rem;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+.title-main .subtitle {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 0.5rem;
+}
+
+.meta-cell {
+  min-width: 150px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+/* Dynamic Navigation Cell */
+.nav-cell {
+  position: relative;
+  overflow: hidden;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  padding: 1rem;
+}
+
+.nav-cell::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%; right: -50%; bottom: -50%;
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--ink-faint),
+    var(--ink-faint) 1px,
+    transparent 1px,
+    transparent 6px
+  );
+  z-index: 0;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: center center;
+}
+
+.nav-cell:hover::before {
+  /* Line distortion effect on hover */
+  transform: scale(1.2) rotate(-15deg) skewX(25deg) skewY(-5deg);
+}
+
+.nav-link {
+  position: relative;
+  z-index: 10;
+  text-decoration: none;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--bg); /* Mask behind text for legibility */
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--ink);
+  display: block;
+  width: max-content;
+  align-self: flex-end;
+  
+  /* Slide in animation */
+  transform: translateY(30px);
+  opacity: 0;
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.nav-link:hover {
+  color: var(--bg);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Staggered animation */
+.nav-link:nth-child(1) { animation-delay: 0.1s; }
+.nav-link:nth-child(2) { animation-delay: 0.2s; }
+.nav-link:nth-child(3) { animation-delay: 0.3s; }
+.nav-link:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes slideUp {
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Main Display Area (The "Drawing") */
+.schematic-area {
+  grid-column: 1 / 2;
+  border: 1px solid var(--ink);
+  position: relative;
+  padding: 2rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The CSS Abstract Line Art */
+.line-art {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  height: 80%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.15;
+}
+
+.line-circle {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+}
+
+.c1 { width: 300px; height: 300px; }
+.c2 { width: 500px; height: 500px; }
+.c3 { width: 700px; height: 700px; border-style: dashed; }
+
+.line-axis { position: absolute; background: var(--ink); }
+.axis-h { width: 100%; height: 1px; top: 50%; left: 0; }
+.axis-v { height: 100%; width: 1px; left: 50%; top: 0; }
+.axis-d1 { width: 100%; height: 1px; top: 50%; left: 0; transform: rotate(45deg); }
+.axis-d2 { width: 100%; height: 1px; top: 50%; left: 0; transform: rotate(-45deg); }
+
+/* Schematics Content */
+.content-layer {
+  position: relative;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  height: 100%;
+}
+
+.section-label {
+  grid-column: 1 / -1;
+  font-family: var(--font-sans);
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--ink);
+  margin-top: 1rem;
+}
+.section-label:first-child { margin-top: 0; }
+
+.figure {
+  border: 1px solid var(--ink);
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.fig-header {
+  border-bottom: 1px solid var(--ink);
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.fig-body {
+  padding: 1.5rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.fig-title {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+
+.fig-desc {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+  flex-grow: 1;
+}
+
+.fig-specs {
+  font-size: 0.75rem;
+  border-top: 1px solid var(--ink-faint);
+  padding-top: 1rem;
+}
+
+.fig-specs span {
+  display: inline-block;
+  border: 1px solid var(--ink);
+  padding: 0.2rem 0.5rem;
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Sidebar Data Table */
+.data-sidebar {
+  grid-column: 2 / 3;
+  border: 1px solid var(--ink);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  padding: 1rem;
+  border-bottom: 1px solid var(--ink);
+  font-weight: bold;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.data-section {
+  padding: 1rem;
+  border-bottom: 1px solid var(--ink);
+}
+.data-section:last-child {
+  border-bottom: none;
+}
+
+.data-label {
+  font-size: 0.65rem;
+  color: var(--ink-faint);
+  margin-bottom: 0.5rem;
+}
+
+.book-record {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 1px dotted var(--ink-faint);
+  padding: 0.5rem 0;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+}
+
+.book-record.active {
+  color: var(--accent);
+}
+
+.book-author {
+  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  color: var(--ink-faint);
+}
+
+/* Footer / Legend */
+.legend {
+  grid-column: 1 / -1;
+  border: 1px solid var(--ink);
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.accent-node {
+  width: 12px;
+  height: 12px;
+  background-color: var(--accent);
+  display: inline-block;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: 0.5rem;
+}
+
+@media (max-width: 1024px) {
+  .drafting-board { grid-template-columns: 1fr; }
+  .schematic-area { grid-column: 1 / -1; }
+  .data-sidebar { grid-column: 1 / -1; border-top: none; }
+  .content-layer { grid-template-columns: 1fr; }
+  .nav-cell { width: auto; flex-direction: row; flex-wrap: wrap; justify-content: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<div class="drafting-board">
+
+  <header class="title-block">
+    <div class="title-cell title-main">
+      <h1>Fabian Kirchhoff</h1>
+      <div class="subtitle">Architectural Schematics // Full-Stack Development</div>
+    </div>
+    <div class="title-cell meta-cell">
+      <div>DATE: 2025</div>
+      <div>LOC: GERMANY</div>
+      <div>STACK: VUE/NUXT/TS</div>
+    </div>
+    
+    <!-- Dynamic Navigation Cell -->
+    <nav class="title-cell meta-cell nav-cell">
+      <a href="#home" class="nav-link">Home</a>
+      <a href="#projects" class="nav-link">Projects</a>
+      <a href="#blog" class="nav-link">Blog</a>
+      <a href="#books" class="nav-link">Books</a>
+    </nav>
+  </header>
+
+  <main class="schematic-area">
+    <!-- Abstract background drawing -->
+    <div class="line-art">
+      <div class="line-circle c1"></div>
+      <div class="line-circle c2"></div>
+      <div class="line-circle c3"></div>
+      <div class="line-axis axis-h"></div>
+      <div class="line-axis axis-v"></div>
+      <div class="line-axis axis-d1"></div>
+      <div class="line-axis axis-d2"></div>
+      
+      <!-- A single accent node in the geometry -->
+      <div style="position: absolute; top: 15%; left: 85%; width: 30px; height: 30px; border: 1px solid var(--accent); border-radius: 50%;"></div>
+      <div style="position: absolute; top: 15%; left: 85%; width: 1px; height: 100px; background: var(--accent); transform: translateX(15px);"></div>
+    </div>
+
+    <div class="content-layer">
+      
+      <div class="section-label">Selected Works</div>
+
+      <article class="figure">
+        <div class="fig-header">
+          <span>FIG 1.0</span>
+          <span>ANNY.CO</span>
+        </div>
+        <div class="fig-body">
+          <h2 class="fig-title">The Booking Apparatus</h2>
+          <p class="fig-desc">
+            SaaS platform architecture serving enterprise nodes. Executed Nuxt 2→4 migration. Implemented command palettes, government queue management, and HR synchronizations across 15+ localizations.
+          </p>
+          <div class="fig-specs">
+            <span>NUXT 4</span>
+            <span>TYPESCRIPT</span>
+            <span>i18n</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="figure" style="transform: translateY(2rem);">
+        <div class="fig-header" style="background: var(--bg); color: var(--ink); border-bottom: 1px solid var(--ink);">
+          <span>FIG 1.1</span>
+          <span>CMD-BAR</span>
+        </div>
+        <div class="fig-body hatch-bg">
+          <div style="background: var(--bg); padding: 1rem; border: 1px solid var(--ink); height: 100%; display: flex; flex-direction: column;">
+            <h2 class="fig-title">Kinetic Interface</h2>
+            <p class="fig-desc">
+              Unstyled, extensible command interface for Vue 3. Keyboard-first navigation. Virtualized DOM rendering for vast datasets without frame loss.
+            </p>
+            <div class="fig-specs" style="border-top: none;">
+              <span>VUE 3</span>
+              <span>NPM PKG</span>
+            </div>
+          </div>
+        </div>
+      </article>
+      
+      <div class="section-label" style="margin-top: 3rem;">Recent Memos</div>
+
+      <article class="figure">
+        <div class="fig-header">
+          <span>FIG 2.0</span>
+          <span>MEMO // BLOG</span>
+        </div>
+        <div class="fig-body">
+          <h2 class="fig-title">Lazy-Loading SVGs</h2>
+          <p class="fig-desc">
+            Converting FontAwesome CommonJS icons to ESM for lazy CDN loading in Nuxt environments. Solved a 3+ minute build time regression.
+          </p>
+          <div class="fig-specs">
+            <span>PERFORMANCE</span>
+            <span>VUE</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="figure" style="transform: translateY(2rem);">
+        <div class="fig-header">
+          <span>FIG 2.1</span>
+          <span>MEMO // BLOG</span>
+        </div>
+        <div class="fig-body">
+          <h2 class="fig-title">Accessible Modals</h2>
+          <p class="fig-desc">
+            Implementing strict ARIA dialog patterns, focus traps, and alert dialogs within the Vue 3 component architecture.
+          </p>
+          <div class="fig-specs">
+            <span>A11Y</span>
+            <span>VUE</span>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </main>
+
+  <aside class="data-sidebar">
+    <div class="sidebar-header">Data Extract: Literary Intake</div>
+    
+    <div class="data-section hatch-accent">
+      <div style="background: var(--bg); border: 1px solid var(--ink); padding: 0.5rem; text-align: center;">
+        <div style="font-size: 2rem; font-family: var(--font-sans); font-weight: 300; color: var(--accent);">155</div>
+        <div class="data-label" style="color: var(--accent);">VOLUMES LOGGED</div>
+      </div>
+    </div>
+
+    <div class="data-section">
+      <div class="data-label">ACTIVE PROCESSING (FIG. 3)</div>
+      
+      <div class="book-record active">
+        <div>
+          <div>Project Hail Mary</div>
+          <div class="book-author">A. Weir</div>
+        </div>
+        <span>[RUN]</span>
+      </div>
+      
+      <div class="book-record active">
+        <div>
+          <div>Stories of Your Life</div>
+          <div class="book-author">T. Chiang</div>
+        </div>
+        <span>[RUN]</span>
+      </div>
+    </div>
+
+    <div class="data-section" style="flex-grow: 1;">
+      <div class="data-label">ARCHIVED SAMPLES (FIG. 4)</div>
+      
+      <div class="book-record">
+        <div>
+          <div>Book of the New Sun</div>
+          <div class="book-author">G. Wolfe</div>
+        </div>
+        <span>[OK]</span>
+      </div>
+      
+      <div class="book-record">
+        <div>
+          <div>Foundation</div>
+          <div class="book-author">I. Asimov</div>
+        </div>
+        <span>[OK]</span>
+      </div>
+      
+      <div class="book-record">
+        <div>
+          <div>Red Rising</div>
+          <div class="book-author">P. Brown</div>
+        </div>
+        <span>[OK]</span>
+      </div>
+    </div>
+  </aside>
+
+  <footer class="legend">
+    <div>
+      <span class="accent-node"></span>
+      <span>INDICATES ACTIVE SYSTEM / PRIMARY FOCUS</span>
+    </div>
+    <div>
+      <a href="https://github.com/fabkho" style="color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--ink);">INITIATE EXTERNAL LINK: GITHUB</a>
+    </div>
+  </footer>
+
+</div>
+
+</body>
+</html>

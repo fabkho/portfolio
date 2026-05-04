@@ -1,0 +1,370 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Codex of F. Kirchhoff</title>
+<style>
+:root {
+  /* Dying Earth Palette */
+  --void: oklch(12% 0.01 60);         /* Deep, dusty shadow */
+  --old-sun: oklch(45% 0.18 30);      /* Dull, dying red */
+  --tarnished-gold: oklch(65% 0.12 75);
+  --parchment: oklch(85% 0.03 80);    /* Bone/old paper */
+  --faded-ink: oklch(50% 0.05 70);
+  
+  /* Typography */
+  --font-mythic: 'Palatino Linotype', 'Book Antiqua', 'Georgia', serif;
+  --font-body: 'Garamond', 'Baskerville', 'Times New Roman', serif;
+  --font-ancient-tech: 'Courier New', Courier, monospace; /* The forgotten machine tongue */
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background-color: var(--void);
+  color: var(--parchment);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Texture: Dust and Stone */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 100;
+  mix-blend-mode: overlay;
+}
+
+/* The Dying Sun */
+.old-sun {
+  position: fixed;
+  top: -10vh;
+  right: -10vw;
+  width: 70vw;
+  height: 70vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--old-sun), transparent 60%);
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Layout - The Manuscript Scroll */
+.codex-wrapper {
+  max-width: 1000px;
+  margin: 4rem auto;
+  position: relative;
+  z-index: 10;
+  padding: 0 2rem;
+}
+
+.tome-border {
+  border: 2px solid var(--faded-ink);
+  padding: 4rem;
+  position: relative;
+  background: linear-gradient(180deg, rgba(20, 18, 16, 0.9), rgba(15, 13, 11, 0.95));
+  box-shadow: 0 0 50px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.8);
+}
+
+.tome-border::before, .tome-border::after {
+  content: '';
+  position: absolute;
+  inset: 10px;
+  border: 1px solid var(--tarnished-gold);
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* Header */
+.codex-header {
+  text-align: center;
+  margin-bottom: 5rem;
+  border-bottom: 1px solid var(--faded-ink);
+  padding-bottom: 3rem;
+  position: relative;
+}
+
+.guild-mark {
+  font-family: var(--font-ancient-tech);
+  font-size: 0.8rem;
+  color: var(--old-sun);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+}
+
+.artificer-name {
+  font-family: var(--font-mythic);
+  font-size: clamp(3rem, 6vw, 5rem);
+  font-weight: normal;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--tarnished-gold);
+  line-height: 1;
+  text-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+}
+
+.artificer-title {
+  font-family: var(--font-mythic);
+  font-style: italic;
+  font-size: 1.5rem;
+  color: var(--parchment);
+  margin-top: 1rem;
+}
+
+/* Drop Cap & Intro */
+.prologue {
+  font-size: 1.25rem;
+  line-height: 1.8;
+  margin-bottom: 4rem;
+  text-align: justify;
+}
+
+.prologue::first-letter {
+  float: left;
+  font-family: var(--font-mythic);
+  font-size: 6rem;
+  line-height: 0.8;
+  padding-right: 1rem;
+  color: var(--old-sun);
+  text-transform: uppercase;
+}
+
+/* Grid for Mechanisms (Projects) & Tomes (Books) */
+.layout-grid {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 4rem;
+}
+
+.section-title {
+  font-family: var(--font-mythic);
+  font-size: 2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--tarnished-gold);
+  margin-bottom: 3rem;
+  text-align: center;
+  position: relative;
+}
+
+.section-title::before, .section-title::after {
+  content: '♦';
+  font-size: 1rem;
+  color: var(--old-sun);
+  margin: 0 1rem;
+  vertical-align: middle;
+}
+
+/* Mechanisms (Projects) */
+.mechanisms {
+  display: flex;
+  flex-direction: column;
+  gap: 3.5rem;
+}
+
+.relic {
+  position: relative;
+}
+
+.relic-name {
+  font-family: var(--font-mythic);
+  font-size: 1.8rem;
+  color: var(--parchment);
+  margin-bottom: 0.5rem;
+}
+
+.relic-tech {
+  font-family: var(--font-ancient-tech);
+  font-size: 0.75rem;
+  color: var(--old-sun);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.relic-desc {
+  font-size: 1.1rem;
+  color: rgba(232, 220, 196, 0.8);
+  text-align: justify;
+}
+
+/* Books / Archives */
+.archive {
+  border-left: 1px solid var(--faded-ink);
+  padding-left: 3rem;
+}
+
+.tome {
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.tome::before {
+  content: '';
+  position: absolute;
+  left: -3rem;
+  top: 0.5rem;
+  width: 1rem;
+  height: 1px;
+  background-color: var(--tarnished-gold);
+}
+
+.tome-title {
+  font-family: var(--font-mythic);
+  font-size: 1.4rem;
+  color: var(--tarnished-gold);
+  line-height: 1.2;
+}
+
+.tome-author {
+  font-style: italic;
+  color: rgba(232, 220, 196, 0.6);
+  margin-top: 0.25rem;
+}
+
+.tome-status {
+  font-family: var(--font-ancient-tech);
+  font-size: 0.65rem;
+  color: var(--old-sun);
+  margin-top: 0.5rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Footer Link */
+.portal-link {
+  display: block;
+  text-align: center;
+  margin-top: 6rem;
+  padding-top: 3rem;
+  border-top: 1px solid var(--faded-ink);
+  font-family: var(--font-ancient-tech);
+  color: var(--old-sun);
+  text-decoration: none;
+  font-size: 0.9rem;
+  letter-spacing: 0.2em;
+  transition: color 0.3s;
+}
+
+.portal-link:hover {
+  color: var(--tarnished-gold);
+}
+
+@media (max-width: 900px) {
+  .layout-grid { grid-template-columns: 1fr; gap: 4rem; }
+  .archive { border-left: none; padding-left: 0; border-top: 1px solid var(--faded-ink); padding-top: 4rem; }
+  .tome::before { display: none; }
+  .tome-border { padding: 2rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="old-sun"></div>
+
+<main class="codex-wrapper">
+  <div class="tome-border">
+    
+    <header class="codex-header">
+      <div class="guild-mark">Guild of the Full-Stack // Node.DE</div>
+      <h1 class="artificer-name">Fabian Kirchhoff</h1>
+      <div class="artificer-title">Artificer of the Late Age</div>
+    </header>
+
+    <div class="prologue">
+      Herein lies the ledger of a builder in the waning days of the network. While many rely on bloated incantations, I forge mechanisms of restraint and clarity. My disciplines involve the ancient rites of Vue, Nuxt, and TypeScript. I construct architectures that respect the machine spirit, ensuring the portals open swiftly and the data flows unimpeded.
+    </div>
+
+    <div class="layout-grid">
+      
+      <!-- Left Column: The Mechanisms (Projects) -->
+      <section class="mechanisms">
+        <h2 class="section-title">Recovered Mechanisms</h2>
+        
+        <article class="relic">
+          <h3 class="relic-name">The Anny.co Apparatus</h3>
+          <span class="relic-tech">[ Nuxt_4 / State_Orchestration ]</span>
+          <p class="relic-desc">
+            A grand logistical mechanism, coordinating the scheduling movements of thousands across fifteen tongues. I guided its ascension from the Second to the Fourth iteration of Nuxt, weaving complex queue logic for the bureaucratic state and syncing with enterprise registries.
+          </p>
+        </article>
+
+        <article class="relic">
+          <h3 class="relic-name">Cmd-Bar Protocol</h3>
+          <span class="relic-tech">[ Vue_3 / Keyboard_Interface ]</span>
+          <p class="relic-desc">
+            A kinetic interface of pure thought. It bypasses the crude ocular sensors, reacting only to the cadence of the keys. Completely unstyled yet structurally infinite, relying on virtualized memory to render vast arrays without faltering.
+          </p>
+        </article>
+
+        <article class="relic">
+          <h3 class="relic-name">Nuxt-i18n-kit</h3>
+          <span class="relic-tech">[ Machine_Translation / AST ]</span>
+          <p class="relic-desc">
+            A Rosetta Stone bound to a captive machine mind. It parses the syntax tree of our applications, extracts the hidden lexicon, and forces external intelligences (LLMs) to bridge the linguistic divide autonomously.
+          </p>
+        </article>
+
+        <article class="relic">
+          <h3 class="relic-name">The Reading Terminal</h3>
+          <span class="relic-tech">[ CLI / SQLite_Memory ]</span>
+          <p class="relic-desc">
+            A hermetic vault for logging the lore I have consumed. A pure command-line interface interfacing with a stone-solid SQLite foundation. It holds the records of 155 past worlds.
+          </p>
+        </article>
+      </section>
+
+      <!-- Right Column: The Tomes (Books) -->
+      <aside class="archive">
+        <h2 class="section-title">The Archive</h2>
+        
+        <div style="font-family: var(--font-ancient-tech); font-size: 0.8rem; color: var(--faded-ink); text-align: center; margin-bottom: 3rem; letter-spacing: 0.1em;">
+          VOLUMES ASSIMILATED: 98<br>
+          RECORDS LOGGED: 155
+        </div>
+
+        <article class="tome">
+          <h3 class="tome-title">The Book of the New Sun</h3>
+          <div class="tome-author">Penned by Gene Wolfe</div>
+          <div class="tome-status">Status: Sacred Memory</div>
+        </article>
+
+        <article class="tome">
+          <h3 class="tome-title">Stories of Your Life and Others</h3>
+          <div class="tome-author">Penned by Ted Chiang</div>
+          <div class="tome-status">Status: Active Divination</div>
+        </article>
+
+        <article class="tome">
+          <h3 class="tome-title">Project Hail Mary</h3>
+          <div class="tome-author">Penned by Andy Weir</div>
+          <div class="tome-status">Status: Active Divination</div>
+        </article>
+        
+        <article class="tome" style="opacity: 0.6;">
+          <h3 class="tome-title">Foundation</h3>
+          <div class="tome-author">Penned by Isaac Asimov</div>
+          <div class="tome-status">Status: Archived Epoch</div>
+        </article>
+      </aside>
+
+    </div>
+
+    <a href="https://github.com/fabkho" class="portal-link">
+      [ INITIATE ASTRAL CONNECTION TO GITHUB ]
+    </a>
+
+  </div>
+</main>
+
+</body>
+</html>
