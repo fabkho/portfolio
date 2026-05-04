@@ -1,5 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+
   modules: [
     '@nuxt/eslint',
     '@nuxt/content',
@@ -20,10 +21,15 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  site: {
+    url: 'https://fabkho.dev',
+    name: 'Fabian Kirchhoff',
+    description: 'Full-stack developer. Open-source contributor.'
+  },
+
   routeRules: {
     '/': { prerender: true }
   },
-
   compatibilityDate: '2025-01-15',
 
   eslint: {
@@ -54,11 +60,5 @@ export default defineNuxtConfig({
       owner: 'fabkho',
       url: 'https://github.com/fabkho/portfolio'
     }
-  },
-
-  site: {
-    url: 'https://fabkho.dev',
-    name: 'Fabian Kirchhoff',
-    description: 'Full-stack developer. Open-source contributor.'
   }
 })

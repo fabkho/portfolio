@@ -1,5 +1,5 @@
 <template>
-  <div class="drafting-board paper-texture mx-auto max-w-[var(--max-width-board)] border border-ink p-8 min-h-[100dvh]">
+  <div class="drafting-board paper-texture mx-auto max-w-(--max-width-board) border border-ink p-8 min-h-[100dvh]">
     <TheHeader />
     <div class="sidebar-grid">
       <main id="main-content">

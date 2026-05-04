@@ -24,7 +24,7 @@
 }
 
 /* Utility classes */
-.hatch-ink {
+@utility hatch-ink {
   background-image: repeating-linear-gradient(
     -45deg,
     transparent,
@@ -34,7 +34,7 @@
   );
 }
 
-.hatch-accent {
+@utility hatch-accent {
   background-image: repeating-linear-gradient(
     -45deg,
     transparent,
@@ -44,7 +44,7 @@
   );
 }
 
-.paper-texture {
+@utility paper-texture {
   position: relative;
 }
 

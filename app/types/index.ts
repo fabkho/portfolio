@@ -28,7 +28,7 @@ export interface BookStats {
   done: number
   dnf: number
   currentlyReading: Book[]
-  topAuthors: { name: string; count: number }[]
+  topAuthors: { name: string, count: number }[]
 }
 
 export interface TocItem {

@@ -24,6 +24,7 @@
   pointer-events: none;
   opacity: 0.15;
   z-index: 0;
+  overflow: hidden;
 }
 
 .circle {
