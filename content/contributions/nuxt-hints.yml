@@ -1,0 +1,3 @@
+project: "@nuxt/hints"
+pr: "fix: respect `app.baseURL` in devtools iframe src"
+url: "https://github.com/nuxt/hints/pull/322"

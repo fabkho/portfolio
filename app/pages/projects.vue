@@ -27,12 +27,12 @@ const { data: contributions } = await useAsyncData('contributions', () =>
       />
     </ContentGrid>
 
-    <div class="mt-16">
+    <div
+      v-if="contributions != null"
+      class="mt-16"
+    >
       <SectionLabel label="Open Source Contributions" />
-      <ContributionList
-        v-if="contributions"
-        :contributions="contributions"
-      />
+      <ContributionList :contributions="contributions" />
     </div>
   </div>
 </template>

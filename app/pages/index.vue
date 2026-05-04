@@ -33,7 +33,7 @@ const { data: contributions } = await useAsyncData('home-contributions', () =>
     <div class="mt-16">
       <SectionLabel label="Open Source Contributions" />
       <ContributionList
-        v-if="contributions"
+        v-if="contributions?.length"
         :contributions="contributions"
       />
     </div>

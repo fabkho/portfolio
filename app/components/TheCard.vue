@@ -8,6 +8,8 @@ defineProps<{
   url?: string
   variant?: 'default' | 'hatched'
 }>()
+
+const NuxtLinkComp = resolveComponent('NuxtLink')
 </script>
 
 <template>
@@ -16,7 +18,7 @@ defineProps<{
     :class="{ 'the-card--has-url': !!url }"
   >
     <component
-      :is="url?.startsWith('/') ? resolveComponent('NuxtLink') : url ? 'a' : 'div'"
+      :is="url?.startsWith('/') ? NuxtLinkComp : url ? 'a' : 'div'"
       :href="url && !url.startsWith('/') ? url : undefined"
       :to="url?.startsWith('/') ? url : undefined"
       :target="url && !url.startsWith('/') ? '_blank' : undefined"

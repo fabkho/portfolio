@@ -20,21 +20,15 @@ const subtitle = useRouteSubtitle()
         rel="noopener noreferrer"
         class="meta-link"
       >
-        GitHub
+        GitHub ↗
       </a>
       <a
-        href="https://linkedin.com/in/fabkho"
+        href="https://x.com/fabkho"
         target="_blank"
         rel="noopener noreferrer"
         class="meta-link"
       >
-        LinkedIn
-      </a>
-      <a
-        href="mailto:hello@fabkho.dev"
-        class="meta-link"
-      >
-        Contact
+        X / Twitter ↗
       </a>
     </div>
 
@@ -80,26 +74,24 @@ const subtitle = useRouteSubtitle()
 }
 
 .meta {
-  min-width: 120px;
+  min-width: 140px;
   font-size: var(--text-xs);
+  font-family: var(--font-mono);
   text-transform: uppercase;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 0.4rem;
+  justify-content: flex-end;
+  gap: 0.3rem;
 }
 
 .meta-link {
   color: var(--color-ink);
   text-decoration: none;
-  border-bottom: 1px solid var(--color-ink-faint);
-  padding-bottom: 0.1rem;
-  transition: color 0.2s, border-color 0.2s;
+  transition: color 0.2s;
 }
 
 .meta-link:hover {
   color: var(--color-accent);
-  border-color: var(--color-accent);
 }
 
 .nav-cell {
