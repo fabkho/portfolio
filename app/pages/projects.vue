@@ -28,7 +28,7 @@ const { data: contributions } = await useAsyncData('contributions', () =>
     </ContentGrid>
 
     <div
-      v-if="contributions != null"
+      v-if="contributions?.length"
       class="mt-16"
     >
       <SectionLabel label="Open Source Contributions" />

@@ -30,12 +30,12 @@ const { data: contributions } = await useAsyncData('home-contributions', () =>
       />
     </ContentGrid>
 
-    <div class="mt-16">
+    <div
+      v-if="contributions?.length"
+      class="mt-16"
+    >
       <SectionLabel label="Open Source Contributions" />
-      <ContributionList
-        v-if="contributions?.length"
-        :contributions="contributions"
-      />
+      <ContributionList :contributions="contributions" />
     </div>
 
     <div class="mt-16">
