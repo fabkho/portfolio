@@ -1,9 +1,18 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+
   modules: [
     '@nuxt/eslint',
-    '@nuxt/ui',
-    '@nuxt/content'
+    '@nuxt/content',
+    '@nuxt/fonts',
+    '@nuxt/image',
+    '@nuxt/a11y',
+    '@nuxt/hints',
+    '@nuxtjs/seo',
+    '@nuxthub/core',
+    '@vueuse/nuxt',
+    'nuxt-studio',
+    '@nuxt/test-utils/module'
   ],
 
   devtools: {
@@ -12,10 +21,15 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  site: {
+    url: 'https://fabkho.dev',
+    name: 'Fabian Kirchhoff',
+    description: 'Full-stack developer. Open-source contributor.'
+  },
+
   routeRules: {
     '/': { prerender: true }
   },
-
   compatibilityDate: '2025-01-15',
 
   eslint: {
@@ -24,6 +38,28 @@ export default defineNuxtConfig({
         commaDangle: 'never',
         braceStyle: '1tbs'
       }
+    }
+  },
+
+  fonts: {
+    families: [
+      {
+        name: 'IBM Plex Mono',
+        weights: [400, 500, 600, 700]
+      },
+      {
+        name: 'Inter',
+        weights: [300, 400, 500, 600, 700]
+      }
+    ]
+  },
+
+  studio: {
+    repository: {
+      provider: 'github',
+      owner: 'fabkho',
+      repo: 'portfolio',
+      branch: 'main'
     }
   }
 })

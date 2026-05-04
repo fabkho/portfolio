@@ -1,18 +1,75 @@
 @import "tailwindcss";
-@import "@nuxt/ui";
 
 @theme static {
-  --font-sans: 'Public Sans', sans-serif;
+  --color-bg: #F5F2EB;
+  --color-ink: #2C2C2A;
+  --color-ink-muted: #6B6B69;
+  --color-ink-faint: rgba(44, 44, 42, 0.4);
+  --color-accent: #B93E2E;
+  --color-accent-light: #E8665A;
+  --color-accent-faint: rgba(185, 62, 46, 0.4);
 
-  --color-green-50: #EFFDF5;
-  --color-green-100: #D9FBE8;
-  --color-green-200: #B3F5D1;
-  --color-green-300: #75EDAE;
-  --color-green-400: #00DC82;
-  --color-green-500: #00C16A;
-  --color-green-600: #00A155;
-  --color-green-700: #007F45;
-  --color-green-800: #016538;
-  --color-green-900: #0A5331;
-  --color-green-950: #052E16;
+  --font-mono: 'IBM Plex Mono', 'Courier New', Courier, monospace;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Times New Roman', Times, serif;
+
+  --max-width-board: 1400px;
+  --sidebar-width: 320px;
+
+  --text-2xs: 0.65rem;
+  --text-xs: 0.7rem;
+  --text-sm: 0.75rem;
+  --text-base: 0.85rem;
+  --text-md: 0.9rem;
+  --text-lg: 1rem;
+  --text-xl: 1.2rem;
+  --text-2xl: 2rem;
+  --text-3xl: 2.5rem;
+  --text-4xl: clamp(2rem, 5vw, 3rem);
+}
+
+/* Utility classes */
+@utility hatch-ink {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--color-ink-faint),
+    var(--color-ink-faint) 1px,
+    transparent 1px,
+    transparent 6px
+  );
+}
+
+@utility hatch-accent {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--color-accent-faint),
+    var(--color-accent-faint) 1px,
+    transparent 1px,
+    transparent 6px
+  );
+}
+
+@utility paper-texture {
+  position: relative;
+}
+
+.paper-texture::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: -1;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Base styles */
+body {
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
