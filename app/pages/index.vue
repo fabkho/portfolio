@@ -10,6 +10,13 @@ const { data: contributions } = await useAsyncData('home-contributions', () =>
   queryCollection('contributions')
     .all()
 )
+
+const { data: latestPost } = await useAsyncData('latest-post', () =>
+  queryCollection('blog')
+    .where('status', '=', 'published')
+    .order('date', 'DESC')
+    .first()
+)
 </script>
 
 <template>
@@ -42,6 +49,15 @@ const { data: contributions } = await useAsyncData('home-contributions', () =>
       <SectionLabel label="Recent Memos" />
       <ContentGrid>
         <TheCard
+          v-if="latestPost"
+          :tag="latestPost.tag"
+          :title="latestPost.title"
+          :description="latestPost.description"
+          :specs="latestPost.specs"
+          :url="latestPost.path"
+        />
+        <TheCard
+          v-else
           tag="MEMO // BLOG"
           title="Coming soon"
           description="Technical articles on Vue, accessibility, and performance."

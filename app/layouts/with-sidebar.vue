@@ -1,28 +1,58 @@
 <template>
-  <div class="drafting-board paper-texture mx-auto max-w-(--max-width-board) border border-ink p-8 min-h-[100dvh]">
+  <div class="drafting-board paper-texture">
     <TheHeader />
-    <div class="sidebar-grid">
-      <main id="main-content">
+    <main id="main-content" class="schematic-area">
+      <SchematicBackground />
+      <div class="relative z-10">
         <slot />
-      </main>
-      <aside>
-        <slot name="sidebar" />
-      </aside>
-    </div>
+      </div>
+    </main>
+    <aside class="data-sidebar">
+      <slot name="sidebar" />
+    </aside>
     <TheFooter />
   </div>
 </template>
 
 <style scoped>
-.sidebar-grid {
+.drafting-board {
+  max-width: var(--max-width-board);
+  margin: 0 auto;
+  border: 1px solid var(--color-ink);
+  padding: 1rem;
   display: grid;
   grid-template-columns: 1fr var(--sidebar-width);
-  gap: 2rem;
+  grid-template-rows: auto 1fr auto;
+  min-height: calc(100vh - 4rem);
+  gap: 1rem;
+}
+
+.schematic-area {
+  grid-column: 1 / 2;
+  border: 1px solid var(--color-ink);
+  position: relative;
+  padding: 2rem;
+  overflow: hidden;
+}
+
+.data-sidebar {
+  grid-column: 2 / 3;
+  border: 1px solid var(--color-ink);
+  display: flex;
+  flex-direction: column;
 }
 
 @media (max-width: 1024px) {
-  .sidebar-grid {
+  .drafting-board {
     grid-template-columns: 1fr;
+  }
+
+  .schematic-area {
+    grid-column: 1 / -1;
+  }
+
+  .data-sidebar {
+    grid-column: 1 / -1;
   }
 }
 </style>

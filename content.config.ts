@@ -33,6 +33,7 @@ export default defineContentConfig({
         title: z.string(),
         description: z.string(),
         date: z.string(),
+        author: z.string().default('Fabian Kirchhoff'),
         specs: z.array(z.string()).optional(),
         status: z.enum(['draft', 'published']).default('published')
       })
