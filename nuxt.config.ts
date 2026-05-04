@@ -55,10 +55,11 @@ export default defineNuxtConfig({
   },
 
   studio: {
-    gitInfo: {
-      name: 'portfolio',
+    repository: {
+      provider: 'github',
       owner: 'fabkho',
-      url: 'https://github.com/fabkho/portfolio'
+      repo: 'portfolio',
+      branch: 'main'
     }
   }
 })
