@@ -1,4 +1,5 @@
 tag: "CLI TOOL"
+label: "READING-TRACKER"
 title: "Reading Tracker"
 description: "CLI application for tracking reading progress via SQLite."
 specs: ["TYPESCRIPT", "CLI", "SQLITE"]

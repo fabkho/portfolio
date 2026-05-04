@@ -1,4 +1,5 @@
 tag: "PI EXTENSIONS"
+label: "PI-MULTIREPO"
 title: "Pi Multirepo"
 description: "Multi-repository workspace tooling for the Pi coding agent."
 specs: ["TYPESCRIPT", "CLI", "AI"]

@@ -1,15 +1,159 @@
 <template>
-  <div class="drafting-board paper-texture mx-auto max-w-(--max-width-board) border border-ink p-8 min-h-[100dvh]">
+  <div class="drafting-board paper-texture">
     <TheHeader />
     <main
       id="main-content"
-      class="relative"
+      class="schematic-area"
     >
       <SchematicBackground />
       <div class="relative z-10">
         <slot />
       </div>
     </main>
+    <aside class="data-sidebar">
+      <slot name="sidebar">
+        <div class="sidebar-header">
+          Data Extract: Intake
+        </div>
+        <div class="data-section hatch-accent">
+          <div class="data-section__inner">
+            <div class="data-section__value">
+              6
+            </div>
+            <div class="data-section__label">
+              PROJECTS LOGGED
+            </div>
+          </div>
+        </div>
+        <div class="data-section">
+          <div class="data-label">
+            CURRENT STACK
+          </div>
+          <div class="sidebar-record">
+            <span>Vue / Nuxt / TypeScript</span>
+          </div>
+          <div class="sidebar-record">
+            <span>Node / Laravel</span>
+          </div>
+        </div>
+        <div class="data-section data-section--grow">
+          <div class="data-label">
+            STATUS
+          </div>
+          <div class="sidebar-record active">
+            <span>Open to opportunities</span>
+            <span>[RUN]</span>
+          </div>
+        </div>
+      </slot>
+    </aside>
     <TheFooter />
   </div>
 </template>
+
+<style scoped>
+.drafting-board {
+  max-width: var(--max-width-board);
+  margin: 0 auto;
+  border: 1px solid var(--color-ink);
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: 1fr var(--sidebar-width);
+  grid-template-rows: auto 1fr auto;
+  min-height: calc(100vh - 4rem);
+  gap: 1rem;
+}
+
+.schematic-area {
+  grid-column: 1 / 2;
+  border: 1px solid var(--color-ink);
+  position: relative;
+  padding: 2rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.data-sidebar {
+  grid-column: 2 / 3;
+  border: 1px solid var(--color-ink);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-ink);
+  font-weight: bold;
+  text-transform: uppercase;
+  text-align: center;
+  font-size: var(--text-sm);
+}
+
+.data-section {
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-ink);
+}
+
+.data-section:last-child {
+  border-bottom: none;
+}
+
+.data-section--grow {
+  flex-grow: 1;
+}
+
+.data-section__inner {
+  background: var(--color-bg);
+  border: 1px solid var(--color-ink);
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.data-section__value {
+  font-size: var(--text-2xl);
+  font-family: var(--font-sans);
+  font-weight: 300;
+  color: var(--color-accent);
+}
+
+.data-section__label {
+  font-size: var(--text-2xs);
+  color: var(--color-accent);
+}
+
+.data-label {
+  font-size: var(--text-2xs);
+  color: var(--color-ink-faint);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.sidebar-record {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 1px dotted var(--color-ink-faint);
+  padding: 0.5rem 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+}
+
+.sidebar-record.active {
+  color: var(--color-accent);
+}
+
+@media (max-width: 1024px) {
+  .drafting-board {
+    grid-template-columns: 1fr;
+  }
+
+  .schematic-area {
+    grid-column: 1 / -1;
+  }
+
+  .data-sidebar {
+    grid-column: 1 / -1;
+  }
+}
+</style>

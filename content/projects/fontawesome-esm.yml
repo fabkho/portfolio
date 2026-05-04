@@ -1,4 +1,5 @@
 tag: "BUILD TOOL"
+label: "FONTAWESOME-ESM"
 title: "FontAwesome ESM"
 description: "Converts FontAwesome CommonJS icons to ES Modules for lazy CDN loading."
 specs: ["ROLLUP", "NPM", "VUE"]

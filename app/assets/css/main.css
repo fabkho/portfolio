@@ -100,6 +100,7 @@ body {
   color: var(--color-ink);
   font-family: var(--font-mono);
   line-height: 1.4;
+  padding: 2rem;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

@@ -7,6 +7,7 @@ export default defineContentConfig({
       type: 'data',
       schema: z.object({
         tag: z.string(),
+        label: z.string().optional(),
         title: z.string(),
         description: z.string(),
         specs: z.array(z.string()),

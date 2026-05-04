@@ -1,4 +1,5 @@
 tag: "NUXT MODULE"
+label: "I18N-KIT"
 title: "The I18n Kit"
 description: "A complete i18n toolkit for Nuxt — extraction, validation, and AI-powered translation."
 specs: ["NUXT", "TYPESCRIPT", "AI"]

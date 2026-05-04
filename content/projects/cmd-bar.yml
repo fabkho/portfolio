@@ -1,4 +1,5 @@
 tag: "VUE COMPONENT"
+label: "CMD-BAR"
 title: "cmd-bar"
 description: "Unstyled, extensible command palette for Vue 3 with virtualized lists."
 specs: ["VUE 3", "NPM", "TYPESCRIPT"]

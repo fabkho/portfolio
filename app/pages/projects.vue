@@ -12,13 +12,14 @@ const { data: contributions } = await useAsyncData('contributions', () =>
 </script>
 
 <template>
-  <div class="py-8">
+  <div>
     <SectionLabel label="Constructed Mechanisms" />
     <ContentGrid>
       <TheCard
         v-for="project in projects"
         :key="project.id"
         :tag="project.tag"
+        :label="project.label"
         :title="project.title"
         :description="project.description"
         :specs="project.specs"
