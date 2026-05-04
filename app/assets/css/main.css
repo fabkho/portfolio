@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@theme static {
+@theme {
   --color-bg: #F5F2EB;
   --color-ink: #2C2C2A;
   --color-ink-muted: #6B6B69;
