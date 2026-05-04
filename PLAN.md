@@ -14,6 +14,8 @@ All design tokens are defined in `app/assets/css/main.css` via Tailwind v4's `@t
 - Always use CSS variables when referencing design tokens — in Tailwind classes or in scoped styles
 - Never hardcode hex values in components
 - Tailwind classes for layout/spacing, scoped styles with `var()` for complex visuals (hatching, textures, animations)
+- `@tailwindcss/vite` must be installed and registered in `nuxt.config.ts` under `vite: { plugins: [tailwindcss()] }` — this is what processes Tailwind (NuxtUI used to provide this)
+- Tokens are defined TWICE: in `:root` (for scoped component styles to access via `var()`) and in `@theme static` (for Tailwind utility class generation). Both blocks have identical values.
 
 ### Tokens
 
