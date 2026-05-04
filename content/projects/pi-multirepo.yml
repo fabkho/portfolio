@@ -1,0 +1,7 @@
+tag: "PI EXTENSIONS"
+title: "Pi Multirepo"
+description: "Multi-repository workspace tooling for the Pi coding agent."
+specs: ["TYPESCRIPT", "CLI", "AI"]
+url: "https://github.com/fabkho/pi-multirepo"
+featured: true
+order: 2
