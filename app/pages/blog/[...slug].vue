@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { flattenToc } from '~/utils/flattenToc'
+
 definePageMeta({
   layout: false
 })
@@ -24,25 +26,13 @@ const tocItems = computed(() => {
   return flattenToc(post.value.body.toc.links)
 })
 
-interface TocLink {
-  id: string
-  text: string
-  children?: TocLink[]
-}
-
-function flattenToc(links: TocLink[], depth = 2): { id: string, text: string, depth: number }[] {
-  const result: { id: string, text: string, depth: number }[] = []
-  for (const link of links) {
-    result.push({ id: link.id, text: link.text, depth })
-    if (link.children) {
-      result.push(...flattenToc(link.children, depth + 1))
-    }
-  }
-  return result
-}
-
-useHead({
-  title: post.value?.title
+useSeoMeta({
+  title: post.value?.title,
+  description: post.value?.description,
+  ogTitle: post.value?.title,
+  ogDescription: post.value?.description,
+  articleAuthor: post.value?.author ? [post.value.author] : undefined,
+  articlePublishedTime: post.value?.date
 })
 </script>
 
@@ -118,7 +108,7 @@ useHead({
 }
 
 .blog-article :deep(pre) {
-  background: #24292e;
+  background: var(--color-code-bg);
   padding: 1.5rem;
   font-family: var(--font-mono);
   font-size: var(--text-base);

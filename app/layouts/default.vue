@@ -1,3 +1,12 @@
+<script setup lang="ts">
+const { data: projects } = await useAsyncData('layout-project-count', () =>
+  queryCollection('projects')
+    .all()
+)
+
+const projectCount = computed(() => projects.value?.length ?? 0)
+</script>
+
 <template>
   <div class="drafting-board paper-texture">
     <TheHeader />
@@ -18,7 +27,7 @@
         <div class="data-section hatch-accent">
           <div class="data-section__inner">
             <div class="data-section__value">
-              6
+              {{ projectCount }}
             </div>
             <div class="data-section__label">
               PROJECTS LOGGED

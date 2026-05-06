@@ -1,5 +1,6 @@
 <template>
   <div
+    v-once
     aria-hidden="true"
     class="schematic"
   >
