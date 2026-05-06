@@ -35,11 +35,12 @@ const NuxtLinkComp = resolveComponent('NuxtLink')
           class="the-card__tag"
         >{{ label }}</span>
       </div>
-      <div
+      <WaveRipple
+        v-if="variant === 'hatched'"
+        mode="hover"
         class="the-card__body"
-        :class="{ 'hatch-ink': variant === 'hatched' }"
       >
-        <div :class="{ 'the-card__body-inner': variant === 'hatched' }">
+        <div class="the-card__body-inner">
           <h3 class="the-card__title">
             {{ title }}
           </h3>
@@ -56,6 +57,27 @@ const NuxtLinkComp = resolveComponent('NuxtLink')
               :label="spec"
             />
           </div>
+        </div>
+      </WaveRipple>
+      <div
+        v-else
+        class="the-card__body"
+      >
+        <h3 class="the-card__title">
+          {{ title }}
+        </h3>
+        <p class="the-card__description">
+          {{ description }}
+        </p>
+        <div
+          v-if="specs?.length"
+          class="the-card__specs"
+        >
+          <SpecBadge
+            v-for="spec in specs"
+            :key="spec"
+            :label="spec"
+          />
         </div>
       </div>
     </component>

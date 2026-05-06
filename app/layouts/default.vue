@@ -24,7 +24,11 @@ const projectCount = computed(() => projects.value?.length ?? 0)
         <div class="sidebar-header">
           Data Extract: Intake
         </div>
-        <div class="data-section hatch-accent">
+        <WaveRipple
+          mode="hover"
+          color="var(--color-accent-faint)"
+          class="data-section"
+        >
           <div class="data-section__inner">
             <div class="data-section__value">
               {{ projectCount }}
@@ -33,7 +37,7 @@ const projectCount = computed(() => projects.value?.length ?? 0)
               PROJECTS LOGGED
             </div>
           </div>
-        </div>
+        </WaveRipple>
         <div class="data-section">
           <div class="data-label">
             CURRENT STACK

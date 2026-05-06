@@ -10,7 +10,11 @@ defineProps<{
       All Posts
     </div>
 
-    <div class="data-section hatch-accent">
+    <WaveRipple
+      mode="hover"
+      color="var(--color-accent-faint)"
+      class="data-section"
+    >
       <div class="data-section__inner">
         <div class="data-section__value">
           {{ posts.length }}
@@ -19,7 +23,7 @@ defineProps<{
           MEMOS PUBLISHED
         </div>
       </div>
-    </div>
+    </WaveRipple>
 
     <div class="data-section data-section--grow">
       <div class="data-label">
