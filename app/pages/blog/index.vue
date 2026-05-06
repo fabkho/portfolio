@@ -9,13 +9,20 @@ const { data: posts } = await useAsyncData('all-posts', () =>
     .order('date', 'DESC')
     .all()
 )
+
+useSeoMeta({
+  title: 'Technical Memos',
+  description: 'Technical memos on Vue, Nuxt, accessibility, performance, and open-source engineering.',
+  ogTitle: 'Technical Memos | Fabian Kirchhoff',
+  ogDescription: 'Technical memos on Vue, Nuxt, accessibility, performance, and open-source engineering.'
+})
 </script>
 
 <template>
   <NuxtLayout name="with-sidebar">
     <div>
       <SectionLabel label="Technical Memos" />
-      <ContentGrid>
+      <ContentGrid v-if="posts?.length">
         <TheCard
           v-for="post in posts"
           :key="post.path"
@@ -26,6 +33,12 @@ const { data: posts } = await useAsyncData('all-posts', () =>
           :url="post.path"
         />
       </ContentGrid>
+      <p
+        v-else
+        class="empty-state"
+      >
+        No technical memos are published yet.
+      </p>
     </div>
 
     <template #sidebar>
@@ -36,3 +49,12 @@ const { data: posts } = await useAsyncData('all-posts', () =>
     </template>
   </NuxtLayout>
 </template>
+
+<style scoped>
+.empty-state {
+  border: 1px dashed var(--color-ink-faint);
+  color: var(--color-ink-muted);
+  font-family: var(--font-sans);
+  padding: 1rem;
+}
+</style>

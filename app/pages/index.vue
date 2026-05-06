@@ -17,6 +17,13 @@ const { data: latestPost } = await useAsyncData('latest-post', () =>
     .order('date', 'DESC')
     .first()
 )
+
+useSeoMeta({
+  title: 'Fabian Kirchhoff',
+  description: 'Full-stack developer portfolio featuring Vue, Nuxt, TypeScript, accessibility, and open-source work.',
+  ogTitle: 'Fabian Kirchhoff',
+  ogDescription: 'Full-stack developer portfolio featuring Vue, Nuxt, TypeScript, accessibility, and open-source work.'
+})
 </script>
 
 <template>
@@ -42,7 +49,9 @@ const { data: latestPost } = await useAsyncData('latest-post', () =>
       class="mt-16"
     >
       <SectionLabel label="Open Source Contributions" />
-      <ContributionList :contributions="contributions" />
+      <LazyContributionList
+        :contributions="contributions"
+      />
     </div>
 
     <div class="mt-16">

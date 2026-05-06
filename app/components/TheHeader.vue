@@ -1,5 +1,8 @@
-<script setup>
+<script setup lang="ts">
+import { isRouteActive, NAV_ITEMS } from '~/utils/navigation'
+
 const subtitle = useRouteSubtitle()
+const navItems = NAV_ITEMS
 </script>
 
 <template>
@@ -20,7 +23,7 @@ const subtitle = useRouteSubtitle()
         rel="noopener noreferrer"
         class="meta-link"
       >
-        GitHub ↗
+        GitHub <span aria-hidden="true">↗</span>
       </a>
       <a
         href="https://x.com/fabkho"
@@ -28,23 +31,18 @@ const subtitle = useRouteSubtitle()
         rel="noopener noreferrer"
         class="meta-link"
       >
-        X / Twitter ↗
+        X / Twitter <span aria-hidden="true">↗</span>
       </a>
     </div>
 
     <nav class="header-cell nav-cell">
       <NuxtLink
-        v-for="(link, index) in [
-          { to: '/', label: 'Home' },
-          { to: '/projects', label: 'Projects' },
-          { to: '/blog', label: 'Blog' },
-          { to: '/books', label: 'Books' }
-        ]"
+        v-for="(link, index) in navItems"
         :key="link.to"
         :to="link.to"
         class="nav-link"
         :style="{ animationDelay: `${index * 0.08}s` }"
-        :aria-current="$route.path === link.to ? 'page' : undefined"
+        :aria-current="isRouteActive($route.path, link.to) ? 'page' : undefined"
       >
         {{ link.label }}
       </NuxtLink>

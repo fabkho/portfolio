@@ -40,7 +40,18 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    '/': { prerender: true }
+    '/': { prerender: true },
+    '/projects': { prerender: true },
+    '/blog': { prerender: true },
+    '/blog/**': { prerender: true }
+  },
+
+  experimental: {
+    defaults: {
+      nuxtLink: {
+        prefetchOn: { interaction: true }
+      }
+    }
   },
   compatibilityDate: '2025-01-15',
 

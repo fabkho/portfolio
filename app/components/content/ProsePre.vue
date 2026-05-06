@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useClipboard } from '@vueuse/core'
+
 const props = defineProps<{
   code?: string
   language?: string
@@ -7,15 +9,11 @@ const props = defineProps<{
   class?: string
 }>()
 
-const copied = ref(false)
+const { copy, copied, isSupported } = useClipboard({ copiedDuring: 2000, legacy: true })
 
 async function copyCode() {
-  const text = props.code || ''
-  await navigator.clipboard.writeText(text)
-  copied.value = true
-  setTimeout(() => {
-    copied.value = false
-  }, 2000)
+  if (!isSupported.value) return
+  await copy(props.code || '')
 }
 </script>
 
@@ -25,7 +23,8 @@ async function copyCode() {
       <span class="code-lang">{{ filename || language || '' }}</span>
       <button
         class="copy-btn"
-        :aria-label="copied ? 'Copied' : 'Copy code'"
+        :aria-label="!isSupported ? 'Copy unavailable' : copied ? 'Copied' : 'Copy code'"
+        :disabled="!isSupported"
         @click="copyCode"
       >
         {{ copied ? '✓ copied' : '⎘ copy' }}
@@ -48,7 +47,7 @@ async function copyCode() {
   align-items: center;
   padding: 0.3rem 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: #24292e;
+  background: var(--color-code-bg);
 }
 
 .code-lang {
@@ -84,7 +83,7 @@ async function copyCode() {
   overflow-x: auto;
   font-family: var(--font-mono);
   font-size: var(--text-base);
-  background: #24292e;
+  background: var(--color-code-bg);
   color: #e1e4e8;
 }
 
