@@ -3,12 +3,14 @@
     <TheHeader />
     <main id="main-content" class="schematic-area">
       <SchematicBackground />
-      <div class="scroll-content">
+      <div class="main-content">
         <slot />
       </div>
     </main>
     <aside class="data-sidebar">
-      <slot name="sidebar" />
+      <div class="sidebar-sticky">
+        <slot name="sidebar" />
+      </div>
     </aside>
     <TheFooter />
   </div>
@@ -24,7 +26,6 @@
   grid-template-columns: 1fr var(--sidebar-width);
   grid-template-rows: auto 1fr auto;
   min-height: calc(100vh - 4rem);
-  height: calc(100vh - 4rem);
   gap: 1rem;
 }
 
@@ -32,82 +33,59 @@
   grid-column: 1 / 2;
   border: 1px solid var(--color-ink);
   position: relative;
+  padding: 2rem;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
 }
 
-.scroll-content {
+.main-content {
   position: relative;
   z-index: 10;
-  padding: 2rem;
-  overflow-y: auto;
-  flex: 1;
-
-  /* Custom scrollbar */
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-ink-faint) transparent;
-}
-
-.scroll-content::-webkit-scrollbar {
-  width: 6px;
-}
-
-.scroll-content::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.scroll-content::-webkit-scrollbar-thumb {
-  background-color: var(--color-ink-faint);
-  border-radius: 0;
-  border: 1px solid var(--color-bg);
-}
-
-.scroll-content::-webkit-scrollbar-thumb:hover {
-  background-color: var(--color-ink);
 }
 
 .data-sidebar {
   grid-column: 2 / 3;
   border: 1px solid var(--color-ink);
+}
+
+.sidebar-sticky {
+  position: sticky;
+  top: 2rem;
   display: flex;
   flex-direction: column;
+  max-height: calc(100vh - 4rem);
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--color-ink-faint) transparent;
 }
 
-.data-sidebar::-webkit-scrollbar {
-  width: 6px;
+.sidebar-sticky::-webkit-scrollbar {
+  width: 4px;
 }
 
-.data-sidebar::-webkit-scrollbar-track {
+.sidebar-sticky::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.data-sidebar::-webkit-scrollbar-thumb {
+.sidebar-sticky::-webkit-scrollbar-thumb {
   background-color: var(--color-ink-faint);
-  border-radius: 0;
 }
 
 @media (max-width: 1024px) {
   .drafting-board {
     grid-template-columns: 1fr;
-    height: auto;
-    min-height: 100vh;
   }
 
   .schematic-area {
     grid-column: 1 / -1;
-    overflow: visible;
-  }
-
-  .scroll-content {
-    overflow-y: visible;
   }
 
   .data-sidebar {
     grid-column: 1 / -1;
+  }
+
+  .sidebar-sticky {
+    position: static;
+    max-height: none;
   }
 }
 </style>
