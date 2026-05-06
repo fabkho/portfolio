@@ -84,4 +84,8 @@ async function copyCode() {
   font-size: var(--text-base);
   background: #24292e;
 }
+
+.code-block :deep(pre code .line span) {
+  filter: brightness(1.3);
+}
 </style>
