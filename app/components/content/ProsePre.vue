@@ -83,9 +83,13 @@ async function copyCode() {
   font-family: var(--font-mono);
   font-size: var(--text-base);
   background: #24292e;
+  color: #e1e4e8;
 }
 
 .code-block :deep(pre code .line span) {
-  filter: brightness(1.3);
+  color: var(--shiki-dark) !important;
+  font-style: var(--shiki-dark-font-style) !important;
+  font-weight: var(--shiki-dark-font-weight) !important;
+  text-decoration: var(--shiki-dark-text-decoration) !important;
 }
 </style>
