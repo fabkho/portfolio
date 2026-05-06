@@ -109,7 +109,7 @@ useHead({
 }
 
 .blog-article :deep(pre) {
-  background: #1e1e1e;
+  background: #24292e;
   padding: 1.5rem;
   font-family: var(--font-mono);
   font-size: var(--text-base);

@@ -46,7 +46,7 @@ async function copyCode() {
   align-items: center;
   padding: 0.3rem 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: #1e1e1e;
+  background: #24292e;
 }
 
 .code-lang {
@@ -82,6 +82,6 @@ async function copyCode() {
   overflow-x: auto;
   font-family: var(--font-mono);
   font-size: var(--text-base);
-  background: #1e1e1e;
+  background: #24292e;
 }
 </style>

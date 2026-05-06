@@ -33,7 +33,7 @@ export default defineNuxtConfig({
     build: {
       markdown: {
         shiki: {
-          theme: 'dark-plus'
+          theme: 'github-dark'
         }
       }
     }
