@@ -1,6 +1,30 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { BlogSidebar, ProsePre } from '#components'
+import { BlogArticle, BlogSidebar, ProsePre } from '#components'
 import { describe, expect, it } from 'vitest'
+
+describe('BlogArticle', () => {
+  it('renders content inside the article shell', async () => {
+    const wrapper = await mountSuspended(BlogArticle, {
+      props: {
+        value: {
+          title: 'Example memo',
+          body: { type: 'root', children: [] }
+        }
+      },
+      global: {
+        stubs: {
+          ContentRenderer: {
+            props: ['value'],
+            template: '<div data-test="content-renderer">{{ value.title }}</div>'
+          }
+        }
+      }
+    })
+
+    expect(wrapper.find('article.blog-article').exists()).toBe(true)
+    expect(wrapper.get('[data-test="content-renderer"]').text()).toBe('Example memo')
+  })
+})
 
 describe('BlogSidebar', () => {
   it('renders metadata and table-of-contents links', async () => {
