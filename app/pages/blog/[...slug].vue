@@ -58,9 +58,9 @@ useHead({
     <template #sidebar>
       <BlogSidebar
         v-if="post"
-        :author="post.author"
-        :date="post.date"
-        :status="post.status"
+        :author="post.author || 'Unknown'"
+        :date="post.date || ''"
+        :status="post.status || 'published'"
         :toc="tocItems"
       />
     </template>
