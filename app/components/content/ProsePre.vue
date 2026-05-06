@@ -13,7 +13,9 @@ async function copyCode() {
   const text = props.code || ''
   await navigator.clipboard.writeText(text)
   copied.value = true
-  setTimeout(() => { copied.value = false }, 2000)
+  setTimeout(() => {
+    copied.value = false
+  }, 2000)
 }
 </script>
 

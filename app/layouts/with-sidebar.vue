@@ -1,7 +1,10 @@
 <template>
   <div class="drafting-board paper-texture">
     <TheHeader />
-    <main id="main-content" class="schematic-area">
+    <main
+      id="main-content"
+      class="schematic-area"
+    >
       <SchematicBackground />
       <div class="main-content">
         <slot />

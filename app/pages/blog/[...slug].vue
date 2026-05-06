@@ -24,8 +24,14 @@ const tocItems = computed(() => {
   return flattenToc(post.value.body.toc.links)
 })
 
-function flattenToc(links: any[], depth = 2): { id: string; text: string; depth: number }[] {
-  const result: { id: string; text: string; depth: number }[] = []
+interface TocLink {
+  id: string
+  text: string
+  children?: TocLink[]
+}
+
+function flattenToc(links: TocLink[], depth = 2): { id: string, text: string, depth: number }[] {
+  const result: { id: string, text: string, depth: number }[] = []
   for (const link of links) {
     result.push({ id: link.id, text: link.text, depth })
     if (link.children) {
@@ -43,7 +49,10 @@ useHead({
 <template>
   <NuxtLayout name="with-sidebar">
     <article class="blog-article">
-      <ContentRenderer v-if="post" :value="post" />
+      <ContentRenderer
+        v-if="post"
+        :value="post"
+      />
     </article>
 
     <template #sidebar>

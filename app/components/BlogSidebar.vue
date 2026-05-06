@@ -3,7 +3,7 @@ defineProps<{
   author: string
   date: string
   status: string
-  toc: { id: string; text: string; depth: number }[]
+  toc: { id: string, text: string, depth: number }[]
 }>()
 
 const activeId = useActiveSection()
@@ -39,7 +39,7 @@ const activeId = useActiveSection()
           class="toc-link"
           :class="{
             'toc-link--active': activeId === item.id,
-            'toc-link--nested': item.depth > 2,
+            'toc-link--nested': item.depth > 2
           }"
         >
           {{ item.text }}

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineProps<{
-  posts: { path: string; title: string; date: string }[]
+  posts: { path: string, title: string, date: string }[]
 }>()
 </script>
 
