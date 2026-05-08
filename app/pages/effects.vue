@@ -57,7 +57,7 @@ function drawLines(
       // Sum displacement from active ripples
       let totalDisp = 0
       for (let r = 0; r < ripplesArr.length; r++) {
-        const ripple = ripplesArr[r]
+        const ripple = ripplesArr[r]!
         const elapsed = (now - ripple.time) / 1000
         const dist = Math.hypot(px - ripple.x, py - ripple.y)
         const waveRadius = elapsed * 160

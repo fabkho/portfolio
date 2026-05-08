@@ -70,7 +70,7 @@ function drawLines(canvas: HTMLCanvasElement, now: number) {
 
       let totalDisp = 0
       for (let r = 0; r < arr.length; r++) {
-        const ripple = arr[r]
+        const ripple = arr[r]!
         const elapsed = (now - ripple.time) / 1000
         const dist = Math.hypot(px - ripple.x, py - ripple.y)
         const distToWave = dist - elapsed * 160
