@@ -35,7 +35,11 @@ const navItems = NAV_ITEMS
       </a>
     </div>
 
-    <nav class="header-cell nav-cell">
+    <WaveRipple
+      mode="hover"
+      class="header-cell nav-cell"
+      tag="nav"
+    >
       <NuxtLink
         v-for="(link, index) in navItems"
         :key="link.to"
@@ -46,7 +50,7 @@ const navItems = NAV_ITEMS
       >
         {{ link.label }}
       </NuxtLink>
-    </nav>
+    </WaveRipple>
   </header>
 </template>
 
@@ -101,29 +105,6 @@ const navItems = NAV_ITEMS
   justify-content: center;
   gap: 0.4rem;
   padding: 1rem 1.25rem;
-}
-
-.nav-cell::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  right: -50%;
-  bottom: -50%;
-  background-image: repeating-linear-gradient(
-    45deg,
-    var(--color-ink-faint),
-    var(--color-ink-faint) 1px,
-    transparent 1px,
-    transparent 6px
-  );
-  z-index: 0;
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  transform-origin: center center;
-}
-
-.nav-cell:hover::before {
-  transform: scale(1.2) rotate(-15deg) skewX(25deg) skewY(-5deg);
 }
 
 @keyframes slideIn {
