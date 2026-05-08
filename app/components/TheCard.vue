@@ -39,6 +39,10 @@ const NuxtLinkComp = resolveComponent('NuxtLink')
         v-if="variant === 'hatched'"
         mode="hover"
         class="the-card__body"
+        :spacing="8"
+        :amplitude="8"
+        :lifetime="2000"
+        :still-threshold="180"
       >
         <div class="the-card__body-inner">
           <h3 class="the-card__title">

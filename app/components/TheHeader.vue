@@ -38,6 +38,10 @@ const navItems = NAV_ITEMS
     <WaveRipple
       mode="hover"
       class="header-cell nav-cell"
+      :spacing="8"
+      :amplitude="12"
+      :lifetime="1500"
+      :still-threshold="120"
       tag="nav"
     >
       <NuxtLink

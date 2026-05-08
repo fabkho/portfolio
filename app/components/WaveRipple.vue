@@ -25,6 +25,8 @@ const ripples = ref<{ x: number, y: number, time: number }[]>([])
 let raf: number
 let mouseStill = true
 let stillTimer: ReturnType<typeof setTimeout>
+const prefersReducedMotion = ref(false)
+const isCoarsePointer = ref(false)
 
 function drawLines(canvas: HTMLCanvasElement, now: number) {
   const ctx = canvas.getContext('2d')!
@@ -101,13 +103,17 @@ function loop(now: number) {
 }
 
 function spawnRipple(x: number, y: number) {
+  if (prefersReducedMotion.value || isCoarsePointer.value) return
   ripples.value.push({ x, y, time: performance.now() })
   if (ripples.value.length > props.maxRipples) ripples.value.shift()
   cancelAnimationFrame(raf)
   raf = requestAnimationFrame(loop)
 }
 
+const useStaticFallback = computed(() => prefersReducedMotion.value || isCoarsePointer.value)
+
 function initCanvas() {
+  if (useStaticFallback.value) return
   const canvas = canvasRef.value
   const wrapper = wrapperRef.value
   if (!canvas || !wrapper) return
@@ -144,6 +150,12 @@ function onClick(e: MouseEvent) {
 }
 
 onMounted(() => {
+  const motionMq = window.matchMedia('(prefers-reduced-motion: reduce)')
+  prefersReducedMotion.value = motionMq.matches
+  motionMq.addEventListener('change', e => prefersReducedMotion.value = e.matches)
+
+  isCoarsePointer.value = window.matchMedia('(pointer: coarse)').matches
+
   initCanvas()
   window.addEventListener('resize', initCanvas)
 })
@@ -159,10 +171,13 @@ onUnmounted(() => {
   <div
     ref="wrapperRef"
     class="wave-ripple"
+    :class="{ 'wave-ripple--static': useStaticFallback }"
+    :style="useStaticFallback && color ? { '--wave-ripple-color': color } : undefined"
     @mousemove="onMouseMove"
     @click="onClick"
   >
     <canvas
+      v-if="!useStaticFallback"
       ref="canvasRef"
       class="wave-ripple__canvas"
     />
@@ -185,6 +200,17 @@ onUnmounted(() => {
   left: 0;
   z-index: 0;
   pointer-events: none;
+}
+
+/* Static CSS fallback for touch devices and reduced motion */
+.wave-ripple--static {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--wave-ripple-color, var(--color-ink-faint, rgba(0, 0, 0, 0.12))),
+    var(--wave-ripple-color, var(--color-ink-faint, rgba(0, 0, 0, 0.12))) 1px,
+    transparent 1px,
+    transparent 6px
+  );
 }
 
 .wave-ripple__content {

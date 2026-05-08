@@ -14,6 +14,10 @@ defineProps<{
       mode="hover"
       color="var(--color-accent-faint)"
       class="data-section"
+      :spacing="8"
+      :amplitude="8"
+      :lifetime="2000"
+      :still-threshold="200"
     >
       <div class="data-section__inner">
         <div class="data-section__value">
