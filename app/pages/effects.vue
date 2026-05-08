@@ -1,10 +1,10 @@
 <script setup lang="ts">
 const canvas1Ref = ref<HTMLCanvasElement>()
-const ripples1 = ref<{ x: number; y: number; time: number }[]>([])
+const ripples1 = ref<{ x: number, y: number, time: number }[]>([])
 let raf1: number
 
 const canvas2Ref = ref<HTMLCanvasElement>()
-const ripples2 = ref<{ x: number; y: number; time: number }[]>([])
+const ripples2 = ref<{ x: number, y: number, time: number }[]>([])
 let raf2: number
 let mouseStill2 = true
 let stillTimer2: ReturnType<typeof setTimeout>
@@ -16,7 +16,7 @@ const STILL_THRESHOLD = 150 // ms without movement = "still"
 function drawLines(
   canvas: HTMLCanvasElement,
   now: number,
-  ripplesArr: { x: number; y: number; time: number }[],
+  ripplesArr: { x: number, y: number, time: number }[]
 ) {
   const ctx = canvas.getContext('2d')!
   const dpr = window.devicePixelRatio
@@ -31,8 +31,8 @@ function drawLines(
 
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
   ctx.clearRect(0, 0, w, h)
-  ctx.strokeStyle =
-    getComputedStyle(canvas).getPropertyValue('--line-color') || 'rgba(0,0,0,0.12)'
+  ctx.strokeStyle
+    = getComputedStyle(canvas).getPropertyValue('--line-color') || 'rgba(0,0,0,0.12)'
   ctx.lineWidth = 1
 
   const diag = Math.hypot(w, h)
@@ -94,7 +94,7 @@ function initCanvas(canvas: HTMLCanvasElement) {
 
 // Effect 1: Click
 function loop1(now: number) {
-  ripples1.value = ripples1.value.filter((r) => now - r.time < RIPPLE_LIFETIME)
+  ripples1.value = ripples1.value.filter(r => now - r.time < RIPPLE_LIFETIME)
   if (ripples1.value.length > 0) {
     drawLines(canvas1Ref.value!, now, ripples1.value)
     raf1 = requestAnimationFrame(loop1)
@@ -113,7 +113,7 @@ function onClick1(e: MouseEvent) {
 
 // Effect 2: Hover
 function loop2(now: number) {
-  ripples2.value = ripples2.value.filter((r) => now - r.time < RIPPLE_LIFETIME)
+  ripples2.value = ripples2.value.filter(r => now - r.time < RIPPLE_LIFETIME)
   if (ripples2.value.length > 0) {
     drawLines(canvas2Ref.value!, now, ripples2.value)
     raf2 = requestAnimationFrame(loop2)
@@ -136,15 +136,29 @@ function onMove2(e: MouseEvent) {
 
   // Reset still timer — if mouse stops for STILL_THRESHOLD ms, mark as still
   clearTimeout(stillTimer2)
-  stillTimer2 = setTimeout(() => { mouseStill2 = true }, STILL_THRESHOLD)
+  stillTimer2 = setTimeout(() => {
+    mouseStill2 = true
+  }, STILL_THRESHOLD)
 }
 
 onMounted(() => {
-  if (canvas1Ref.value) { initCanvas(canvas1Ref.value); drawLines(canvas1Ref.value, 0, []) }
-  if (canvas2Ref.value) { initCanvas(canvas2Ref.value); drawLines(canvas2Ref.value, 0, []) }
+  if (canvas1Ref.value) {
+    initCanvas(canvas1Ref.value)
+    drawLines(canvas1Ref.value, 0, [])
+  }
+  if (canvas2Ref.value) {
+    initCanvas(canvas2Ref.value)
+    drawLines(canvas2Ref.value, 0, [])
+  }
   window.addEventListener('resize', () => {
-    if (canvas1Ref.value) { initCanvas(canvas1Ref.value); drawLines(canvas1Ref.value, 0, []) }
-    if (canvas2Ref.value) { initCanvas(canvas2Ref.value); drawLines(canvas2Ref.value, 0, []) }
+    if (canvas1Ref.value) {
+      initCanvas(canvas1Ref.value)
+      drawLines(canvas1Ref.value, 0, [])
+    }
+    if (canvas2Ref.value) {
+      initCanvas(canvas2Ref.value)
+      drawLines(canvas2Ref.value, 0, [])
+    }
   })
 })
 
@@ -157,21 +171,39 @@ onUnmounted(() => {
 
 <template>
   <div class="effects-page">
-    <h1 class="page-title">Line Effects Playground</h1>
+    <h1 class="page-title">
+      Line Effects Playground
+    </h1>
 
     <section class="effect-section">
       <h2>1. Wave Ripple — Click</h2>
-      <p class="description">Click to spawn ripples.</p>
-      <div class="canvas-wrapper" @click="onClick1">
-        <canvas ref="canvas1Ref" class="effect-canvas" />
+      <p class="description">
+        Click to spawn ripples.
+      </p>
+      <div
+        class="canvas-wrapper"
+        @click="onClick1"
+      >
+        <canvas
+          ref="canvas1Ref"
+          class="effect-canvas"
+        />
       </div>
     </section>
 
     <section class="effect-section">
       <h2>2. Wave Ripple — Hover Trail</h2>
-      <p class="description">Stop mouse, then move — one ripple per pause. Max {{ MAX_RIPPLES }} active.</p>
-      <div class="canvas-wrapper" @mousemove="onMove2">
-        <canvas ref="canvas2Ref" class="effect-canvas" />
+      <p class="description">
+        Stop mouse, then move — one ripple per pause. Max {{ MAX_RIPPLES }} active.
+      </p>
+      <div
+        class="canvas-wrapper"
+        @mousemove="onMove2"
+      >
+        <canvas
+          ref="canvas2Ref"
+          class="effect-canvas"
+        />
       </div>
     </section>
   </div>

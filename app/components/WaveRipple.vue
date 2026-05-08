@@ -15,13 +15,13 @@ const props = withDefaults(
     amplitude: 10,
     maxRipples: 6,
     lifetime: 1800,
-    stillThreshold: 150,
-  },
+    stillThreshold: 150
+  }
 )
 
 const wrapperRef = ref<HTMLElement>()
 const canvasRef = ref<HTMLCanvasElement>()
-const ripples = ref<{ x: number; y: number; time: number }[]>([])
+const ripples = ref<{ x: number, y: number, time: number }[]>([])
 let raf: number
 let mouseStill = true
 let stillTimer: ReturnType<typeof setTimeout>
@@ -93,7 +93,7 @@ function drawLines(canvas: HTMLCanvasElement, now: number) {
 }
 
 function loop(now: number) {
-  ripples.value = ripples.value.filter((r) => now - r.time < props.lifetime)
+  ripples.value = ripples.value.filter(r => now - r.time < props.lifetime)
   drawLines(canvasRef.value!, now)
   if (ripples.value.length > 0) {
     raf = requestAnimationFrame(loop)
@@ -162,7 +162,10 @@ onUnmounted(() => {
     @mousemove="onMouseMove"
     @click="onClick"
   >
-    <canvas ref="canvasRef" class="wave-ripple__canvas" />
+    <canvas
+      ref="canvasRef"
+      class="wave-ripple__canvas"
+    />
     <div class="wave-ripple__content">
       <slot />
     </div>

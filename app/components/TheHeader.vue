@@ -107,8 +107,6 @@ const navItems = NAV_ITEMS
   padding: 1rem 1.25rem;
 }
 
-
-
 @keyframes slideIn {
   from {
     opacity: 0;
