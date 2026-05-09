@@ -1,6 +1,6 @@
 tag: CLI TOOL
 label: READING-TRACKER
-title: Reading Tracker Cli
+title: Reading Tracker CLI
 description: Track your reading progress from the terminal.
 specs:
   - TYPESCRIPT

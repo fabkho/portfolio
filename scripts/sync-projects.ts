@@ -23,8 +23,11 @@ interface ProjectOverride {
   featured?: boolean
   tag?: string
   label?: string
+  title?: string
   description?: string
   specs?: string[]
+  url?: string
+  private?: boolean
 }
 
 interface Config {
@@ -34,23 +37,45 @@ interface Config {
   }
 }
 
+const MAX_RETRIES = 3
+const RETRY_BASE_MS = 1000
+
+function isTransient(status: number): boolean {
+  return status === 429 || status >= 500
+}
+
+async function fetchWithRetry(url: string, headers: Record<string, string>): Promise<Response> {
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    try {
+      const res = await fetch(url, { headers })
+      if (res.ok || !isTransient(res.status)) return res
+      console.warn(`  ⚠ Transient error ${res.status}, retry ${attempt + 1}/${MAX_RETRIES}...`)
+    } catch (err) {
+      if (attempt === MAX_RETRIES - 1) throw err
+      console.warn(`  ⚠ Network error, retry ${attempt + 1}/${MAX_RETRIES}...`)
+    }
+    await new Promise(r => setTimeout(r, RETRY_BASE_MS * 2 ** attempt))
+  }
+  throw new Error(`Failed after ${MAX_RETRIES} retries: ${url}`)
+}
+
 async function fetchRepos(): Promise<GitHubRepo[]> {
   const repos: GitHubRepo[] = []
+  const headers: Record<string, string> = {
+    Accept: 'application/vnd.github+json',
+    ...(process.env.GITHUB_TOKEN && { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` })
+  }
   let page = 1
   while (true) {
-    const res = await fetch(
+    const res = await fetchWithRetry(
       `https://api.github.com/users/fabkho/repos?per_page=100&page=${page}&sort=updated&type=owner`,
-      {
-        headers: {
-          Accept: 'application/vnd.github+json',
-          ...(process.env.GITHUB_TOKEN && { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` })
-        }
-      }
+      headers
     )
     if (!res.ok) throw new Error(`GitHub API error: ${res.status} ${await res.text()}`)
     const data = await res.json() as GitHubRepo[]
     if (data.length === 0) break
     repos.push(...data)
+    if (data.length < 100) break
     page++
   }
   return repos
@@ -58,7 +83,7 @@ async function fetchRepos(): Promise<GitHubRepo[]> {
 
 function repoToProject(repo: GitHubRepo, override?: ProjectOverride) {
   const tag = override?.tag || (repo.language?.toUpperCase() || 'PROJECT')
-  const label = override?.label || repo.name.toUpperCase().replace(/-/g, '-')
+  const label = override?.label || repo.name.toUpperCase().replace(/-/g, ' ')
   const description = override?.description || repo.description || `${repo.name} — open source project.`
   const specs = override?.specs || [
     ...(repo.language ? [repo.language.toUpperCase()] : []),
@@ -68,9 +93,7 @@ function repoToProject(repo: GitHubRepo, override?: ProjectOverride) {
   return {
     tag,
     label,
-    title: override?.label
-      ? formatTitle(repo.name)
-      : formatTitle(repo.name),
+    title: override?.title || formatTitle(repo.name),
     description,
     specs,
     url: repo.html_url,
@@ -79,10 +102,12 @@ function repoToProject(repo: GitHubRepo, override?: ProjectOverride) {
   }
 }
 
+const ACRONYMS = new Set(['cli', 'api', 'ui', 'esm', 'cjs', 'sdk', 'mcp', 'ai'])
+
 function formatTitle(name: string): string {
   return name
     .split(/[-_]/)
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .map(w => ACRONYMS.has(w.toLowerCase()) ? w.toUpperCase() : w.charAt(0).toUpperCase() + w.slice(1))
     .join(' ')
 }
 
@@ -93,7 +118,11 @@ function slugify(name: string): string {
 async function main() {
   console.log('🔄 Syncing projects from GitHub...')
 
-  const config: Config = parseYaml(readFileSync(CONFIG_PATH, 'utf-8'))
+  const raw = parseYaml(readFileSync(CONFIG_PATH, 'utf-8'))
+  if (!raw?.projects || !Array.isArray(raw.projects.exclude)) {
+    throw new Error('Malformed config: missing projects.exclude')
+  }
+  const config = raw as Config
   const excludeSet = new Set(config.projects.exclude.map(e => e.toLowerCase()))
 
   const repos = await fetchRepos()
@@ -105,45 +134,52 @@ async function main() {
 
   console.log(`  Found ${filtered.length} repos (excluded ${repos.length - filtered.length})`)
 
-  // Remove old auto-generated project files
-  const existingFiles = readdirSync(PROJECTS_DIR).filter(f => f.endsWith('.yml'))
-  for (const file of existingFiles) {
-    unlinkSync(resolve(PROJECTS_DIR, file))
-  }
+  // Stage all outputs in memory first — fail early before any deletes
+  const staged: Array<{ slug: string, content: string, order: number }> = []
 
-  // Write new project files
   for (const repo of filtered) {
     const override = config.projects.overrides[repo.name]
     const project = repoToProject(repo, override)
     const slug = slugify(repo.name)
-    const filePath = resolve(PROJECTS_DIR, `${slug}.yml`)
-
-    writeFileSync(filePath, stringifyYaml(project, { lineWidth: 120 }))
-    console.log(`  ✓ ${slug}.yml (order: ${project.order})`)
+    staged.push({ slug, content: stringifyYaml(project, { lineWidth: 120 }), order: project.order })
   }
 
-  // Write manual/private projects from overrides that weren't in API results
+  // Manual/private projects from overrides not in API results
   const syncedNames = new Set(filtered.map(r => r.name))
   for (const [name, override] of Object.entries(config.projects.overrides)) {
     if (syncedNames.has(name)) continue
-    if (!(override as Record<string, unknown>).private) continue
+    if (!override.private) continue
     const slug = slugify(name)
     const project = {
       tag: override.tag || 'PROJECT',
       label: override.label || name.toUpperCase(),
-      title: (override as Record<string, unknown>).title as string || formatTitle(name),
+      title: override.title || formatTitle(name),
       description: override.description || `${name} — open source project.`,
       specs: override.specs || [],
-      url: (override as Record<string, unknown>).url as string || `https://github.com/fabkho/${name}`,
+      url: override.url || `https://github.com/fabkho/${name}`,
       featured: override.featured ?? false,
       order: override.order ?? 99
     }
-    const filePath = resolve(PROJECTS_DIR, `${slug}.yml`)
-    writeFileSync(filePath, stringifyYaml(project, { lineWidth: 120 }))
-    console.log(`  ✓ ${slug}.yml (manual, order: ${project.order})`)
+    staged.push({ slug, content: stringifyYaml(project, { lineWidth: 120 }), order: project.order })
   }
 
-  console.log(`\n✅ Synced ${filtered.length} projects + manual entries`)
+  // Only delete stale files — keep files that will be rewritten
+  const desiredSlugs = new Set(staged.map(s => `${s.slug}.yml`))
+  const existingFiles = readdirSync(PROJECTS_DIR).filter(f => f.endsWith('.yml'))
+  for (const file of existingFiles) {
+    if (!desiredSlugs.has(file)) {
+      unlinkSync(resolve(PROJECTS_DIR, file))
+      console.log(`  ✗ ${file} (removed)`)
+    }
+  }
+
+  // Write all staged files
+  for (const { slug, content, order } of staged) {
+    writeFileSync(resolve(PROJECTS_DIR, `${slug}.yml`), content)
+    console.log(`  ✓ ${slug}.yml (order: ${order})`)
+  }
+
+  console.log(`\n✅ Synced ${staged.length} projects`)
 }
 
 main().catch((err) => {

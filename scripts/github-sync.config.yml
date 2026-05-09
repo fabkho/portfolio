@@ -83,11 +83,14 @@ projects:
       private: true
 
 contributions:
-  # External repos to scan for merged PRs by fabkho
-  track:
-    - nuxt/nuxt
-    - nuxt/hints
-    - laravel/scout
+  # Organizations to scan for merged PRs by fabkho (searches ALL repos in org)
+  track_orgs:
+    - nuxt
+    - vuejs
+    - laravel
+
+  # Individual repos to scan (for repos outside tracked orgs)
+  track_repos:
     - spatie/holidays
 
   # PRs to exclude (noise, school projects, etc.)
