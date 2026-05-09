@@ -1,8 +1,11 @@
-tag: "AGENT TOOLING"
-label: "PI-MULTIREPO"
-title: "Pi Multirepo"
-description: "Multi-repository workspace tooling for the Pi coding agent."
-specs: ["TYPESCRIPT", "CLI", "AI"]
-url: "https://github.com/fabkho/pi-multirepo"
+tag: AGENT TOOLING
+label: PI-MULTIREPO
+title: Pi Multirepo
+description: Pi extension for multi-repo bugfixing — ClickUp to MR in one command.
+specs:
+  - TYPESCRIPT
+  - PI
+  - GIT
+url: https://github.com/fabkho/pi-multirepo
 featured: true
 order: 2

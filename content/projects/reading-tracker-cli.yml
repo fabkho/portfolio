@@ -1,8 +1,10 @@
-tag: "CLI TOOL"
-label: "READING-TRACKER"
-title: "Reading Tracker"
-description: "CLI application for tracking reading progress via SQLite."
-specs: ["TYPESCRIPT", "CLI", "SQLITE"]
-url: "https://github.com/fabkho/reading-tracker-cli"
+tag: CLI TOOL
+label: READING-TRACKER
+title: Reading Tracker Cli
+description: Track your reading progress from the terminal.
+specs:
+  - TYPESCRIPT
+  - CLI
+url: https://github.com/fabkho/reading-tracker-cli
 featured: false
 order: 3

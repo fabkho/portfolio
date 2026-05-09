@@ -1,8 +1,0 @@
-tag: "PROFESSIONAL"
-label: "ANNY.CO"
-title: "anny.co"
-description: "SaaS booking platform. Led Nuxt 2→4 migration, 15+ language support, HR integrations."
-specs: ["NUXT 4", "TYPESCRIPT", "LARAVEL"]
-url: "https://anny.co"
-featured: false
-order: 6

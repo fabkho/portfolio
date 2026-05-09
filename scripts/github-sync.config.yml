@@ -1,0 +1,95 @@
+# GitHub Sync Configuration
+# Defines which repos to feature as projects and which external repos to track contributions in.
+
+projects:
+  # Repos to EXCLUDE from auto-sync (profile READMEs, forks, experiments, etc.)
+  exclude:
+    - fabkho/fabian-kho
+    - fabkho/portfolio
+    - fabkho/slides
+    - fabkho/zmk-config
+    - fabkho/doppelganger
+    - fabkho/zoom_lite
+    - fabkho/chat_room
+    - fabkho/vite-vanillaJs-basic-setup
+    - fabkho/vite-nuxt-basic-setup
+    - fabkho/slidev-theme-anny
+    - fabkho/FlexonEgzon
+
+  # Manual overrides — merged on top of GitHub API data
+  overrides:
+    the-i18n-kit:
+      order: 1
+      featured: true
+      tag: "NUXT MODULE"
+      label: "I18N-KIT"
+      description: "A complete i18n toolkit for Nuxt — extraction, validation, and AI-powered translation."
+      specs: ["NUXT", "TYPESCRIPT", "AI"]
+
+    pi-multirepo:
+      order: 2
+      featured: true
+      tag: "AGENT TOOLING"
+      label: "PI-MULTIREPO"
+      description: "Pi extension for multi-repo bugfixing — ClickUp to MR in one command."
+      specs: ["TYPESCRIPT", "PI", "GIT"]
+
+    cmd-bar:
+      order: 4
+      tag: "VUE COMPONENT"
+      label: "CMD-BAR"
+      description: "Performant, unstyled command palette for Vue 3."
+      specs: ["VUE", "TYPESCRIPT", "A11Y"]
+
+    fontawesome-esm:
+      order: 5
+      tag: "BUILD TOOL"
+      label: "FONTAWESOME-ESM"
+      description: "Convert FontAwesome CJS icons to ES Modules for tree-shaking in Vue/Nuxt."
+      specs: ["VUE", "BUNDLER", "PERFORMANCE"]
+
+    arc_boosts:
+      order: 6
+      tag: "BROWSER"
+      label: "ARC-BOOSTS"
+      description: "Collection of Arc browser boosts for Spotify, Google Calendar, and YouTube."
+      specs: ["CSS", "JAVASCRIPT"]
+
+    i-love-pi:
+      order: 7
+      tag: "EXPERIMENT"
+      label: "I-LOVE-PI"
+      description: "Experimental Pi coding agent extensions and workflows."
+      specs: ["TYPESCRIPT", "AI"]
+
+    reading-tracker-cli:
+      order: 3
+      tag: "CLI TOOL"
+      label: "READING-TRACKER"
+      description: "Track your reading progress from the terminal."
+      specs: ["TYPESCRIPT", "CLI"]
+      # Private repo — manually defined
+      url: "https://github.com/fabkho/reading-tracker-cli"
+      private: true
+
+    anny-co:
+      order: 10
+      tag: "PROFESSIONAL"
+      label: "ANNY.CO"
+      title: "anny.co"
+      description: "Booking and resource management platform — full-stack development."
+      specs: ["VUE", "NUXT", "LARAVEL", "TYPESCRIPT"]
+      url: "https://anny.co"
+      private: true
+
+contributions:
+  # External repos to scan for merged PRs by fabkho
+  track:
+    - nuxt/nuxt
+    - nuxt/hints
+    - laravel/scout
+    - spatie/holidays
+
+  # PRs to exclude (noise, school projects, etc.)
+  exclude_prs:
+    - https://github.com/FlexonEgzon/abalo2/pull/7

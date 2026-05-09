@@ -1,0 +1,10 @@
+tag: EXPERIMENT
+label: I-LOVE-PI
+title: I Love Pi
+description: Experimental Pi coding agent extensions and workflows.
+specs:
+  - TYPESCRIPT
+  - AI
+url: https://github.com/fabkho/i-love-pi
+featured: false
+order: 7

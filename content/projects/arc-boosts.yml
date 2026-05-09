@@ -1,0 +1,10 @@
+tag: BROWSER
+label: ARC-BOOSTS
+title: Arc Boosts
+description: Collection of Arc browser boosts for Spotify, Google Calendar, and YouTube.
+specs:
+  - CSS
+  - JAVASCRIPT
+url: https://github.com/fabkho/arc_boosts
+featured: false
+order: 6
