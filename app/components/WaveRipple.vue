@@ -158,7 +158,7 @@ function onClick(e: MouseEvent) {
 // Randomly trigger ripples for mobile devices
 const { pause: pauseRandom, resume: resumeRandom } = useIntervalFn(() => {
   if (!wrapperRef.value || !isTouch || prefersReducedMotion()) return
-  
+
   // 30% chance to skip a beat so it feels more organic
   if (Math.random() > 0.7) return
 

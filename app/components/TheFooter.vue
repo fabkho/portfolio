@@ -42,9 +42,7 @@
 }
 @media (max-width: 1024px) {
   .footer {
-    border-left: none;
-    border-right: none;
-    border-bottom: none;
+    border: none;
   }
 }
 @media (max-width: 640px) {

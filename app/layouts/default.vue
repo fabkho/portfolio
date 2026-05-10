@@ -204,8 +204,11 @@ const { sidebarState } = useLayoutSidebar()
 
   .data-sidebar {
     grid-column: 1 / -1;
-    border-left: none;
-    border-right: none;
+    border: none;
+  }
+
+  .data-section {
+    border-bottom: none;
   }
 
   .sidebar-sticky {
