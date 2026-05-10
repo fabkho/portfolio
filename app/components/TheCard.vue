@@ -9,8 +9,14 @@ defineProps<{
   variant?: 'default' | 'hatched' | 'vectorflow'
 }>()
 
+interface VectorFlowInstance {
+  onMouseMove: (e: MouseEvent) => void
+  onMouseLeave: () => void
+  setMouse: (x: number, y: number) => void
+}
+
 const NuxtLinkComp = resolveComponent('NuxtLink')
-const vectorFlowRef = ref<InstanceType<typeof VectorFlow>>()
+const vectorFlowRef = ref<VectorFlowInstance | null>(null)
 const cardRef = ref<HTMLElement>()
 
 function onCardMouseMove(e: MouseEvent) {
@@ -18,11 +24,10 @@ function onCardMouseMove(e: MouseEvent) {
   const flow = vectorFlowRef.value
   if (!card || !flow) return
   const cardRect = card.getBoundingClientRect()
-  // X maps directly (header is full-width)
+  const header = card.querySelector('.the-card__header') as HTMLElement | null
+  const headerHeight = header?.offsetHeight ?? cardRect.height
   const x = e.clientX - cardRect.left
-  // Y: normalize mouse position within card height, map to header height
   const cardY = e.clientY - cardRect.top
-  const headerHeight = 36 // approx header height
   const normalizedY = cardY / cardRect.height
   const y = normalizedY * headerHeight
   flow.setMouse(x, y)

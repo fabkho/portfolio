@@ -97,10 +97,22 @@ function drawLines(canvas: HTMLCanvasElement, now: number) {
 }
 
 const { pause, resume } = useRafFn(({ timestamp }) => {
+  const canvas = canvasRef.value
+  if (!canvas) {
+    pause()
+    return
+  }
   ripples.value = ripples.value.filter(r => timestamp - r.time < props.lifetime)
-  drawLines(canvasRef.value!, timestamp)
+  drawLines(canvas, timestamp)
   if (ripples.value.length === 0) pause()
 }, { immediate: false })
+
+watch(useStaticFallback, (isFallback) => {
+  if (isFallback) {
+    pause()
+    ripples.value = []
+  }
+})
 
 function spawnRipple(x: number, y: number) {
   if (useStaticFallback.value) return

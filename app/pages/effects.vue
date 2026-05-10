@@ -4,13 +4,18 @@ type FlowVariant
     | 'crosshatch' | 'pulse' | 'spiral' | 'scatter' | 'quantized'
     | 'shimmer' | 'tide' | 'flicker' | 'gravity' | 'constellation'
 
+interface VectorFlowInstance {
+  setMouse: (x: number, y: number) => void
+  onMouseLeave: () => void
+}
+
 const variants: { key: FlowVariant, label: string, desc: string }[] = [
   { key: 'diagonal', label: 'DIAGONAL', desc: 'Fixed 45° vectors. Length and thickness scale with proximity — schematic blueprint feel.' }
 ]
 
 const flowRefs = Object.fromEntries(
-  variants.map(v => [v.key, ref<InstanceType<typeof VectorFlow>>()])
-) as Record<FlowVariant, Ref<InstanceType<typeof VectorFlow> | undefined>>
+  variants.map(v => [v.key, ref<VectorFlowInstance | null>(null)])
+) as Record<FlowVariant, Ref<VectorFlowInstance | null>>
 
 const cardRefs = Object.fromEntries(
   variants.map(v => [v.key, ref<HTMLElement>()])
@@ -21,9 +26,10 @@ function onCardMouseMove(key: FlowVariant, e: MouseEvent) {
   const flow = flowRefs[key]?.value
   if (!card || !flow) return
   const cardRect = card.getBoundingClientRect()
+  const header = card.querySelector('.demo-card__header') as HTMLElement | null
+  const headerHeight = header?.offsetHeight ?? cardRect.height
   const x = e.clientX - cardRect.left
   const cardY = e.clientY - cardRect.top
-  const headerHeight = 36
   const normalizedY = cardY / cardRect.height
   const y = normalizedY * headerHeight
   flow.setMouse(x, y)

@@ -459,7 +459,18 @@ function draw({ delta }: { delta: number }) {
   drawFns[props.variant](ctx, w, h)
 }
 
-const { resume } = useRafFn(draw, { immediate: false })
+const { pause, resume } = useRafFn(draw, { immediate: false })
+
+watch(useStaticFallback, (isFallback) => {
+  if (isFallback) {
+    pause()
+  } else {
+    nextTick(() => {
+      resize()
+      resume()
+    })
+  }
+})
 
 function onMouseMove(e: MouseEvent) {
   const container = containerRef.value
