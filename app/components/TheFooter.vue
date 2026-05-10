@@ -1,16 +1,13 @@
 <template>
   <footer class="footer">
-    <div class="flex items-center gap-2">
-      <span class="accent-dot" />
-      <span class="text-sm uppercase">indicates active system / primary focus</span>
-    </div>
+    <span class="footer-copy">© {{ new Date().getFullYear() }} Fabian Kirchhoff</span>
     <a
       href="https://github.com/fabkho"
       target="_blank"
       rel="noopener noreferrer"
       class="footer-link"
     >
-      initiate external link: github
+      GitHub <span aria-hidden="true">↗</span>
     </a>
   </footer>
 </template>
@@ -27,12 +24,9 @@
   text-transform: uppercase;
 }
 
-.accent-dot {
-  width: 12px;
-  height: 12px;
-  background-color: var(--color-accent);
-  border-radius: 50%;
-  flex-shrink: 0;
+.footer-copy {
+  font-family: var(--font-mono);
+  color: var(--color-ink-faint);
 }
 
 .footer-link {

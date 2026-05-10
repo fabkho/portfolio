@@ -12,7 +12,7 @@ const activeId = useActiveSection()
 <template>
   <div class="blog-sidebar">
     <div class="sidebar-header">
-      Document Metadata
+      Document Info
     </div>
 
     <div class="data-section">

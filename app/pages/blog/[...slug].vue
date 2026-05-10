@@ -1,9 +1,6 @@
 <script setup lang="ts">
+import type { Component } from 'vue'
 import { flattenToc } from '~/utils/flattenToc'
-
-definePageMeta({
-  layout: false
-})
 
 const route = useRoute()
 const slug = computed(() => {
@@ -26,6 +23,24 @@ const tocItems = computed(() => {
   return flattenToc(post.value.body.toc.links)
 })
 
+const { setSidebar, clearSidebar } = useLayoutSidebar()
+
+watchEffect(() => {
+  if (post.value) {
+    setSidebar(
+      resolveComponent('BlogSidebar') as Component,
+      {
+        author: post.value.author || 'Unknown',
+        date: post.value.date || '',
+        status: post.value.status || 'published',
+        toc: tocItems.value
+      }
+    )
+  }
+})
+
+onUnmounted(() => clearSidebar())
+
 useSeoMeta({
   title: post.value?.title,
   description: post.value?.description,
@@ -37,20 +52,8 @@ useSeoMeta({
 </script>
 
 <template>
-  <NuxtLayout name="with-sidebar">
-    <BlogArticle
-      v-if="post"
-      :value="post"
-    />
-
-    <template #sidebar>
-      <BlogSidebar
-        v-if="post"
-        :author="post.author || 'Unknown'"
-        :date="post.date || ''"
-        :status="post.status || 'published'"
-        :toc="tocItems"
-      />
-    </template>
-  </NuxtLayout>
+  <BlogArticle
+    v-if="post"
+    :value="post"
+  />
 </template>
