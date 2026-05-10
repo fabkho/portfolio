@@ -31,6 +31,7 @@ useSeoMeta({
         :description="project.description"
         :specs="project.specs"
         :url="project.url"
+        :stars="project.stars"
       />
     </ContentGrid>
     <p

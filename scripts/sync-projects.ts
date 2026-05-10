@@ -98,7 +98,8 @@ function repoToProject(repo: GitHubRepo, override?: ProjectOverride) {
     specs,
     url: repo.html_url,
     featured: override?.featured ?? false,
-    order: override?.order ?? 99
+    order: override?.order ?? 99,
+    stars: repo.stargazers_count
   }
 }
 
