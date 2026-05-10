@@ -6,16 +6,45 @@ defineProps<{
   description: string
   specs?: string[]
   url?: string
-  variant?: 'default' | 'hatched'
+  variant?: 'default' | 'hatched' | 'vectorflow'
 }>()
 
+interface VectorFlowInstance {
+  onMouseMove: (e: MouseEvent) => void
+  onMouseLeave: () => void
+  setMouse: (x: number, y: number) => void
+}
+
 const NuxtLinkComp = resolveComponent('NuxtLink')
+const vectorFlowRef = ref<VectorFlowInstance | null>(null)
+const cardRef = ref<HTMLElement>()
+
+function onCardMouseMove(e: MouseEvent) {
+  const card = cardRef.value
+  const flow = vectorFlowRef.value
+  if (!card || !flow) return
+  const cardRect = card.getBoundingClientRect()
+  const header = card.querySelector('.the-card__header') as HTMLElement | null
+  const headerHeight = header?.offsetHeight ?? cardRect.height
+  const x = e.clientX - cardRect.left
+  const cardY = e.clientY - cardRect.top
+  const normalizedY = cardY / cardRect.height
+  const y = normalizedY * headerHeight
+  flow.setMouse(x, y)
+}
+
+function onCardMouseLeave() {
+  vectorFlowRef.value?.onMouseLeave()
+}
 </script>
 
 <template>
   <article
+    ref="cardRef"
     class="the-card"
     :class="{ 'the-card--has-url': !!url }"
+    @mousemove="variant === 'vectorflow' ? onCardMouseMove($event) : undefined"
+    @mouseleave="variant === 'vectorflow' ? onCardMouseLeave() : undefined"
   >
     <component
       :is="url?.startsWith('/') ? NuxtLinkComp : url ? 'a' : 'div'"
@@ -27,13 +56,33 @@ const NuxtLinkComp = resolveComponent('NuxtLink')
     >
       <div
         class="the-card__header"
-        :class="{ 'the-card__header--light': variant === 'hatched' }"
+        :class="{
+          'the-card__header--light': variant === 'hatched',
+          'the-card__header--flush': variant === 'vectorflow'
+        }"
       >
-        <span class="the-card__tag">{{ tag }}</span>
-        <span
-          v-if="label"
-          class="the-card__tag"
-        >{{ label }}</span>
+        <VectorFlow
+          v-if="variant === 'vectorflow'"
+          ref="vectorFlowRef"
+          variant="diagonal"
+          :spacing="10"
+          :radius="250"
+          active-color="rgba(245, 242, 235, 0.5)"
+          rest-color="rgba(245, 242, 235, 0.12)"
+        >
+          <span class="the-card__tag">{{ tag }}</span>
+          <span
+            v-if="label"
+            class="the-card__tag"
+          >{{ label }}</span>
+        </VectorFlow>
+        <template v-else>
+          <span class="the-card__tag">{{ tag }}</span>
+          <span
+            v-if="label"
+            class="the-card__tag"
+          >{{ label }}</span>
+        </template>
       </div>
       <WaveRipple
         v-if="variant === 'hatched'"
@@ -63,6 +112,27 @@ const NuxtLinkComp = resolveComponent('NuxtLink')
           </div>
         </div>
       </WaveRipple>
+      <div
+        v-else-if="variant === 'vectorflow'"
+        class="the-card__body"
+      >
+        <h3 class="the-card__title">
+          {{ title }}
+        </h3>
+        <p class="the-card__description">
+          {{ description }}
+        </p>
+        <div
+          v-if="specs?.length"
+          class="the-card__specs"
+        >
+          <SpecBadge
+            v-for="spec in specs"
+            :key="spec"
+            :label="spec"
+          />
+        </div>
+      </div>
       <div
         v-else
         class="the-card__body"
@@ -122,6 +192,14 @@ const NuxtLinkComp = resolveComponent('NuxtLink')
   background-color: var(--color-ink);
   padding: 0.5rem 1rem;
   border-bottom: 1px solid var(--color-ink);
+}
+
+.the-card__header--flush {
+  padding: 0;
+}
+
+.the-card__header--flush .the-card__tag {
+  padding: 0.5rem 1rem;
 }
 
 .the-card__header--light {
