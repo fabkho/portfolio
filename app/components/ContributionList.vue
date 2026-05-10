@@ -2,10 +2,17 @@
 defineProps<{
   contributions: { project: string, pr: string, url: string }[]
 }>()
+
+const listRef = ref<HTMLElement>()
+
+useStaggerReveal(listRef, { selector: ':scope > li', delay: 40 })
 </script>
 
 <template>
-  <ul class="contribution-list">
+  <ul
+    ref="listRef"
+    class="contribution-list"
+  >
     <li
       v-for="item in contributions"
       :key="item.url"
@@ -39,6 +46,14 @@ defineProps<{
   padding: 0.75rem 0;
   border-bottom: 1px dotted var(--color-ink-muted);
   font-size: var(--text-sm);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.contribution-list__item.reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .contribution-list__project {
@@ -54,5 +69,13 @@ defineProps<{
 
 .contribution-list__link:hover {
   color: var(--color-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contribution-list__item {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
 </style>
