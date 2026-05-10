@@ -461,7 +461,7 @@ function draw({ delta }: { delta: number }) {
   drawFns[props.variant](ctx, w, h)
 }
 
-const { pause, resume } = useRafFn(draw, { immediate: false })
+const { resume } = useRafFn(draw, { immediate: false })
 
 function onMouseMove(e: MouseEvent) {
   const container = containerRef.value

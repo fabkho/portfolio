@@ -104,7 +104,10 @@ function onCardMouseLeave() {
         :still-threshold="180"
       >
         <div class="the-card__body-inner">
-          <h3 class="the-card__title" :style="viewTransitionName ? { viewTransitionName } : undefined">
+          <h3
+            class="the-card__title"
+            :style="viewTransitionName ? { viewTransitionName } : undefined"
+          >
             {{ title }}
           </h3>
           <p class="the-card__description">
@@ -126,7 +129,10 @@ function onCardMouseLeave() {
         v-else-if="variant === 'vectorflow'"
         class="the-card__body"
       >
-        <h3 class="the-card__title" :style="viewTransitionName ? { viewTransitionName } : undefined">
+        <h3
+          class="the-card__title"
+          :style="viewTransitionName ? { viewTransitionName } : undefined"
+        >
           {{ title }}
         </h3>
         <p class="the-card__description">
@@ -147,7 +153,10 @@ function onCardMouseLeave() {
         v-else
         class="the-card__body"
       >
-        <h3 class="the-card__title" :style="viewTransitionName ? { viewTransitionName } : undefined">
+        <h3
+          class="the-card__title"
+          :style="viewTransitionName ? { viewTransitionName } : undefined"
+        >
           {{ title }}
         </h3>
         <p class="the-card__description">
