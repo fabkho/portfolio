@@ -84,7 +84,7 @@ onMounted(() => {
 }
 
 .meta {
-  min-width: 140px;
+  min-width: 135px;
   font-size: var(--text-xs);
   font-family: var(--font-mono);
   text-transform: uppercase;
