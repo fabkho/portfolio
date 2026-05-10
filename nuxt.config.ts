@@ -55,10 +55,6 @@ export default defineNuxtConfig({
   },
   compatibilityDate: '2025-01-15',
 
-  ogImage: {
-    zeroRuntime: true
-  },
-
   vite: {
     plugins: [tailwindcss()]
   },
@@ -83,6 +79,10 @@ export default defineNuxtConfig({
         weights: [300, 400, 500, 600, 700]
       }
     ]
+  },
+
+  ogImage: {
+    zeroRuntime: true
   },
 
   studio: {

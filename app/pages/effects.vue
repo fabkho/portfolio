@@ -11,7 +11,31 @@ let stillTimer2: ReturnType<typeof setTimeout>
 
 const MAX_RIPPLES = 6
 const RIPPLE_LIFETIME = 1800
-const STILL_THRESHOLD = 150 // ms without movement = "still"
+const STILL_THRESHOLD = 150
+
+const flowRefs = {
+  attractor: ref<InstanceType<typeof VectorFlow>>(),
+  repulsor: ref<InstanceType<typeof VectorFlow>>(),
+  magnifier: ref<InstanceType<typeof VectorFlow>>(),
+  swirl: ref<InstanceType<typeof VectorFlow>>(),
+  quantized: ref<InstanceType<typeof VectorFlow>>()
+}
+
+const flowVariants = [
+  { key: 'attractor' as const, tag: 'FIG 1.0', label: 'ATTRACTOR', title: 'Attractor', desc: 'Vectors rest at 45° and rotate smoothly to point directly at cursor within their radius.' },
+  { key: 'repulsor' as const, tag: 'FIG 1.1', label: 'REPULSOR', title: 'Repulsor', desc: 'Vectors rest vertically. On cursor proximity, they aggressively rotate to point away — a magnetic shield.' },
+  { key: 'magnifier' as const, tag: 'FIG 1.2', label: 'MAGNIFIER', title: 'Magnifier', desc: 'Angle stays locked horizontal. Influence scales length and thickness, creating a magnifying ripple.' },
+  { key: 'swirl' as const, tag: 'FIG 1.3', label: 'SWIRL', title: 'Swirl', desc: 'Flowing sine-wave stream. Cursor acts as obstruction, rotating vectors orthogonally into a whirlpool.' },
+  { key: 'quantized' as const, tag: 'FIG 1.4', label: 'QUANTIZED', title: 'Quantized', desc: 'Digital sensor grid. Vectors snap rigidly to nearest 45° increment instead of rotating smoothly.' }
+]
+
+function onFlowMouseMove(key: keyof typeof flowRefs, e: MouseEvent) {
+  flowRefs[key].value?.onMouseMove(e)
+}
+
+function onFlowMouseLeave(key: keyof typeof flowRefs) {
+  flowRefs[key].value?.onMouseLeave()
+}
 
 function drawLines(
   canvas: HTMLCanvasElement,
@@ -54,7 +78,6 @@ function drawLines(
       let px = along * cos + ox
       let py = along * sin + oy
 
-      // Sum displacement from active ripples
       let totalDisp = 0
       for (let r = 0; r < ripplesArr.length; r++) {
         const ripple = ripplesArr[r]!
@@ -123,7 +146,6 @@ function loop2(now: number) {
 }
 
 function onMove2(e: MouseEvent) {
-  // Only spawn ripple on first movement after being still
   if (mouseStill2) {
     mouseStill2 = false
     const now = performance.now()
@@ -134,7 +156,6 @@ function onMove2(e: MouseEvent) {
     raf2 = requestAnimationFrame(loop2)
   }
 
-  // Reset still timer — if mouse stops for STILL_THRESHOLD ms, mark as still
   clearTimeout(stillTimer2)
   stillTimer2 = setTimeout(() => {
     mouseStill2 = true
@@ -206,6 +227,44 @@ onUnmounted(() => {
         />
       </div>
     </section>
+
+    <h2 class="section-divider">
+      Vector Flow Field Variations
+    </h2>
+    <p class="description">
+      Hover anywhere on card — vectors in header react. 5 magnetic field prototypes.
+    </p>
+
+    <div class="flow-grid">
+      <article
+        v-for="v in flowVariants"
+        :key="v.key"
+        class="flow-card"
+        :class="{ 'flow-card--wide': v.key === 'quantized' }"
+        @mousemove="(e: MouseEvent) => onFlowMouseMove(v.key, e)"
+        @mouseleave="() => onFlowMouseLeave(v.key)"
+      >
+        <div class="flow-card__header">
+          <VectorFlow
+            :ref="(el: any) => { flowRefs[v.key].value = el }"
+            :variant="v.key"
+            :spacing="25"
+            :radius="120"
+          >
+            <span class="flow-card__tag">{{ v.tag }}</span>
+            <span class="flow-card__tag">{{ v.label }}</span>
+          </VectorFlow>
+        </div>
+        <div class="flow-card__body">
+          <h3 class="flow-card__title">
+            {{ v.title }}
+          </h3>
+          <p class="flow-card__desc">
+            {{ v.desc }}
+          </p>
+        </div>
+      </article>
+    </div>
   </div>
 </template>
 
@@ -254,5 +313,75 @@ onUnmounted(() => {
 .effect-canvas {
   --line-color: var(--color-ink-faint, rgba(0, 0, 0, 0.12));
   display: block;
+}
+
+.section-divider {
+  font-family: var(--font-sans);
+  font-size: var(--text-xl);
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-ink);
+}
+
+.flow-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.flow-card {
+  border: 1px solid var(--color-ink);
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  cursor: crosshair;
+}
+
+.flow-card--wide {
+  grid-column: 1 / -1;
+}
+
+.flow-card__header {
+  border-bottom: 1px solid var(--color-ink);
+  height: 180px;
+  position: relative;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+.flow-card__tag {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  padding: 0.5rem 1rem;
+}
+
+.flow-card__body {
+  padding: 1.5rem;
+  flex-grow: 1;
+}
+
+.flow-card__title {
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+
+.flow-card__desc {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: 1.5;
+}
+
+@media (max-width: 1024px) {
+  .flow-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
