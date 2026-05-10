@@ -25,17 +25,29 @@ export function useStaggerReveal(
   } = options
 
   const reducedMotion = usePreferredReducedMotion()
+  let stopObserver: (() => void) | undefined
 
-  const { stop } = useIntersectionObserver(
-    container,
-    ([entry]) => {
-      if (!entry?.isIntersecting) return
-      if (!(entry.target instanceof HTMLElement)) return
-      reveal(entry.target)
-      stop()
-    },
-    { threshold, immediate: true }
-  )
+  // Defer observer setup until after hydration completes.
+  // If we observe immediately, the callback can fire during hydration
+  // and add classes that Vue then patches away when it finishes
+  // hydrating async child components (e.g. TheCard).
+  onMounted(() => {
+    nextTick(() => {
+      const { stop } = useIntersectionObserver(
+        container,
+        ([entry]) => {
+          if (!entry?.isIntersecting) return
+          if (!(entry.target instanceof HTMLElement)) return
+          reveal(entry.target)
+          stop()
+        },
+        { threshold }
+      )
+      stopObserver = stop
+    })
+  })
+
+  onUnmounted(() => stopObserver?.())
 
   function reveal(el: HTMLElement) {
     const children = el.querySelectorAll(selector)
