@@ -196,13 +196,7 @@ onUnmounted(() => clearTimeout(stillTimer))
 /* Static hatched fallback for coarse pointers (touch) and reduced motion */
 @media (pointer: coarse), (prefers-reduced-motion: reduce) {
   .wave-ripple {
-    background-image: repeating-linear-gradient(
-      45deg,
-      var(--wave-ripple-color, var(--color-ink-faint, rgba(0, 0, 0, 0.12))),
-      var(--wave-ripple-color, var(--color-ink-faint, rgba(0, 0, 0, 0.12))) 1px,
-      transparent 1px,
-      transparent 6px
-    );
+    /* Background removed for coarse pointers */
   }
 
   .wave-ripple__canvas {

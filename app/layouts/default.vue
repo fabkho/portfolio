@@ -190,14 +190,22 @@ const { sidebarState } = useLayoutSidebar()
 @media (max-width: 1024px) {
   .drafting-board {
     grid-template-columns: 1fr;
+    min-height: 100vh;
+    border: none;
+    padding: 0;
+    gap: 0;
   }
 
   .schematic-area {
     grid-column: 1 / -1;
+    padding: 1rem;
+    border: none;
   }
 
   .data-sidebar {
     grid-column: 1 / -1;
+    border-left: none;
+    border-right: none;
   }
 
   .sidebar-sticky {

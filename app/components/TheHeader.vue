@@ -19,10 +19,13 @@ onMounted(() => {
 <template>
   <header class="header">
     <div class="header-cell title-main">
-      <h1 class="font-sans font-light text-4xl uppercase tracking-[-0.02em]">
+      <h1 class="font-sans font-light text-4xl uppercase tracking-[-0.02em] hidden-mobile">
         Fabian Kirchhoff
       </h1>
-      <div class="text-base uppercase tracking-[0.1em] mt-1">
+      <div class="mobile-logo">
+        <TypewriterLogo />
+      </div>
+      <div class="text-base uppercase tracking-[0.1em] mt-1 subtitle-text">
         {{ subtitle }}
       </div>
     </div>
@@ -81,6 +84,10 @@ onMounted(() => {
 .title-main {
   flex: 1;
   padding: 1rem 1.5rem;
+}
+
+.mobile-logo {
+  display: none;
 }
 
 .meta {
@@ -160,29 +167,68 @@ onMounted(() => {
   color: var(--color-accent);
 }
 
+@media (max-width: 1024px) {
+  .header {
+    border-left: none;
+    border-right: none;
+    border-top: none;
+  }
+}
+
 @media (max-width: 768px) {
   .header {
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
   }
 
   .header-cell {
     border-right: none;
-    border-bottom: 1px solid var(--color-ink);
+    border-bottom: none;
   }
 
-  .header-cell:last-child {
-    border-bottom: none;
+  .title-main {
+    padding: 0.75rem 1rem;
+    flex: 0 1 auto;
+  }
+
+  .title-main h1.hidden-mobile {
+    display: none;
+  }
+
+  .mobile-logo {
+    display: flex;
+    align-items: center;
+  }
+
+  .title-main .subtitle-text {
+    display: none;
+  }
+
+  .meta {
+    display: none;
   }
 
   .nav-cell {
     width: auto;
     flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: flex-start;
+    justify-content: flex-end;
+    padding: 0.75rem 1rem;
+    gap: 0.5rem;
+    background: transparent !important;
+  }
+  
+  /* Remove wave ripple background on mobile */
+  :deep(.wave-ripple) {
+    background-image: none !important;
   }
 
   .nav-link {
     width: auto;
+    font-size: var(--text-xs);
+    padding: 0.25rem 0.5rem;
+    text-align: center;
+    animation: none;
   }
 }
 </style>
