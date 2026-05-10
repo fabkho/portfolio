@@ -26,7 +26,7 @@
 
 .footer-copy {
   font-family: var(--font-mono);
-  color: var(--color-ink-faint);
+  color: var(--color-ink-subtle);
 }
 
 .footer-link {

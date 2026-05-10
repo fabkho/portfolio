@@ -80,14 +80,14 @@ const activeId = useActiveSection()
 
 .data-label {
   font-size: var(--text-2xs);
-  color: var(--color-ink-faint);
+  color: var(--color-ink-subtle);
   margin-bottom: 0.75rem;
   text-transform: uppercase;
 }
 
 .meta-item {
   font-size: var(--text-sm);
-  color: var(--color-ink-faint);
+  color: var(--color-ink-subtle);
   margin-bottom: 0.4rem;
   font-family: var(--font-mono);
 }

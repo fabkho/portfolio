@@ -47,6 +47,7 @@ export default defineNuxtConfig({
   },
 
   experimental: {
+    viewTransition: true,
     defaults: {
       nuxtLink: {
         prefetchOn: { interaction: true }

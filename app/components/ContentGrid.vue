@@ -23,18 +23,21 @@ useStaggerReveal(gridRef)
 /* Children start hidden, composable adds .reveal-visible */
 .content-grid :deep(> *) {
   opacity: 0;
+  visibility: hidden;
   transform: translateY(8px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transition: opacity 0.6s ease, transform 0.6s ease, visibility 0s;
 }
 
 .content-grid :deep(> .reveal-visible) {
   opacity: 1;
+  visibility: visible;
   transform: translateY(0);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .content-grid :deep(> *) {
     opacity: 1;
+    visibility: visible;
     transform: none;
     transition: none;
   }

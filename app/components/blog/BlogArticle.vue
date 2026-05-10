@@ -1,11 +1,15 @@
 <script setup lang="ts">
 defineProps<{
   value: object
+  viewTransitionName?: string
 }>()
 </script>
 
 <template>
-  <article class="blog-article">
+  <article
+    class="blog-article"
+    :style="viewTransitionName ? { '--article-title-vt-name': viewTransitionName } : undefined"
+  >
     <ContentRenderer :value="value" />
   </article>
 </template>
@@ -22,6 +26,7 @@ defineProps<{
   text-transform: uppercase;
   letter-spacing: -0.02em;
   margin-bottom: 2rem;
+  view-transition-name: var(--article-title-vt-name, none);
 }
 
 .blog-article :deep(h2) {

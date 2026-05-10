@@ -23,6 +23,12 @@ const tocItems = computed(() => {
   return flattenToc(post.value.body.toc.links)
 })
 
+const viewTransitionName = computed(() => {
+  const parts = route.params.slug
+  const last = Array.isArray(parts) ? parts[parts.length - 1] : parts
+  return `blog-title-${last}`
+})
+
 const { setSidebar, clearSidebar } = useLayoutSidebar()
 
 watchEffect(() => {
@@ -55,5 +61,6 @@ useSeoMeta({
   <BlogArticle
     v-if="post"
     :value="post"
+    :view-transition-name="viewTransitionName"
   />
 </template>

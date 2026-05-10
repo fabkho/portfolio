@@ -102,7 +102,7 @@ defineProps<{
 
 .data-label {
   font-size: var(--text-2xs);
-  color: var(--color-ink-faint);
+  color: var(--color-ink-subtle);
   margin-bottom: 0.5rem;
   text-transform: uppercase;
 }

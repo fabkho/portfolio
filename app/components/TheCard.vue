@@ -8,6 +8,7 @@ defineProps<{
   specs?: string[]
   url?: string
   variant?: 'default' | 'hatched' | 'vectorflow'
+  viewTransitionName?: string
 }>()
 
 interface VectorFlowInstance {
@@ -103,7 +104,10 @@ function onCardMouseLeave() {
         :still-threshold="180"
       >
         <div class="the-card__body-inner">
-          <h3 class="the-card__title">
+          <h3
+            class="the-card__title"
+            :style="viewTransitionName ? { viewTransitionName } : undefined"
+          >
             {{ title }}
           </h3>
           <p class="the-card__description">
@@ -125,7 +129,10 @@ function onCardMouseLeave() {
         v-else-if="variant === 'vectorflow'"
         class="the-card__body"
       >
-        <h3 class="the-card__title">
+        <h3
+          class="the-card__title"
+          :style="viewTransitionName ? { viewTransitionName } : undefined"
+        >
           {{ title }}
         </h3>
         <p class="the-card__description">
@@ -146,7 +153,10 @@ function onCardMouseLeave() {
         v-else
         class="the-card__body"
       >
-        <h3 class="the-card__title">
+        <h3
+          class="the-card__title"
+          :style="viewTransitionName ? { viewTransitionName } : undefined"
+        >
           {{ title }}
         </h3>
         <p class="the-card__description">
@@ -230,12 +240,12 @@ function onCardMouseLeave() {
 .the-card__stars {
   font-family: var(--font-mono);
   font-size: var(--text-xs, 0.75rem);
-  color: var(--color-ink-muted, #999);
+  color: var(--color-bg);
   opacity: 0.7;
 }
 
 .the-card__header--light .the-card__stars {
-  color: var(--color-ink-muted, #999);
+  color: var(--color-ink);
 }
 
 .the-card__body {
