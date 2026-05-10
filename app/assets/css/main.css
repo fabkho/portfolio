@@ -61,26 +61,6 @@
 }
 
 /* Utility classes */
-@utility hatch-ink {
-  background-image: repeating-linear-gradient(
-    45deg,
-    var(--color-ink-faint),
-    var(--color-ink-faint) 1px,
-    transparent 1px,
-    transparent 6px
-  );
-}
-
-@utility hatch-accent {
-  background-image: repeating-linear-gradient(
-    45deg,
-    var(--color-accent-faint),
-    var(--color-accent-faint) 1px,
-    transparent 1px,
-    transparent 6px
-  );
-}
-
 @utility paper-texture {
   position: relative;
 }
