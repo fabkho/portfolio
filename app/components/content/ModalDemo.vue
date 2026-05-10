@@ -86,7 +86,7 @@ function onKeydown(e: KeyboardEvent) {
       if (document.activeElement === last) {
         e.preventDefault()
         first!.focus()
-        log(`Tab pressed → focus moved to ${labelFor(first)}`)
+        log(`Tab pressed → focus moved to ${labelFor(first!)}`)
       } else {
         const target = focusable[focusable.indexOf(document.activeElement as HTMLElement) + 1]
         if (target) log(`Tab pressed → focus moved to ${labelFor(target)}`)
