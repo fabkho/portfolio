@@ -55,7 +55,7 @@ useSeoMeta({
     </div>
 
     <div class="mt-16">
-      <SectionLabel label="Recent Memos" />
+      <SectionLabel label="Latest Article" />
       <ContentGrid>
         <TheCard
           v-if="latestPost"
@@ -67,7 +67,7 @@ useSeoMeta({
         />
         <TheCard
           v-else
-          tag="MEMO // BLOG"
+          tag="BLOG"
           title="Coming soon"
           description="Technical articles on Vue, accessibility, and performance."
           :specs="['BLOG']"

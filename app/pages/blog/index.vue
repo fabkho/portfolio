@@ -1,8 +1,4 @@
 <script setup lang="ts">
-definePageMeta({
-  layout: false
-})
-
 const { data: posts } = await useAsyncData('all-posts', () =>
   queryCollection('blog')
     .where('status', '=', 'published')
@@ -10,44 +6,48 @@ const { data: posts } = await useAsyncData('all-posts', () =>
     .all()
 )
 
+const { setSidebar, clearSidebar } = useLayoutSidebar()
+
+watchEffect(() => {
+  if (posts.value?.length) {
+    setSidebar(
+      resolveComponent('BlogIndexSidebar') as Component,
+      { posts: posts.value.map(p => ({ path: p.path, title: p.title, date: p.date })) }
+    )
+  }
+})
+
+onUnmounted(() => clearSidebar())
+
 useSeoMeta({
-  title: 'Technical Memos',
-  description: 'Technical memos on Vue, Nuxt, accessibility, performance, and open-source engineering.',
-  ogTitle: 'Technical Memos | Fabian Kirchhoff',
-  ogDescription: 'Technical memos on Vue, Nuxt, accessibility, performance, and open-source engineering.'
+  title: 'Blog',
+  description: 'Articles on Vue, Nuxt, accessibility, performance, and open-source engineering.',
+  ogTitle: 'Blog | Fabian Kirchhoff',
+  ogDescription: 'Articles on Vue, Nuxt, accessibility, performance, and open-source engineering.'
 })
 </script>
 
 <template>
-  <NuxtLayout name="with-sidebar">
-    <div>
-      <SectionLabel label="Technical Memos" />
-      <ContentGrid v-if="posts?.length">
-        <TheCard
-          v-for="post in posts"
-          :key="post.path"
-          :tag="post.tag"
-          :title="post.title"
-          :description="post.description"
-          :specs="post.specs"
-          :url="post.path"
-        />
-      </ContentGrid>
-      <p
-        v-else
-        class="empty-state"
-      >
-        No technical memos are published yet.
-      </p>
-    </div>
-
-    <template #sidebar>
-      <BlogIndexSidebar
-        v-if="posts?.length"
-        :posts="posts.map(p => ({ path: p.path, title: p.title, date: p.date }))"
+  <div>
+    <SectionLabel label="Articles" />
+    <ContentGrid v-if="posts?.length">
+      <TheCard
+        v-for="post in posts"
+        :key="post.path"
+        :tag="post.tag"
+        :title="post.title"
+        :description="post.description"
+        :specs="post.specs"
+        :url="post.path"
       />
-    </template>
-  </NuxtLayout>
+    </ContentGrid>
+    <p
+      v-else
+      class="empty-state"
+    >
+      No articles published yet.
+    </p>
+  </div>
 </template>
 
 <style scoped>

@@ -5,6 +5,9 @@ const { data: projects } = await useAsyncData('layout-project-count', () =>
 )
 
 const projectCount = computed(() => projects.value?.length ?? 0)
+const route = useRoute()
+const isBlogRoute = computed(() => route.path.startsWith('/blog'))
+const { sidebarState } = useLayoutSidebar()
 </script>
 
 <template>
@@ -20,49 +23,48 @@ const projectCount = computed(() => projects.value?.length ?? 0)
       </div>
     </main>
     <aside class="data-sidebar">
-      <slot name="sidebar">
-        <div class="sidebar-header">
-          Data Extract: Intake
-        </div>
-        <WaveRipple
-          mode="hover"
-          color="var(--color-accent-faint)"
-          class="data-section"
-          :spacing="8"
-          :amplitude="8"
-          :lifetime="2000"
-          :still-threshold="200"
-        >
-          <div class="data-section__inner">
-            <div class="data-section__value">
-              {{ projectCount }}
+      <div :class="isBlogRoute ? 'sidebar-sticky' : 'sidebar-default'">
+        <component
+          :is="sidebarState.component"
+          v-if="sidebarState.component"
+          v-bind="sidebarState.props"
+        />
+        <template v-else>
+          <div class="sidebar-header">
+            Overview
+          </div>
+          <WaveRipple
+            mode="hover"
+            color="var(--color-accent-faint)"
+            class="data-section"
+            :spacing="8"
+            :amplitude="8"
+            :lifetime="2000"
+            :still-threshold="200"
+          >
+            <div class="data-section__inner">
+              <div class="data-section__value">
+                {{ projectCount }}
+              </div>
+              <div class="data-section__label">
+                PROJECTS LOGGED
+              </div>
             </div>
-            <div class="data-section__label">
-              PROJECTS LOGGED
+          </WaveRipple>
+          <div class="data-section">
+            <div class="data-label">
+              CURRENT STACK
+            </div>
+            <div class="sidebar-record">
+              <span>Vue / Nuxt / TypeScript</span>
+            </div>
+            <div class="sidebar-record">
+              <span>Node / Laravel</span>
             </div>
           </div>
-        </WaveRipple>
-        <div class="data-section">
-          <div class="data-label">
-            CURRENT STACK
-          </div>
-          <div class="sidebar-record">
-            <span>Vue / Nuxt / TypeScript</span>
-          </div>
-          <div class="sidebar-record">
-            <span>Node / Laravel</span>
-          </div>
-        </div>
-        <div class="data-section data-section--grow">
-          <div class="data-label">
-            STATUS
-          </div>
-          <div class="sidebar-record active">
-            <span>Open to opportunities</span>
-            <span>[RUN]</span>
-          </div>
-        </div>
-      </slot>
+          <div class="data-section data-section--grow" />
+        </template>
+      </div>
     </aside>
     <TheFooter />
   </div>
@@ -96,6 +98,35 @@ const projectCount = computed(() => projects.value?.length ?? 0)
   border: 1px solid var(--color-ink);
   display: flex;
   flex-direction: column;
+}
+
+.sidebar-default {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.sidebar-sticky {
+  position: sticky;
+  top: 2rem;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ink-faint) transparent;
+}
+
+.sidebar-sticky::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-sticky::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-sticky::-webkit-scrollbar-thumb {
+  background-color: var(--color-ink-faint);
 }
 
 .sidebar-header {
@@ -156,10 +187,6 @@ const projectCount = computed(() => projects.value?.length ?? 0)
   font-size: var(--text-base);
 }
 
-.sidebar-record.active {
-  color: var(--color-accent);
-}
-
 @media (max-width: 1024px) {
   .drafting-board {
     grid-template-columns: 1fr;
@@ -171,6 +198,11 @@ const projectCount = computed(() => projects.value?.length ?? 0)
 
   .data-sidebar {
     grid-column: 1 / -1;
+  }
+
+  .sidebar-sticky {
+    position: static;
+    max-height: none;
   }
 }
 </style>

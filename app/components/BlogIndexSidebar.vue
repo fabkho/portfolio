@@ -24,7 +24,7 @@ defineProps<{
           {{ posts.length }}
         </div>
         <div class="data-section__label">
-          MEMOS PUBLISHED
+          ARTICLES PUBLISHED
         </div>
       </div>
     </WaveRipple>
