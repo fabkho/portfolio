@@ -1,0 +1,3 @@
+project: laravel/scout
+pr: "Fix: [Typesense] Add custom index support"
+url: https://github.com/laravel/scout/pull/908

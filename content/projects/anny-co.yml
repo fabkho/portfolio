@@ -1,0 +1,12 @@
+tag: PROFESSIONAL
+label: ANNY.CO
+title: anny.co
+description: Booking and resource management platform — full-stack development.
+specs:
+  - VUE
+  - NUXT
+  - LARAVEL
+  - TYPESCRIPT
+url: https://anny.co
+featured: false
+order: 10

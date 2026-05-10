@@ -1,0 +1,3 @@
+project: spatie/holidays
+pr: "fix: updated InvalidYear exception"
+url: https://github.com/spatie/holidays/pull/280

@@ -1,8 +1,11 @@
-tag: "NUXT MODULE"
-label: "I18N-KIT"
-title: "The I18n Kit"
-description: "A complete i18n toolkit for Nuxt — extraction, validation, and AI-powered translation."
-specs: ["NUXT", "TYPESCRIPT", "AI"]
-url: "https://github.com/fabkho/the-i18n-kit"
+tag: NUXT MODULE
+label: I18N-KIT
+title: The I18n Kit
+description: A complete i18n toolkit for Nuxt — extraction, validation, and AI-powered translation.
+specs:
+  - NUXT
+  - TYPESCRIPT
+  - AI
+url: https://github.com/fabkho/the-i18n-kit
 featured: true
 order: 1

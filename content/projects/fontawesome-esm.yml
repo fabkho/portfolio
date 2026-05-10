@@ -1,8 +1,11 @@
-tag: "BUILD TOOL"
-label: "FONTAWESOME-ESM"
-title: "FontAwesome ESM"
-description: "Converts FontAwesome CommonJS icons to ES Modules for lazy CDN loading."
-specs: ["ROLLUP", "NPM", "VUE"]
-url: "https://github.com/fabkho/fontawesome-chunks"
+tag: BUILD TOOL
+label: FONTAWESOME-ESM
+title: Fontawesome ESM
+description: Convert FontAwesome CJS icons to ES Modules for tree-shaking in Vue/Nuxt.
+specs:
+  - VUE
+  - BUNDLER
+  - PERFORMANCE
+url: https://github.com/fabkho/fontawesome-esm
 featured: false
 order: 5
