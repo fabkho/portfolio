@@ -13,7 +13,8 @@ export default defineContentConfig({
         specs: z.array(z.string()),
         url: z.string().url().optional(),
         featured: z.boolean().optional(),
-        order: z.number().optional()
+        order: z.number().optional(),
+        stars: z.number().optional()
       })
     }),
     contributions: defineCollection({

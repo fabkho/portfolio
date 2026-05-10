@@ -2,6 +2,7 @@
 defineProps<{
   tag: string
   label?: string
+  stars?: number
   title: string
   description: string
   specs?: string[]
@@ -30,6 +31,10 @@ const NuxtLinkComp = resolveComponent('NuxtLink')
         :class="{ 'the-card__header--light': variant === 'hatched' }"
       >
         <span class="the-card__tag">{{ tag }}</span>
+        <span
+          v-if="stars"
+          class="the-card__stars"
+        >★ {{ stars }}</span>
         <span
           v-if="label"
           class="the-card__tag"
@@ -138,6 +143,17 @@ const NuxtLinkComp = resolveComponent('NuxtLink')
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   text-transform: uppercase;
+}
+
+.the-card__stars {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--color-ink-muted, #999);
+  opacity: 0.7;
+}
+
+.the-card__header--light .the-card__stars {
+  color: var(--color-ink-muted, #999);
 }
 
 .the-card__body {
