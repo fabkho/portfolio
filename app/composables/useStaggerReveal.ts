@@ -46,8 +46,14 @@ export function useStaggerReveal(
       children.forEach((child, i) => {
         const htmlChild = child as HTMLElement
         htmlChild.style.transitionDelay = `${i * delay}ms`
+        // Double-rAF ensures the browser has painted the initial hidden
+        // state before triggering the transition. On fast edge servers
+        // (e.g. Cloudflare) a single rAF can fire before first paint,
+        // causing the browser to batch both states and skip the animation.
         requestAnimationFrame(() => {
-          htmlChild.classList.add('reveal-visible')
+          requestAnimationFrame(() => {
+            htmlChild.classList.add('reveal-visible')
+          })
         })
         htmlChild.addEventListener('transitionend', () => {
           htmlChild.style.transitionDelay = ''
