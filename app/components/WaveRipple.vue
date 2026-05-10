@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRafFn, useResizeObserver } from '@vueuse/core'
+import { useRafFn, useResizeObserver, useIntervalFn } from '@vueuse/core'
 
 const props = withDefaults(
   defineProps<{
@@ -26,6 +26,7 @@ const canvasRef = ref<HTMLCanvasElement>()
 const ripples = ref<{ x: number, y: number, time: number }[]>([])
 let mouseStill = true
 let stillTimer: ReturnType<typeof setTimeout>
+let isTouch = false
 
 function drawLines(canvas: HTMLCanvasElement, now: number) {
   const ctx = canvas.getContext('2d')!
@@ -104,20 +105,19 @@ const { pause, resume } = useRafFn(({ timestamp }) => {
 }, { immediate: false })
 
 function spawnRipple(x: number, y: number) {
-  if (prefersStaticFallback()) return
+  if (prefersReducedMotion()) return
   ripples.value.push({ x, y, time: performance.now() })
   if (ripples.value.length > props.maxRipples) ripples.value.shift()
   resume()
 }
 
-function prefersStaticFallback() {
+function prefersReducedMotion() {
   if (import.meta.server) return false
-  return window.matchMedia('(pointer: coarse)').matches
-    || window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
 function initCanvas() {
-  if (prefersStaticFallback()) return
+  if (prefersReducedMotion()) return
   const canvas = canvasRef.value
   const wrapper = wrapperRef.value
   if (!canvas || !wrapper) return
@@ -155,9 +155,36 @@ function onClick(e: MouseEvent) {
   spawnRipple(x, y)
 }
 
-onMounted(() => initCanvas())
+// Randomly trigger ripples for mobile devices
+const { pause: pauseRandom, resume: resumeRandom } = useIntervalFn(() => {
+  if (!wrapperRef.value || !isTouch || prefersReducedMotion()) return
+  
+  // 30% chance to skip a beat so it feels more organic
+  if (Math.random() > 0.7) return
 
-onUnmounted(() => clearTimeout(stillTimer))
+  const rect = wrapperRef.value.getBoundingClientRect()
+  // Ensure the element is visible in the viewport before spawning ripples
+  if (rect.top > window.innerHeight || rect.bottom < 0) return
+
+  const x = Math.random() * rect.width
+  const y = Math.random() * rect.height
+  spawnRipple(x, y)
+}, 2000, { immediate: false })
+
+onMounted(() => {
+  if (!import.meta.server) {
+    isTouch = window.matchMedia('(pointer: coarse)').matches
+    if (isTouch) {
+      resumeRandom()
+    }
+  }
+  initCanvas()
+})
+
+onUnmounted(() => {
+  clearTimeout(stillTimer)
+  pauseRandom()
+})
 </script>
 
 <template>
@@ -195,12 +222,8 @@ onUnmounted(() => clearTimeout(stillTimer))
 
 /* Static hatched fallback for coarse pointers (touch) and reduced motion */
 @media (pointer: coarse), (prefers-reduced-motion: reduce) {
-  .wave-ripple {
-    /* Background removed for coarse pointers */
-  }
-
   .wave-ripple__canvas {
-    display: none;
+    /* Kept visible for coarse, but hidden if explicitly preferring reduced motion via JS logic */
   }
 }
 
