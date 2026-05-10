@@ -62,7 +62,7 @@ function onKeydown(e: KeyboardEvent) {
   }
 
   e.preventDefault()
-  focusTab(tabs[nextIdx].id)
+  focusTab(tabs[nextIdx]!.id)
 }
 </script>
 

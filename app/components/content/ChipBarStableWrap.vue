@@ -88,7 +88,7 @@ const chips = [
 ]
 
 const selected = ref(new Set<string>())
-const flipGroupRef = ref<InstanceType<typeof Object>>(null)
+const flipGroupRef = ref<{ captureRects: () => void, playFlip: () => void } | null>(null)
 
 async function toggle(id: string) {
   // Manual FLIP order:

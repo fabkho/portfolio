@@ -76,8 +76,8 @@ function onKeydown(e: KeyboardEvent) {
     if (e.shiftKey) {
       if (document.activeElement === first) {
         e.preventDefault()
-        last.focus()
-        log(`Shift+Tab pressed → focus moved to ${labelFor(last)}`)
+        last!.focus()
+        log(`Shift+Tab pressed → focus moved to ${labelFor(last!)}`)
       } else {
         const target = focusable[focusable.indexOf(document.activeElement as HTMLElement) - 1]
         if (target) log(`Shift+Tab pressed → focus moved to ${labelFor(target)}`)
@@ -85,7 +85,7 @@ function onKeydown(e: KeyboardEvent) {
     } else {
       if (document.activeElement === last) {
         e.preventDefault()
-        first.focus()
+        first!.focus()
         log(`Tab pressed → focus moved to ${labelFor(first)}`)
       } else {
         const target = focusable[focusable.indexOf(document.activeElement as HTMLElement) + 1]

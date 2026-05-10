@@ -14,11 +14,11 @@ const RIPPLE_LIFETIME = 1800
 const STILL_THRESHOLD = 150
 
 const flowRefs = {
-  attractor: ref<InstanceType<typeof VectorFlow>>(),
-  repulsor: ref<InstanceType<typeof VectorFlow>>(),
-  magnifier: ref<InstanceType<typeof VectorFlow>>(),
-  swirl: ref<InstanceType<typeof VectorFlow>>(),
-  quantized: ref<InstanceType<typeof VectorFlow>>()
+  attractor: ref<InstanceType<typeof import('~/components/VectorFlow.vue').default>>(),
+  repulsor: ref<InstanceType<typeof import('~/components/VectorFlow.vue').default>>(),
+  magnifier: ref<InstanceType<typeof import('~/components/VectorFlow.vue').default>>(),
+  swirl: ref<InstanceType<typeof import('~/components/VectorFlow.vue').default>>(),
+  quantized: ref<InstanceType<typeof import('~/components/VectorFlow.vue').default>>()
 }
 
 const flowVariants = [
