@@ -1,9 +1,12 @@
-import { useIntersectionObserver, usePreferredReducedMotion } from '@vueuse/core'
+import { usePreferredReducedMotion } from '@vueuse/core'
 import type { MaybeRefOrGetter } from 'vue'
 
 /**
  * Stagger-reveal children of a container when it enters the viewport.
  * Adds `.reveal-visible` to each child with a staggered delay.
+ *
+ * Uses CSS keyframe animations (not transitions) so child components'
+ * own `transition` properties can't override the reveal effect.
  *
  * @param container - ref to the parent element
  * @param options.selector - CSS selector for children to animate (default: ':scope > *')
@@ -25,29 +28,25 @@ export function useStaggerReveal(
   } = options
 
   const reducedMotion = usePreferredReducedMotion()
-  let stopObserver: (() => void) | undefined
+  let observer: IntersectionObserver | undefined
 
-  // Defer observer setup until after hydration completes.
-  // If we observe immediately, the callback can fire during hydration
-  // and add classes that Vue then patches away when it finishes
-  // hydrating async child components (e.g. TheCard).
   onMounted(() => {
-    nextTick(() => {
-      const { stop } = useIntersectionObserver(
-        container,
-        ([entry]) => {
-          if (!entry?.isIntersecting) return
-          if (!(entry.target instanceof HTMLElement)) return
-          reveal(entry.target)
-          stop()
-        },
-        { threshold }
-      )
-      stopObserver = stop
-    })
+    const el = toValue(container)
+    if (!el) return
+
+    observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return
+        if (!(entry.target instanceof HTMLElement)) return
+        reveal(entry.target)
+        observer?.disconnect()
+      },
+      { threshold }
+    )
+    observer.observe(el)
   })
 
-  onUnmounted(() => stopObserver?.())
+  onUnmounted(() => observer?.disconnect())
 
   function reveal(el: HTMLElement) {
     const children = el.querySelectorAll(selector)
@@ -57,13 +56,12 @@ export function useStaggerReveal(
     } else {
       children.forEach((child, i) => {
         const htmlChild = child as HTMLElement
-        htmlChild.style.transitionDelay = `${i * delay}ms`
+        htmlChild.style.animationDelay = `${i * delay}ms`
         requestAnimationFrame(() => {
-          htmlChild.classList.add('reveal-visible')
+          requestAnimationFrame(() => {
+            htmlChild.classList.add('reveal-visible')
+          })
         })
-        htmlChild.addEventListener('transitionend', () => {
-          htmlChild.style.transitionDelay = ''
-        }, { once: true })
       })
     }
   }

@@ -25,13 +25,18 @@ useStaggerReveal(gridRef)
   opacity: 0;
   visibility: hidden;
   transform: translateY(8px);
-  transition: opacity 0.6s ease, transform 0.6s ease, visibility 0s;
+}
+
+@keyframes stagger-reveal {
+  to {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
 }
 
 .content-grid :deep(> .reveal-visible) {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
+  animation: stagger-reveal 0.6s ease forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -39,7 +44,10 @@ useStaggerReveal(gridRef)
     opacity: 1;
     visibility: visible;
     transform: none;
-    transition: none;
+  }
+
+  .content-grid :deep(> .reveal-visible) {
+    animation: none;
   }
 }
 
