@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useMediaQuery, usePreferredReducedMotion, useRafFn, useResizeObserver } from '@vueuse/core'
+import { useRafFn, useResizeObserver } from '@vueuse/core'
 
 const props = withDefaults(
   defineProps<{
@@ -26,10 +26,6 @@ const canvasRef = ref<HTMLCanvasElement>()
 const ripples = ref<{ x: number, y: number, time: number }[]>([])
 let mouseStill = true
 let stillTimer: ReturnType<typeof setTimeout>
-
-const reducedMotion = usePreferredReducedMotion()
-const isCoarsePointer = useMediaQuery('(pointer: coarse)')
-const useStaticFallback = computed(() => reducedMotion.value === 'reduce' || isCoarsePointer.value)
 
 function drawLines(canvas: HTMLCanvasElement, now: number) {
   const ctx = canvas.getContext('2d')!
@@ -107,22 +103,21 @@ const { pause, resume } = useRafFn(({ timestamp }) => {
   if (ripples.value.length === 0) pause()
 }, { immediate: false })
 
-watch(useStaticFallback, (isFallback) => {
-  if (isFallback) {
-    pause()
-    ripples.value = []
-  }
-})
-
 function spawnRipple(x: number, y: number) {
-  if (useStaticFallback.value) return
+  if (prefersStaticFallback()) return
   ripples.value.push({ x, y, time: performance.now() })
   if (ripples.value.length > props.maxRipples) ripples.value.shift()
   resume()
 }
 
+function prefersStaticFallback() {
+  if (import.meta.server) return false
+  return window.matchMedia('(pointer: coarse)').matches
+    || window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
 function initCanvas() {
-  if (useStaticFallback.value) return
+  if (prefersStaticFallback()) return
   const canvas = canvasRef.value
   const wrapper = wrapperRef.value
   if (!canvas || !wrapper) return
@@ -169,13 +164,11 @@ onUnmounted(() => clearTimeout(stillTimer))
   <div
     ref="wrapperRef"
     class="wave-ripple"
-    :class="{ 'wave-ripple--static': useStaticFallback }"
-    :style="useStaticFallback && color ? { '--wave-ripple-color': color } : undefined"
+    :style="color ? { '--wave-ripple-color': color } : undefined"
     @mousemove="onMouseMove"
     @click="onClick"
   >
     <canvas
-      v-if="!useStaticFallback"
       ref="canvasRef"
       class="wave-ripple__canvas"
     />
@@ -200,14 +193,21 @@ onUnmounted(() => clearTimeout(stillTimer))
   pointer-events: none;
 }
 
-.wave-ripple--static {
-  background-image: repeating-linear-gradient(
-    45deg,
-    var(--wave-ripple-color, var(--color-ink-faint, rgba(0, 0, 0, 0.12))),
-    var(--wave-ripple-color, var(--color-ink-faint, rgba(0, 0, 0, 0.12))) 1px,
-    transparent 1px,
-    transparent 6px
-  );
+/* Static hatched fallback for coarse pointers (touch) and reduced motion */
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .wave-ripple {
+    background-image: repeating-linear-gradient(
+      45deg,
+      var(--wave-ripple-color, var(--color-ink-faint, rgba(0, 0, 0, 0.12))),
+      var(--wave-ripple-color, var(--color-ink-faint, rgba(0, 0, 0, 0.12))) 1px,
+      transparent 1px,
+      transparent 6px
+    );
+  }
+
+  .wave-ripple__canvas {
+    display: none;
+  }
 }
 
 .wave-ripple__content {

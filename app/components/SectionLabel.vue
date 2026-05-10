@@ -41,18 +41,21 @@ const { stop } = useIntersectionObserver(
   border-bottom: 1px solid var(--color-ink);
   margin-bottom: 2rem;
   opacity: 0;
+  visibility: hidden;
   transform: translateY(8px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transition: opacity 0.6s ease, transform 0.6s ease, visibility 0s;
 }
 
 .section-label--visible {
   opacity: 1;
+  visibility: visible;
   transform: translateY(0);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .section-label {
     opacity: 1;
+    visibility: visible;
     transform: none;
     transition: none;
   }

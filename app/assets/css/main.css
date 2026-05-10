@@ -6,6 +6,7 @@
   --color-ink: #2C2C2A;
   --color-ink-muted: #6B6B69;
   --color-ink-faint: rgba(44, 44, 42, 0.55);
+  --color-ink-subtle: rgba(44, 44, 42, 0.72);
   --color-accent: #B93E2E;
   --color-accent-light: #E8665A;
   --color-accent-faint: rgba(185, 62, 46, 0.4);
@@ -36,6 +37,7 @@
   --color-ink: #2C2C2A;
   --color-ink-muted: #6B6B69;
   --color-ink-faint: rgba(44, 44, 42, 0.55);
+  --color-ink-subtle: rgba(44, 44, 42, 0.72);
   --color-accent: #B93E2E;
   --color-accent-light: #E8665A;
   --color-accent-faint: rgba(185, 62, 46, 0.4);

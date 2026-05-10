@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useMediaQuery, usePreferredReducedMotion, useRafFn, useResizeObserver } from '@vueuse/core'
+import { useRafFn, useResizeObserver } from '@vueuse/core'
 
 type FlowVariant
   = | 'horizontal' | 'diagonal' | 'radial' | 'convergent' | 'wave'
@@ -28,9 +28,11 @@ const containerRef = ref<HTMLElement>()
 let time = 0
 const mouse = reactive({ x: -1000, y: -1000 })
 
-const reducedMotion = usePreferredReducedMotion()
-const isCoarsePointer = useMediaQuery('(pointer: coarse)')
-const useStaticFallback = computed(() => reducedMotion.value === 'reduce' || isCoarsePointer.value)
+function prefersStaticFallback() {
+  if (import.meta.server) return false
+  return window.matchMedia('(pointer: coarse)').matches
+    || window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
 
 function resize() {
   const canvas = canvasRef.value
@@ -45,7 +47,7 @@ function resize() {
 }
 
 useResizeObserver(containerRef, () => {
-  if (!useStaticFallback.value) resize()
+  if (!prefersStaticFallback()) resize()
 })
 
 function getInfluence(x: number, y: number) {
@@ -461,17 +463,6 @@ function draw({ delta }: { delta: number }) {
 
 const { pause, resume } = useRafFn(draw, { immediate: false })
 
-watch(useStaticFallback, (isFallback) => {
-  if (isFallback) {
-    pause()
-  } else {
-    nextTick(() => {
-      resize()
-      resume()
-    })
-  }
-})
-
 function onMouseMove(e: MouseEvent) {
   const container = containerRef.value
   if (!container) return
@@ -491,7 +482,7 @@ function onMouseLeave() {
 }
 
 onMounted(() => {
-  if (!useStaticFallback.value) {
+  if (!prefersStaticFallback()) {
     resize()
     resume()
   }
@@ -506,7 +497,6 @@ defineExpose({ onMouseMove, onMouseLeave, setMouse })
     class="vector-flow"
   >
     <canvas
-      v-if="!useStaticFallback"
       ref="canvasRef"
       class="vector-flow__canvas"
     />
@@ -529,6 +519,12 @@ defineExpose({ onMouseMove, onMouseLeave, setMouse })
   inset: 0;
   z-index: 0;
   pointer-events: none;
+}
+
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .vector-flow__canvas {
+    display: none;
+  }
 }
 
 .vector-flow__content {
