@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useMediaQuery, usePreferredReducedMotion, useRafFn, useResizeObserver } from '@vueuse/core'
+
 const props = withDefaults(
   defineProps<{
     mode?: 'click' | 'hover' | 'both'
@@ -22,11 +24,12 @@ const props = withDefaults(
 const wrapperRef = ref<HTMLElement>()
 const canvasRef = ref<HTMLCanvasElement>()
 const ripples = ref<{ x: number, y: number, time: number }[]>([])
-let raf: number
 let mouseStill = true
 let stillTimer: ReturnType<typeof setTimeout>
-const prefersReducedMotion = ref(false)
-const isCoarsePointer = ref(false)
+
+const reducedMotion = usePreferredReducedMotion()
+const isCoarsePointer = useMediaQuery('(pointer: coarse)')
+const useStaticFallback = computed(() => reducedMotion.value === 'reduce' || isCoarsePointer.value)
 
 function drawLines(canvas: HTMLCanvasElement, now: number) {
   const ctx = canvas.getContext('2d')!
@@ -42,7 +45,6 @@ function drawLines(canvas: HTMLCanvasElement, now: number) {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
   ctx.clearRect(0, 0, w, h)
   let color = props.color || ''
-  // Resolve CSS variable if color is `var(...)`
   if (color.startsWith('var(')) {
     const varName = color.slice(4, -1).trim()
     color = getComputedStyle(canvas).getPropertyValue(varName).trim()
@@ -94,23 +96,18 @@ function drawLines(canvas: HTMLCanvasElement, now: number) {
   }
 }
 
-function loop(now: number) {
-  ripples.value = ripples.value.filter(r => now - r.time < props.lifetime)
-  drawLines(canvasRef.value!, now)
-  if (ripples.value.length > 0) {
-    raf = requestAnimationFrame(loop)
-  }
-}
+const { pause, resume } = useRafFn(({ timestamp }) => {
+  ripples.value = ripples.value.filter(r => timestamp - r.time < props.lifetime)
+  drawLines(canvasRef.value!, timestamp)
+  if (ripples.value.length === 0) pause()
+}, { immediate: false })
 
 function spawnRipple(x: number, y: number) {
-  if (prefersReducedMotion.value || isCoarsePointer.value) return
+  if (useStaticFallback.value) return
   ripples.value.push({ x, y, time: performance.now() })
   if (ripples.value.length > props.maxRipples) ripples.value.shift()
-  cancelAnimationFrame(raf)
-  raf = requestAnimationFrame(loop)
+  resume()
 }
-
-const useStaticFallback = computed(() => prefersReducedMotion.value || isCoarsePointer.value)
 
 function initCanvas() {
   if (useStaticFallback.value) return
@@ -124,6 +121,8 @@ function initCanvas() {
   canvas.style.height = rect.height + 'px'
   drawLines(canvas, 0)
 }
+
+useResizeObserver(wrapperRef, () => initCanvas())
 
 function getLocalCoords(e: MouseEvent) {
   const rect = wrapperRef.value!.getBoundingClientRect()
@@ -149,22 +148,9 @@ function onClick(e: MouseEvent) {
   spawnRipple(x, y)
 }
 
-onMounted(() => {
-  const motionMq = window.matchMedia('(prefers-reduced-motion: reduce)')
-  prefersReducedMotion.value = motionMq.matches
-  motionMq.addEventListener('change', e => prefersReducedMotion.value = e.matches)
+onMounted(() => initCanvas())
 
-  isCoarsePointer.value = window.matchMedia('(pointer: coarse)').matches
-
-  initCanvas()
-  window.addEventListener('resize', initCanvas)
-})
-
-onUnmounted(() => {
-  cancelAnimationFrame(raf)
-  clearTimeout(stillTimer)
-  window.removeEventListener('resize', initCanvas)
-})
+onUnmounted(() => clearTimeout(stillTimer))
 </script>
 
 <template>
@@ -202,7 +188,6 @@ onUnmounted(() => {
   pointer-events: none;
 }
 
-/* Static CSS fallback for touch devices and reduced motion */
 .wave-ripple--static {
   background-image: repeating-linear-gradient(
     45deg,

@@ -1,32 +1,36 @@
 <script setup lang="ts">
-type FlowVariant = 'attractor' | 'repulsor' | 'magnifier' | 'swirl' | 'quantized'
+import { useMediaQuery, usePreferredReducedMotion, useRafFn, useResizeObserver } from '@vueuse/core'
+
+type FlowVariant
+  = | 'horizontal' | 'diagonal' | 'radial' | 'convergent' | 'wave'
+    | 'crosshatch' | 'pulse' | 'spiral' | 'scatter' | 'quantized'
+    | 'shimmer' | 'tide' | 'flicker' | 'gravity' | 'constellation'
 
 const props = withDefaults(
   defineProps<{
     variant?: FlowVariant
     spacing?: number
     radius?: number
-    color?: string
+    activeColor?: string
     restColor?: string
   }>(),
   {
-    variant: 'attractor',
+    variant: 'horizontal',
     spacing: 25,
-    radius: 120,
-    color: '#D44D3A',
+    radius: 140,
+    activeColor: '#D44D3A',
     restColor: 'rgba(44, 44, 42, 0.2)'
   }
 )
 
 const canvasRef = ref<HTMLCanvasElement>()
 const containerRef = ref<HTMLElement>()
-let raf = 0
 let time = 0
 const mouse = reactive({ x: -1000, y: -1000 })
 
-const prefersReducedMotion = ref(false)
-const isCoarsePointer = ref(false)
-const useStaticFallback = computed(() => prefersReducedMotion.value || isCoarsePointer.value)
+const reducedMotion = usePreferredReducedMotion()
+const isCoarsePointer = useMediaQuery('(pointer: coarse)')
+const useStaticFallback = computed(() => reducedMotion.value === 'reduce' || isCoarsePointer.value)
 
 function resize() {
   const canvas = canvasRef.value
@@ -40,84 +44,34 @@ function resize() {
   canvas.style.height = rect.height + 'px'
 }
 
-function drawAttractor(ctx: CanvasRenderingContext2D, w: number, h: number) {
-  const lineLen = 8
-  for (let x = props.spacing / 2; x < w; x += props.spacing) {
-    for (let y = props.spacing / 2; y < h; y += props.spacing) {
-      let angle = Math.PI / 4
-      const dist = Math.hypot(mouse.x - x, mouse.y - y)
-      const influenced = mouse.x > 0 && dist < props.radius
+useResizeObserver(containerRef, () => {
+  if (!useStaticFallback.value) resize()
+})
 
-      if (influenced) {
-        angle = Math.atan2(mouse.y - y, mouse.x - x)
-        ctx.strokeStyle = props.color
-      } else {
-        ctx.strokeStyle = props.restColor
-      }
-
-      ctx.lineWidth = 1.5
-      ctx.save()
-      ctx.translate(x, y)
-      ctx.rotate(angle)
-      ctx.beginPath()
-      ctx.moveTo(-lineLen / 2, 0)
-      ctx.lineTo(lineLen / 2, 0)
-      if (influenced) {
-        ctx.lineTo(lineLen / 2 - 3, -3)
-        ctx.moveTo(lineLen / 2, 0)
-        ctx.lineTo(lineLen / 2 - 3, 3)
-      }
-      ctx.stroke()
-      ctx.restore()
-    }
-  }
+function getInfluence(x: number, y: number) {
+  const dist = Math.hypot(mouse.x - x, mouse.y - y)
+  return mouse.x > 0 ? Math.max(0, 1 - dist / props.radius) : 0
 }
 
-function drawRepulsor(ctx: CanvasRenderingContext2D, w: number, h: number) {
-  const lineLen = 10
-  for (let x = props.spacing / 2; x < w; x += props.spacing) {
-    for (let y = props.spacing / 2; y < h; y += props.spacing) {
-      let angle = Math.PI / 2
-      const dist = Math.hypot(mouse.x - x, mouse.y - y)
-      const influence = Math.max(0, 1 - dist / props.radius)
-
-      if (mouse.x > 0 && influence > 0) {
-        angle = Math.atan2(mouse.y - y, mouse.x - x) + Math.PI
-        ctx.strokeStyle = props.color
-        ctx.lineWidth = 1.5 + influence * 1.5
-      } else {
-        ctx.strokeStyle = props.restColor
-        ctx.lineWidth = 1.5
-      }
-
-      ctx.save()
-      ctx.translate(x, y)
-      ctx.rotate(angle)
-      ctx.beginPath()
-      ctx.moveTo(-lineLen / 2, 0)
-      ctx.lineTo(lineLen / 2, 0)
-      ctx.stroke()
-      ctx.restore()
-    }
-  }
+function getDist(x: number, y: number) {
+  return Math.hypot(mouse.x - x, mouse.y - y)
 }
 
-function drawMagnifier(ctx: CanvasRenderingContext2D, w: number, h: number) {
-  const baseLen = 4
+function pseudoRandom(x: number, y: number) {
+  const seed = Math.sin(x * 127.1 + y * 311.7) * 43758.5453
+  return seed - Math.floor(seed)
+}
+
+// --- STATIC EFFECTS ---
+
+function drawHorizontal(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  const baseLen = 2
   for (let x = props.spacing / 2; x < w; x += props.spacing) {
     for (let y = props.spacing / 2; y < h; y += props.spacing) {
-      const dist = Math.hypot(mouse.x - x, mouse.y - y)
-      const influence = mouse.x > 0 ? Math.max(0, 1 - dist / (props.radius * 1.25)) : 0
-      const len = baseLen + influence * 18
-
-      if (influence > 0) {
-        ctx.strokeStyle = props.color
-        ctx.lineWidth = 1.5 + influence
-      } else {
-        ctx.strokeStyle = props.restColor
-        ctx.lineWidth = 1.5
-      }
-
+      const influence = getInfluence(x, y)
+      const len = baseLen + influence * 8
+      ctx.strokeStyle = influence > 0 ? props.activeColor : props.restColor
+      ctx.lineWidth = 1 + influence * 0.8
       ctx.save()
       ctx.translate(x, y)
       ctx.beginPath()
@@ -129,30 +83,185 @@ function drawMagnifier(ctx: CanvasRenderingContext2D, w: number, h: number) {
   }
 }
 
-function drawSwirl(ctx: CanvasRenderingContext2D, w: number, h: number) {
-  const lineLen = 10
-  ctx.lineWidth = 1.5
-
+function drawDiagonal(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  const baseLen = 2
+  const angle = Math.PI / 4
   for (let x = props.spacing / 2; x < w; x += props.spacing) {
     for (let y = props.spacing / 2; y < h; y += props.spacing) {
-      let angle = Math.sin(x * 0.01 + time) * Math.cos(y * 0.01 + time)
-      const dist = Math.hypot(mouse.x - x, mouse.y - y)
-      const influence = mouse.x > 0 ? Math.max(0, 1 - dist / props.radius) : 0
-
-      if (influence > 0) {
-        const targetAngle = Math.atan2(mouse.y - y, mouse.x - x) + Math.PI / 2
-        angle = angle * (1 - influence) + targetAngle * influence
-        ctx.strokeStyle = props.color
-      } else {
-        ctx.strokeStyle = props.restColor
-      }
-
+      const influence = getInfluence(x, y)
+      const len = baseLen + influence * 8
+      ctx.strokeStyle = influence > 0 ? props.activeColor : props.restColor
+      ctx.lineWidth = 1 + influence * 0.8
       ctx.save()
       ctx.translate(x, y)
       ctx.rotate(angle)
       ctx.beginPath()
-      ctx.moveTo(-lineLen / 2, 0)
-      ctx.lineTo(lineLen / 2, 0)
+      ctx.moveTo(-len / 2, 0)
+      ctx.lineTo(len / 2, 0)
+      ctx.stroke()
+      ctx.restore()
+    }
+  }
+}
+
+function drawRadial(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  const baseLen = 2
+  for (let x = props.spacing / 2; x < w; x += props.spacing) {
+    for (let y = props.spacing / 2; y < h; y += props.spacing) {
+      const influence = getInfluence(x, y)
+      const len = baseLen + influence * 7
+      const angle = influence > 0 ? Math.atan2(y - mouse.y, x - mouse.x) : 0
+      ctx.strokeStyle = influence > 0 ? props.activeColor : props.restColor
+      ctx.lineWidth = 1 + influence * 0.8
+      ctx.save()
+      ctx.translate(x, y)
+      ctx.rotate(angle)
+      ctx.beginPath()
+      ctx.moveTo(-len / 2, 0)
+      ctx.lineTo(len / 2, 0)
+      ctx.stroke()
+      ctx.restore()
+    }
+  }
+}
+
+function drawConvergent(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  const baseLen = 2
+  for (let x = props.spacing / 2; x < w; x += props.spacing) {
+    for (let y = props.spacing / 2; y < h; y += props.spacing) {
+      const influence = getInfluence(x, y)
+      const len = baseLen + influence * 7
+      const angle = influence > 0 ? Math.atan2(mouse.y - y, mouse.x - x) : 0
+      ctx.strokeStyle = influence > 0 ? props.activeColor : props.restColor
+      ctx.lineWidth = 1 + influence * 0.5
+      ctx.save()
+      ctx.translate(x, y)
+      ctx.rotate(angle)
+      ctx.beginPath()
+      ctx.moveTo(-len / 2, 0)
+      ctx.lineTo(len / 2, 0)
+      if (influence > 0.3) {
+        ctx.lineTo(len / 2 - 2, -1.5)
+        ctx.moveTo(len / 2, 0)
+        ctx.lineTo(len / 2 - 2, 1.5)
+      }
+      ctx.stroke()
+      ctx.restore()
+    }
+  }
+}
+
+function drawWave(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  const baseLen = 2
+  for (let x = props.spacing / 2; x < w; x += props.spacing) {
+    for (let y = props.spacing / 2; y < h; y += props.spacing) {
+      const dist = getDist(x, y)
+      const influence = getInfluence(x, y)
+      const len = baseLen + influence * 7
+      const rippleAngle = influence > 0
+        ? Math.sin(dist * 0.08 - time * 3) * influence * 0.6
+        : 0
+      ctx.strokeStyle = influence > 0 ? props.activeColor : props.restColor
+      ctx.lineWidth = 1 + influence * 0.8
+      ctx.save()
+      ctx.translate(x, y)
+      ctx.rotate(rippleAngle)
+      ctx.beginPath()
+      ctx.moveTo(-len / 2, 0)
+      ctx.lineTo(len / 2, 0)
+      ctx.stroke()
+      ctx.restore()
+    }
+  }
+}
+
+function drawCrosshatch(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  const baseLen = 2
+  const angles = [Math.PI / 4, -Math.PI / 4]
+  for (const angle of angles) {
+    for (let x = props.spacing / 2; x < w; x += props.spacing) {
+      for (let y = props.spacing / 2; y < h; y += props.spacing) {
+        const influence = getInfluence(x, y)
+        const len = baseLen + influence * 6
+        ctx.strokeStyle = influence > 0 ? props.activeColor : props.restColor
+        ctx.lineWidth = 0.8 + influence * 0.6
+        ctx.save()
+        ctx.translate(x, y)
+        ctx.rotate(angle)
+        ctx.beginPath()
+        ctx.moveTo(-len / 2, 0)
+        ctx.lineTo(len / 2, 0)
+        ctx.stroke()
+        ctx.restore()
+      }
+    }
+  }
+}
+
+function drawPulse(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  const baseLen = 2
+  for (let x = props.spacing / 2; x < w; x += props.spacing) {
+    for (let y = props.spacing / 2; y < h; y += props.spacing) {
+      const dist = getDist(x, y)
+      const influence = getInfluence(x, y)
+      const ringPhase = Math.sin(dist * 0.06 - time * 4)
+      const ringInfluence = influence * Math.max(0, ringPhase)
+      const len = baseLen + ringInfluence * 8
+      ctx.strokeStyle = ringInfluence > 0.1 ? props.activeColor : props.restColor
+      ctx.lineWidth = 1 + ringInfluence * 0.8
+      ctx.save()
+      ctx.translate(x, y)
+      ctx.beginPath()
+      ctx.moveTo(-len / 2, 0)
+      ctx.lineTo(len / 2, 0)
+      ctx.stroke()
+      ctx.restore()
+    }
+  }
+}
+
+function drawSpiral(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  const baseLen = 2
+  for (let x = props.spacing / 2; x < w; x += props.spacing) {
+    for (let y = props.spacing / 2; y < h; y += props.spacing) {
+      const influence = getInfluence(x, y)
+      const len = baseLen + influence * 7
+      const angle = influence > 0
+        ? Math.atan2(y - mouse.y, x - mouse.x) + Math.PI / 2
+        : 0
+      ctx.strokeStyle = influence > 0 ? props.activeColor : props.restColor
+      ctx.lineWidth = 1 + influence * 0.8
+      ctx.save()
+      ctx.translate(x, y)
+      ctx.rotate(angle)
+      ctx.beginPath()
+      ctx.moveTo(-len / 2, 0)
+      ctx.lineTo(len / 2, 0)
+      ctx.stroke()
+      ctx.restore()
+    }
+  }
+}
+
+function drawScatter(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  const baseLen = 2
+  for (let x = props.spacing / 2; x < w; x += props.spacing) {
+    for (let y = props.spacing / 2; y < h; y += props.spacing) {
+      const influence = getInfluence(x, y)
+      const len = baseLen + influence * 7
+      const restAngle = pseudoRandom(x, y) * Math.PI * 2
+      const targetAngle = Math.atan2(mouse.y - y, mouse.x - x)
+      const angle = influence > 0
+        ? restAngle * (1 - influence) + targetAngle * influence
+        : restAngle
+      ctx.strokeStyle = influence > 0 ? props.activeColor : props.restColor
+      ctx.lineWidth = 1 + influence * 0.5
+      ctx.save()
+      ctx.translate(x, y)
+      ctx.rotate(angle)
+      ctx.beginPath()
+      ctx.moveTo(-len / 2, 0)
+      ctx.lineTo(len / 2, 0)
       ctx.stroke()
       ctx.restore()
     }
@@ -160,33 +269,28 @@ function drawSwirl(ctx: CanvasRenderingContext2D, w: number, h: number) {
 }
 
 function drawQuantized(ctx: CanvasRenderingContext2D, w: number, h: number) {
-  const lineLen = 12
-  ctx.lineWidth = 2
-
+  const baseLen = 2
   for (let x = props.spacing / 2; x < w; x += props.spacing) {
     for (let y = props.spacing / 2; y < h; y += props.spacing) {
+      const influence = getInfluence(x, y)
+      const len = baseLen + influence * 7
       let angle = 0
-      const dist = Math.hypot(mouse.x - x, mouse.y - y)
-      const influenced = mouse.x > 0 && dist < props.radius * 1.17
-
-      if (influenced) {
+      if (influence > 0) {
         const rawAngle = Math.atan2(mouse.y - y, mouse.x - x)
-        const segment = Math.PI / 4
+        const segment = Math.PI / 2
         angle = Math.round(rawAngle / segment) * segment
-        ctx.strokeStyle = props.color
-      } else {
-        ctx.strokeStyle = 'rgba(44, 44, 42, 0.15)'
       }
-
+      ctx.strokeStyle = influence > 0 ? props.activeColor : props.restColor
+      ctx.lineWidth = 1 + influence * 0.6
       ctx.save()
       ctx.translate(x, y)
       ctx.rotate(angle)
       ctx.beginPath()
-      ctx.moveTo(-lineLen / 2, 0)
-      ctx.lineTo(lineLen / 2, 0)
-      if (influenced) {
-        ctx.moveTo(lineLen / 2, -3)
-        ctx.lineTo(lineLen / 2, 3)
+      ctx.moveTo(-len / 2, 0)
+      ctx.lineTo(len / 2, 0)
+      if (influence > 0.2) {
+        ctx.moveTo(len / 2, -1.5)
+        ctx.lineTo(len / 2, 1.5)
       }
       ctx.stroke()
       ctx.restore()
@@ -194,15 +298,152 @@ function drawQuantized(ctx: CanvasRenderingContext2D, w: number, h: number) {
   }
 }
 
-const drawFns: Record<FlowVariant, (ctx: CanvasRenderingContext2D, w: number, h: number) => void> = {
-  attractor: drawAttractor,
-  repulsor: drawRepulsor,
-  magnifier: drawMagnifier,
-  swirl: drawSwirl,
-  quantized: drawQuantized
+// --- SUBTLE ANIMATED EFFECTS ---
+
+function drawShimmer(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  const baseLen = 2
+  for (let x = props.spacing / 2; x < w; x += props.spacing) {
+    for (let y = props.spacing / 2; y < h; y += props.spacing) {
+      const influence = getInfluence(x, y)
+      const phase = pseudoRandom(x, y) * Math.PI * 2
+      const shimmer = Math.sin(time * 1.2 + phase) * 0.5 + 0.5
+      const len = baseLen + influence * 6 + shimmer * influence * 3
+      ctx.strokeStyle = influence > 0 ? props.activeColor : props.restColor
+      ctx.lineWidth = 1 + influence * 0.5
+      ctx.save()
+      ctx.translate(x, y)
+      ctx.beginPath()
+      ctx.moveTo(-len / 2, 0)
+      ctx.lineTo(len / 2, 0)
+      ctx.stroke()
+      ctx.restore()
+    }
+  }
 }
 
-function draw() {
+function drawTide(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  const baseLen = 2
+  for (let x = props.spacing / 2; x < w; x += props.spacing) {
+    for (let y = props.spacing / 2; y < h; y += props.spacing) {
+      const influence = getInfluence(x, y)
+      const wave = (Math.sin(x * 0.03 - time * 0.8) + 1) / 2
+      const combined = wave * 0.3 + influence * 0.7
+      const len = baseLen + combined * 7
+      ctx.strokeStyle = combined > 0.25 ? props.activeColor : props.restColor
+      ctx.lineWidth = 1 + combined * 0.5
+      ctx.save()
+      ctx.translate(x, y)
+      ctx.beginPath()
+      ctx.moveTo(-len / 2, 0)
+      ctx.lineTo(len / 2, 0)
+      ctx.stroke()
+      ctx.restore()
+    }
+  }
+}
+
+function drawFlicker(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  const baseLen = 2
+  for (let x = props.spacing / 2; x < w; x += props.spacing) {
+    for (let y = props.spacing / 2; y < h; y += props.spacing) {
+      const influence = getInfluence(x, y)
+      const phase = pseudoRandom(x, y) * Math.PI * 2
+      const flicker = (Math.sin(time * 0.7 + phase) + 1) / 2
+      const opacity = influence > 0
+        ? influence + (1 - influence) * flicker * 0.4
+        : flicker * 0.5
+      if (opacity < 0.15) continue
+      const len = baseLen + influence * 7
+      ctx.globalAlpha = opacity
+      ctx.strokeStyle = influence > 0.1 ? props.activeColor : props.restColor
+      ctx.lineWidth = 1 + influence * 0.5
+      ctx.save()
+      ctx.translate(x, y)
+      ctx.beginPath()
+      ctx.moveTo(-len / 2, 0)
+      ctx.lineTo(len / 2, 0)
+      ctx.stroke()
+      ctx.restore()
+      ctx.globalAlpha = 1
+    }
+  }
+}
+
+function drawGravity(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  const baseLen = 2
+  for (let x = props.spacing / 2; x < w; x += props.spacing) {
+    for (let y = props.spacing / 2; y < h; y += props.spacing) {
+      const influence = getInfluence(x, y)
+      const len = baseLen + influence * 7
+      const phase = pseudoRandom(x, y) * Math.PI * 2
+      const sway = Math.sin(time * 0.4 + phase) * 0.08
+      const restAngle = Math.PI / 2 + sway
+      const targetAngle = influence > 0
+        ? Math.atan2(mouse.y - y, mouse.x - x)
+        : restAngle
+      const angle = restAngle * (1 - influence) + targetAngle * influence
+      ctx.strokeStyle = influence > 0 ? props.activeColor : props.restColor
+      ctx.lineWidth = 1 + influence * 0.5
+      ctx.save()
+      ctx.translate(x, y)
+      ctx.rotate(angle)
+      ctx.beginPath()
+      ctx.moveTo(-len / 2, 0)
+      ctx.lineTo(len / 2, 0)
+      ctx.stroke()
+      ctx.restore()
+    }
+  }
+}
+
+function drawConstellation(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  for (let x = props.spacing / 2; x < w; x += props.spacing) {
+    for (let y = props.spacing / 2; y < h; y += props.spacing) {
+      const influence = getInfluence(x, y)
+      const restAngle = pseudoRandom(x, y) * Math.PI * 2
+      const drift = Math.sin(time * 0.3 + restAngle) * 0.05
+      const angle = restAngle + drift
+      if (influence < 0.05) {
+        ctx.fillStyle = props.restColor
+        ctx.beginPath()
+        ctx.arc(x, y, 0.8, 0, Math.PI * 2)
+        ctx.fill()
+      } else {
+        const len = influence * 8
+        ctx.strokeStyle = props.activeColor
+        ctx.lineWidth = 0.8 + influence * 0.5
+        ctx.save()
+        ctx.translate(x, y)
+        ctx.rotate(angle)
+        ctx.beginPath()
+        ctx.moveTo(-len / 2, 0)
+        ctx.lineTo(len / 2, 0)
+        ctx.stroke()
+        ctx.restore()
+      }
+    }
+  }
+}
+
+const drawFns: Record<FlowVariant, (ctx: CanvasRenderingContext2D, w: number, h: number) => void> = {
+  horizontal: drawHorizontal,
+  diagonal: drawDiagonal,
+  radial: drawRadial,
+  convergent: drawConvergent,
+  wave: drawWave,
+  crosshatch: drawCrosshatch,
+  pulse: drawPulse,
+  spiral: drawSpiral,
+  scatter: drawScatter,
+  quantized: drawQuantized,
+  shimmer: drawShimmer,
+  tide: drawTide,
+  flicker: drawFlicker,
+  gravity: drawGravity,
+  constellation: drawConstellation
+}
+
+function draw({ delta }: { delta: number }) {
   const canvas = canvasRef.value
   if (!canvas) return
   const ctx = canvas.getContext('2d')!
@@ -213,11 +454,12 @@ function draw() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
   ctx.clearRect(0, 0, w, h)
 
-  if (props.variant === 'swirl') time += 0.02
+  time += delta / 1000
 
   drawFns[props.variant](ctx, w, h)
-  raf = requestAnimationFrame(draw)
 }
+
+const { resume } = useRafFn(draw, { immediate: false })
 
 function onMouseMove(e: MouseEvent) {
   const container = containerRef.value
@@ -227,30 +469,24 @@ function onMouseMove(e: MouseEvent) {
   mouse.y = e.clientY - rect.top
 }
 
+function setMouse(x: number, y: number) {
+  mouse.x = x
+  mouse.y = y
+}
+
 function onMouseLeave() {
   mouse.x = -1000
   mouse.y = -1000
 }
 
 onMounted(() => {
-  const motionMq = window.matchMedia('(prefers-reduced-motion: reduce)')
-  prefersReducedMotion.value = motionMq.matches
-  motionMq.addEventListener('change', e => prefersReducedMotion.value = e.matches)
-  isCoarsePointer.value = window.matchMedia('(pointer: coarse)').matches
-
   if (!useStaticFallback.value) {
     resize()
-    raf = requestAnimationFrame(draw)
-    window.addEventListener('resize', resize)
+    resume()
   }
 })
 
-onUnmounted(() => {
-  cancelAnimationFrame(raf)
-  window.removeEventListener('resize', resize)
-})
-
-defineExpose({ onMouseMove, onMouseLeave })
+defineExpose({ onMouseMove, onMouseLeave, setMouse })
 </script>
 
 <template>
