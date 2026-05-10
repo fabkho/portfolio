@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 
-const text = "fabkho"
-const displayText = ref("")
+const text = 'fabkho'
+const displayText = ref('')
 const isTyping = ref(true)
 
 onMounted(() => {
@@ -16,7 +16,7 @@ onMounted(() => {
       isTyping.value = false
     }
   }
-  
+
   setTimeout(typeChar, 400)
 })
 </script>
@@ -25,7 +25,10 @@ onMounted(() => {
   <div class="logo">
     <span class="prefix">~ </span>
     <span class="text">{{ displayText }}</span>
-    <span class="cursor" :class="{ blinking: !isTyping }">_</span>
+    <span
+      class="cursor"
+      :class="{ blinking: !isTyping }"
+    >_</span>
   </div>
 </template>
 

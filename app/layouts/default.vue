@@ -207,7 +207,7 @@ const { sidebarState } = useLayoutSidebar()
     border: none;
   }
 
-  .data-section {
+  .data-section:not(.wave-ripple) {
     border-bottom: none;
   }
 

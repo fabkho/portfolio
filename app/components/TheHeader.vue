@@ -217,7 +217,7 @@ onMounted(() => {
     gap: 0.5rem;
     background: transparent !important;
   }
-  
+
   /* Remove wave ripple on mobile */
   :deep(.wave-ripple) {
     background-image: none !important;

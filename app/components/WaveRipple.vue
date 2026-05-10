@@ -169,7 +169,7 @@ const { pause: pauseRandom, resume: resumeRandom } = useIntervalFn(() => {
   const x = Math.random() * rect.width
   const y = Math.random() * rect.height
   spawnRipple(x, y)
-}, 2000, { immediate: false })
+}, 1250, { immediate: false })
 
 onMounted(() => {
   if (!import.meta.server) {
