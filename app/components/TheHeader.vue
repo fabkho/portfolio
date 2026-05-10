@@ -3,6 +3,17 @@ import { isRouteActive, NAV_ITEMS } from '~/utils/navigation'
 
 const subtitle = useRouteSubtitle()
 const navItems = NAV_ITEMS
+const navAnimated = useState('nav-animated', () => false)
+const skipAnimation = ref(navAnimated.value)
+
+onMounted(() => {
+  if (!navAnimated.value) {
+    setTimeout(() => {
+      navAnimated.value = true
+      skipAnimation.value = true
+    }, 600)
+  }
+})
 </script>
 
 <template>
@@ -25,14 +36,6 @@ const navItems = NAV_ITEMS
       >
         GitHub <span aria-hidden="true">↗</span>
       </a>
-      <a
-        href="https://x.com/fabkho"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="meta-link"
-      >
-        X / Twitter <span aria-hidden="true">↗</span>
-      </a>
     </div>
 
     <WaveRipple
@@ -49,7 +52,8 @@ const navItems = NAV_ITEMS
         :key="link.to"
         :to="link.to"
         class="nav-link"
-        :style="{ animationDelay: `${index * 0.08}s` }"
+        :class="{ 'nav-link--no-anim': skipAnimation }"
+        :style="!skipAnimation ? { animationDelay: `${index * 0.08}s` } : undefined"
         :aria-current="isRouteActive($route.path, link.to) ? 'page' : undefined"
       >
         {{ link.label }}
@@ -140,6 +144,10 @@ const navItems = NAV_ITEMS
   text-align: right;
   transition: color 0.2s, border-color 0.2s, background 0.2s;
   animation: slideIn 0.4s ease both;
+}
+
+.nav-link--no-anim {
+  animation: none;
 }
 
 .nav-link:hover {

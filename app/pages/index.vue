@@ -39,7 +39,7 @@ useSeoMeta({
         :description="project.description"
         :specs="project.specs"
         :url="project.url"
-        :variant="index === 1 ? 'hatched' : 'default'"
+        :variant="index === 0 ? 'vectorflow' : index === 1 ? 'hatched' : 'default'"
         :class="{ 'translate-y-8': index === 1 }"
       />
     </ContentGrid>
@@ -55,7 +55,7 @@ useSeoMeta({
     </div>
 
     <div class="mt-16">
-      <SectionLabel label="Recent Memos" />
+      <SectionLabel label="Latest Article" />
       <ContentGrid>
         <TheCard
           v-if="latestPost"
@@ -67,7 +67,7 @@ useSeoMeta({
         />
         <TheCard
           v-else
-          tag="MEMO // BLOG"
+          tag="BLOG"
           title="Coming soon"
           description="Technical articles on Vue, accessibility, and performance."
           :specs="['BLOG']"

@@ -8,17 +8,17 @@ export const NAV_ITEMS = [
   {
     to: '/',
     label: 'Home',
-    subtitle: 'Architectural Schematics // Full-Stack Development'
+    subtitle: 'Full-Stack Developer // Vue · Nuxt · TypeScript'
   },
   {
     to: '/projects',
     label: 'Projects',
-    subtitle: 'Index of Constructed Mechanisms'
+    subtitle: 'Projects & Open Source'
   },
   {
     to: '/blog',
     label: 'Blog',
-    subtitle: 'Technical Memos & Transmission Logs'
+    subtitle: 'Technical Memos & Articles'
   }
 ] as const satisfies readonly NavItem[]
 

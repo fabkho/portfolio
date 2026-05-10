@@ -12,15 +12,15 @@ const { data: contributions } = await useAsyncData('contributions', () =>
 
 useSeoMeta({
   title: 'Projects',
-  description: 'Constructed mechanisms and selected full-stack projects by Fabian Kirchhoff.',
+  description: 'Selected full-stack projects and open-source work by Fabian Kirchhoff.',
   ogTitle: 'Projects | Fabian Kirchhoff',
-  ogDescription: 'Constructed mechanisms and selected full-stack projects by Fabian Kirchhoff.'
+  ogDescription: 'Selected full-stack projects and open-source work by Fabian Kirchhoff.'
 })
 </script>
 
 <template>
   <div>
-    <SectionLabel label="Constructed Mechanisms" />
+    <SectionLabel label="All Projects" />
     <ContentGrid v-if="projects?.length">
       <TheCard
         v-for="project in projects"
@@ -38,7 +38,7 @@ useSeoMeta({
       v-else
       class="empty-state"
     >
-      No constructed mechanisms are logged yet.
+      No projects logged yet.
     </p>
 
     <div
