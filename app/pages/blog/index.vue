@@ -6,6 +6,8 @@ const { data: posts } = await useAsyncData('all-posts', () =>
     .all()
 )
 
+const { getVariant } = useGridVariant()
+
 useSeoMeta({
   title: 'Blog',
   description: 'Articles on Vue, Nuxt, accessibility, performance, and open-source engineering.',
@@ -37,7 +39,7 @@ useSeoMeta({
           :description="post.description"
           :specs="post.specs"
           :url="post.path"
-          :variant="index % 2 === 0 ? 'hatched' : 'default'"
+          :variant="getVariant(index)"
           :view-transition-name="`blog-title-${post.path.split('/').pop()}`"
         />
       </ContentGrid>

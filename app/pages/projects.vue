@@ -59,7 +59,7 @@ useSeoMeta({
           :specs="project.specs"
           :url="project.url"
           :stars="project.stars"
-          :variant="index % 2 === 0 ? 'hatched' : 'default'"
+          :variant="getVariant(index)"
         />
       </ContentGrid>
       <p
