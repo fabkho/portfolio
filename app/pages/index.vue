@@ -39,7 +39,7 @@ useSeoMeta({
         :description="project.description"
         :specs="project.specs"
         :url="project.url"
-        :variant="index === 0 ? 'vectorflow' : index === 1 ? 'hatched' : 'default'"
+        :variant="index === 1 ? 'hatched' : 'default'"
         :class="{ 'translate-y-8': index === 1 }"
       />
     </ContentGrid>
