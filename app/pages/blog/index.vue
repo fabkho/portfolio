@@ -6,21 +6,6 @@ const { data: posts } = await useAsyncData('all-posts', () =>
     .all()
 )
 
-const { setSidebar, clearSidebar } = useLayoutSidebar()
-
-watchEffect((onCleanup) => {
-  if (posts.value?.length) {
-    setSidebar(
-      resolveComponent('BlogIndexSidebar') as Component,
-      { posts: posts.value.map(p => ({ path: p.path, title: p.title, date: p.date })) }
-    )
-  }
-
-  onCleanup(() => {
-    clearSidebar()
-  })
-})
-
 useSeoMeta({
   title: 'Blog',
   description: 'Articles on Vue, Nuxt, accessibility, performance, and open-source engineering.',
@@ -30,31 +15,40 @@ useSeoMeta({
 </script>
 
 <template>
-  <div>
-    <SectionLabel label="Articles" />
-    <ContentGrid
-      v-if="posts?.length"
-      staggered
-    >
-      <TheCard
-        v-for="(post, index) in posts"
-        :key="post.path"
-        :tag="post.tag"
-        :title="post.title"
-        :description="post.description"
-        :specs="post.specs"
-        :url="post.path"
-        :variant="index % 2 !== 0 ? 'hatched' : 'default'"
-        :view-transition-name="`blog-title-${post.path.split('/').pop()}`"
+  <NuxtLayout name="default">
+    <template #sidebar>
+      <BlogIndexSidebar
+        v-if="posts?.length"
+        :posts="posts.map(p => ({ path: p.path, title: p.title, date: p.date }))"
       />
-    </ContentGrid>
-    <p
-      v-else
-      class="empty-state"
-    >
-      No articles published yet.
-    </p>
-  </div>
+    </template>
+
+    <div>
+      <SectionLabel label="Articles" />
+      <ContentGrid
+        v-if="posts?.length"
+        staggered
+      >
+        <TheCard
+          v-for="(post, index) in posts"
+          :key="post.path"
+          :tag="post.tag"
+          :title="post.title"
+          :description="post.description"
+          :specs="post.specs"
+          :url="post.path"
+          :variant="index % 2 !== 0 ? 'hatched' : 'default'"
+          :view-transition-name="`blog-title-${post.path.split('/').pop()}`"
+        />
+      </ContentGrid>
+      <p
+        v-else
+        class="empty-state"
+      >
+        No articles published yet.
+      </p>
+    </div>
+  </NuxtLayout>
 </template>
 
 <style scoped>

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { Component } from 'vue'
-
 const { data: projects } = await useAsyncData('all-projects', () =>
   queryCollection('projects')
     .order('order', 'ASC')
@@ -25,21 +23,6 @@ const stack = computed(() => {
     .map(([name]) => name)
 })
 
-const { setSidebar, clearSidebar } = useLayoutSidebar()
-
-watchEffect((onCleanup) => {
-  if (projects.value) {
-    setSidebar(
-      resolveComponent('ProjectsSidebar') as Component,
-      { projectCount: projects.value.length, stack: stack.value }
-    )
-  }
-
-  onCleanup(() => {
-    clearSidebar()
-  })
-})
-
 useSeoMeta({
   title: 'Projects',
   description: 'Selected full-stack projects and open-source work by Fabian Kirchhoff.',
@@ -49,42 +32,52 @@ useSeoMeta({
 </script>
 
 <template>
-  <div>
-    <SectionLabel label="All Projects" />
-    <ContentGrid
-      v-if="projects?.length"
-      staggered
-    >
-      <TheCard
-        v-for="(project, index) in projects"
-        :key="project.id"
-        :tag="project.tag"
-        :label="project.label"
-        :title="project.title"
-        :description="project.description"
-        :specs="project.specs"
-        :url="project.url"
-        :stars="project.stars"
-        :variant="index % 2 !== 0 ? 'hatched' : 'default'"
+  <NuxtLayout name="default">
+    <template #sidebar>
+      <ProjectsSidebar
+        v-if="projects"
+        :project-count="projects.length"
+        :stack="stack"
       />
-    </ContentGrid>
-    <p
-      v-else
-      class="empty-state"
-    >
-      No projects logged yet.
-    </p>
+    </template>
 
-    <div
-      v-if="contributions?.length"
-      class="mt-16"
-    >
-      <SectionLabel label="Open Source Contributions" />
-      <LazyContributionList
-        :contributions="contributions"
-      />
+    <div>
+      <SectionLabel label="All Projects" />
+      <ContentGrid
+        v-if="projects?.length"
+        staggered
+      >
+        <TheCard
+          v-for="(project, index) in projects"
+          :key="project.id"
+          :tag="project.tag"
+          :label="project.label"
+          :title="project.title"
+          :description="project.description"
+          :specs="project.specs"
+          :url="project.url"
+          :stars="project.stars"
+          :variant="index % 2 !== 0 ? 'hatched' : 'default'"
+        />
+      </ContentGrid>
+      <p
+        v-else
+        class="empty-state"
+      >
+        No projects logged yet.
+      </p>
+
+      <div
+        v-if="contributions?.length"
+        class="mt-16"
+      >
+        <SectionLabel label="Open Source Contributions" />
+        <LazyContributionList
+          :contributions="contributions"
+        />
+      </div>
     </div>
-  </div>
+  </NuxtLayout>
 </template>
 
 <style scoped>

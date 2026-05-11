@@ -14,7 +14,5 @@ useHead({
 
 <template>
   <SkipLink />
-  <NuxtLayout>
-    <NuxtPage />
-  </NuxtLayout>
+  <NuxtPage />
 </template>

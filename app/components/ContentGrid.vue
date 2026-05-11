@@ -28,7 +28,7 @@ useStaggerReveal(gridRef)
 @media (min-width: 769px) {
   /* Remove !important from initial transform so animation can override it */
   .content-grid--staggered :deep(> *:nth-child(even)) {
-    transform: translateY(2.5rem); 
+    transform: translateY(2.5rem);
   }
 }
 

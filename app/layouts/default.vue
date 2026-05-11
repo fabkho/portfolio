@@ -1,7 +1,6 @@
 <script setup lang="ts">
 const route = useRoute()
 const isBlogRoute = computed(() => route.path.startsWith('/blog'))
-const { sidebarState } = useLayoutSidebar()
 const sidebarRef = ref<HTMLElement>()
 useSidebarReveal(sidebarRef)
 </script>
@@ -19,15 +18,11 @@ useSidebarReveal(sidebarRef)
     </main>
     <aside class="data-sidebar">
       <div
+        id="sidebar-target"
         ref="sidebarRef"
         :class="isBlogRoute ? 'sidebar-sticky' : 'sidebar-default'"
       >
-        <component
-          :is="sidebarState.component"
-          v-if="sidebarState.component"
-          v-bind="sidebarState.props"
-        />
-        <template v-else>
+        <slot name="sidebar">
           <div class="sidebar-header">
             About
           </div>
@@ -38,7 +33,7 @@ useSidebarReveal(sidebarRef)
             </p>
           </div>
           <div class="data-section data-section--grow" />
-        </template>
+        </slot>
       </div>
     </aside>
     <TheFooter />
