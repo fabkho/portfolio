@@ -40,4 +40,16 @@
   color: var(--color-accent);
   border-color: var(--color-accent);
 }
+@media (max-width: 1024px) {
+  .footer {
+    border: none;
+  }
+}
+@media (max-width: 640px) {
+  .footer {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+}
 </style>
