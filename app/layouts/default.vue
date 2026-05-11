@@ -73,7 +73,6 @@ useSidebarReveal(sidebarRef)
   border: 1px solid var(--color-ink);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 }
 
 .sidebar-default {
@@ -90,6 +89,7 @@ useSidebarReveal(sidebarRef)
   max-height: calc(100vh - 4rem);
   overflow-y: auto;
   scrollbar-width: none;
+  align-self: flex-start;
 }
 
 .sidebar-sticky::-webkit-scrollbar {
@@ -97,7 +97,7 @@ useSidebarReveal(sidebarRef)
 }
 
 .sidebar-header {
-  padding: 1rem;
+  padding: 0.5rem 1rem;
   border-bottom: 1px solid var(--color-ink);
   font-weight: bold;
   text-transform: uppercase;
