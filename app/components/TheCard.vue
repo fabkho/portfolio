@@ -164,6 +164,37 @@ const NuxtLinkComp = resolveComponent('NuxtLink')
   text-transform: uppercase;
 }
 
+.the-card__body {
+  padding: 1.5rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.the-card__body-inner {
+  background: var(--color-bg);
+  padding: 1rem;
+  border: 1px solid var(--color-ink);
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.the-card__title {
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+
+.the-card__description {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+  flex-grow: 1;
+}
+
 .the-card__footer {
   display: flex;
   justify-content: space-between;
