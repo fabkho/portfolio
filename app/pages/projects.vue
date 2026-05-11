@@ -34,9 +34,11 @@ watchEffect(() => {
       { projectCount: projects.value.length, stack: stack.value }
     )
   }
-})
 
-onUnmounted(() => clearSidebar())
+  onCleanup(() => {
+    clearSidebar()
+  })
+})
 
 useSeoMeta({
   title: 'Projects',

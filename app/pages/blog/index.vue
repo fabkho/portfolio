@@ -15,9 +15,11 @@ watchEffect(() => {
       { posts: posts.value.map(p => ({ path: p.path, title: p.title, date: p.date })) }
     )
   }
-})
 
-onUnmounted(() => clearSidebar())
+  onCleanup(() => {
+    clearSidebar()
+  })
+})
 
 useSeoMeta({
   title: 'Blog',

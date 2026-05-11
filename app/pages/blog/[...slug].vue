@@ -43,9 +43,11 @@ watchEffect(() => {
       }
     )
   }
-})
 
-onUnmounted(() => clearSidebar())
+  onCleanup(() => {
+    clearSidebar()
+  })
+})
 
 useSeoMeta({
   title: post.value?.title,
