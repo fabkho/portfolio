@@ -27,7 +27,7 @@ const stack = computed(() => {
 
 const { setSidebar, clearSidebar } = useLayoutSidebar()
 
-watchEffect(() => {
+watchEffect((onCleanup) => {
   if (projects.value) {
     setSidebar(
       resolveComponent('ProjectsSidebar') as Component,

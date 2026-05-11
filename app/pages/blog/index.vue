@@ -8,7 +8,7 @@ const { data: posts } = await useAsyncData('all-posts', () =>
 
 const { setSidebar, clearSidebar } = useLayoutSidebar()
 
-watchEffect(() => {
+watchEffect((onCleanup) => {
   if (posts.value?.length) {
     setSidebar(
       resolveComponent('BlogIndexSidebar') as Component,

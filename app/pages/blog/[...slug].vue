@@ -31,7 +31,7 @@ const viewTransitionName = computed(() => {
 
 const { setSidebar, clearSidebar } = useLayoutSidebar()
 
-watchEffect(() => {
+watchEffect((onCleanup) => {
   if (post.value) {
     setSidebar(
       resolveComponent('BlogSidebar') as Component,

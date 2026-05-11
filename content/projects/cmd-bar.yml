@@ -7,7 +7,7 @@ specs:
   - TYPESCRIPT
   - A11Y
 url: https://github.com/fabkho/cmd-bar
-featured: false
+featured: true
 order: 4
 stars: 6
 stack:

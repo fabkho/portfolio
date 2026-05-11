@@ -6,7 +6,7 @@ specs:
   - TYPESCRIPT
   - CLI
 url: https://github.com/fabkho/reading-tracker-cli
-featured: false
+featured: true
 order: 3
 stack:
   - TypeScript
