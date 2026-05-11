@@ -37,7 +37,9 @@ export default defineContentConfig({
         date: z.string(),
         author: z.string().default('Fabian Kirchhoff'),
         specs: z.array(z.string()).optional(),
-        status: z.enum(['draft', 'published']).default('published')
+        status: z.enum(['draft', 'published']).default('published'),
+        featured: z.boolean().optional(),
+        order: z.number().optional()
       })
     })
   }
