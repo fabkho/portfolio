@@ -8,6 +8,8 @@ const projectCount = computed(() => projects.value?.length ?? 0)
 const route = useRoute()
 const isBlogRoute = computed(() => route.path.startsWith('/blog'))
 const { sidebarState } = useLayoutSidebar()
+const sidebarRef = ref<HTMLElement>()
+useSidebarReveal(sidebarRef)
 </script>
 
 <template>
@@ -23,7 +25,10 @@ const { sidebarState } = useLayoutSidebar()
       </div>
     </main>
     <aside class="data-sidebar">
-      <div :class="isBlogRoute ? 'sidebar-sticky' : 'sidebar-default'">
+      <div
+        ref="sidebarRef"
+        :class="isBlogRoute ? 'sidebar-sticky' : 'sidebar-default'"
+      >
         <component
           :is="sidebarState.component"
           v-if="sidebarState.component"
@@ -168,6 +173,41 @@ const { sidebarState } = useLayoutSidebar()
 .data-section__label {
   font-size: var(--text-2xs);
   color: var(--color-accent);
+}
+
+/* Sidebar stagger reveal — children start hidden */
+.sidebar-default :deep(> *),
+.sidebar-sticky :deep(> *) {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+}
+
+@keyframes sidebar-stagger-reveal {
+  to {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+}
+
+.sidebar-default :deep(> .reveal-visible),
+.sidebar-sticky :deep(> .reveal-visible) {
+  animation: sidebar-stagger-reveal 0.6s ease forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-default :deep(> *),
+  .sidebar-sticky :deep(> *) {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+
+  .sidebar-default :deep(> .reveal-visible),
+  .sidebar-sticky :deep(> .reveal-visible) {
+    animation: none;
+  }
 }
 
 .data-label {
