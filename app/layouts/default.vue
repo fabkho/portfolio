@@ -19,7 +19,6 @@ useSidebarReveal(sidebarRef)
       id="main-content"
       class="schematic-area"
     >
-      <SchematicBackground />
       <div class="relative z-10">
         <slot />
       </div>
