@@ -26,8 +26,9 @@ useStaggerReveal(gridRef)
 }
 
 @media (min-width: 769px) {
+  /* Remove !important from initial transform so animation can override it */
   .content-grid--staggered :deep(> *:nth-child(even)) {
-    transform: translateY(2rem) !important;
+    transform: translateY(2.5rem); 
   }
 }
 
@@ -39,6 +40,11 @@ useStaggerReveal(gridRef)
 }
 
 @keyframes stagger-reveal {
+  from {
+    opacity: 0;
+    visibility: visible;
+    transform: translateY(1rem);
+  }
   to {
     opacity: 1;
     visibility: visible;
@@ -47,6 +53,11 @@ useStaggerReveal(gridRef)
 }
 
 @keyframes stagger-reveal-shifted {
+  from {
+    opacity: 0;
+    visibility: visible;
+    transform: translateY(3rem);
+  }
   to {
     opacity: 1;
     visibility: visible;
@@ -55,12 +66,12 @@ useStaggerReveal(gridRef)
 }
 
 .content-grid :deep(> .reveal-visible) {
-  animation: stagger-reveal 0.6s ease forwards;
+  animation: stagger-reveal 0.6s ease forwards !important;
 }
 
 @media (min-width: 769px) {
   .content-grid--staggered :deep(> .reveal-visible:nth-child(even)) {
-    animation: stagger-reveal-shifted 0.6s ease forwards;
+    animation: stagger-reveal-shifted 0.6s ease forwards !important;
   }
 }
 
