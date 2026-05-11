@@ -19,6 +19,8 @@ const { data: featuredPosts } = await useAsyncData('featured-posts', () =>
     .all()
 )
 
+const { getVariant } = useGridVariant()
+
 useSeoMeta({
   title: 'Fabian Kirchhoff',
   description: 'Full-stack developer portfolio featuring Vue, Nuxt, TypeScript, accessibility, and open-source work.',
@@ -41,7 +43,7 @@ useSeoMeta({
           :description="project.description"
           :specs="project.specs"
           :url="project.url"
-          :variant="index % 2 === 0 ? 'hatched' : 'default'"
+          :variant="getVariant(index)"
         />
       </ContentGrid>
 
@@ -69,7 +71,7 @@ useSeoMeta({
             :description="post.description"
             :specs="post.specs"
             :url="post.path"
-            :variant="index % 2 === 0 ? 'hatched' : 'default'"
+            :variant="getVariant(index)"
           />
         </ContentGrid>
         <ContentGrid

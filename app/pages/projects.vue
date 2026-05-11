@@ -23,6 +23,8 @@ const stack = computed(() => {
     .map(([name]) => name)
 })
 
+const { getVariant } = useGridVariant()
+
 useSeoMeta({
   title: 'Projects',
   description: 'Selected full-stack projects and open-source work by Fabian Kirchhoff.',

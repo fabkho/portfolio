@@ -20,7 +20,8 @@ onMounted(() => {
   <header class="header">
     <div class="header-cell title-main">
       <div class="site-logo">
-        <TypewriterLogo />
+        <TypewriterLogo class="logo-desktop" text="fabian_kirchhoff" />
+        <TypewriterLogo class="logo-mobile" text="fabkho" />
       </div>
       <div class="text-base uppercase tracking-[0.1em] mt-1 subtitle-text">
         {{ subtitle }}
@@ -86,6 +87,14 @@ onMounted(() => {
 .site-logo {
   display: flex;
   align-items: center;
+}
+
+.logo-desktop {
+  display: flex;
+}
+
+.logo-mobile {
+  display: none;
 }
 
 .meta {
@@ -192,6 +201,14 @@ onMounted(() => {
 
   .title-main .subtitle-text {
     display: none;
+  }
+
+  .logo-desktop {
+    display: none;
+  }
+
+  .logo-mobile {
+    display: flex;
   }
 
   .meta {
