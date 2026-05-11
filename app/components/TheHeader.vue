@@ -19,9 +19,11 @@ onMounted(() => {
 <template>
   <header class="header">
     <div class="header-cell title-main">
-      <div class="site-logo">
-        <TypewriterLogo class="logo-desktop" text="fabian_kirchhoff" />
-        <TypewriterLogo class="logo-mobile" text="fabkho" />
+      <h1 class="font-sans font-light text-4xl uppercase tracking-[-0.02em] hidden-mobile">
+        Fabian Kirchhoff
+      </h1>
+      <div class="mobile-logo">
+        <TypewriterLogo text="fabkho" />
       </div>
       <div class="text-base uppercase tracking-[0.1em] mt-1 subtitle-text">
         {{ subtitle }}
@@ -84,21 +86,8 @@ onMounted(() => {
   padding: 1rem 1.5rem;
 }
 
-.site-logo {
-  display: flex;
-  align-items: center;
-}
-
-.logo-desktop {
-  display: flex;
-  font-size: 2.25rem; /* ~36px, similar to text-4xl */
-  letter-spacing: -0.02em;
-  font-weight: 300;
-}
-
-.logo-mobile {
+.mobile-logo {
   display: none;
-  font-size: 1.5rem; /* ~24px */
 }
 
 .meta {
@@ -203,16 +192,18 @@ onMounted(() => {
     flex: 0 1 auto;
   }
 
+  .title-main h1.hidden-mobile {
+    display: none;
+  }
+
+  .mobile-logo {
+    display: flex;
+    align-items: center;
+    font-size: 1.5rem;
+  }
+
   .title-main .subtitle-text {
     display: none;
-  }
-
-  .logo-desktop {
-    display: none;
-  }
-
-  .logo-mobile {
-    display: flex;
   }
 
   .meta {
