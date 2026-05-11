@@ -11,11 +11,12 @@ const { data: contributions } = await useAsyncData('home-contributions', () =>
     .all()
 )
 
-const { data: latestPost } = await useAsyncData('latest-post', () =>
+const { data: featuredPosts } = await useAsyncData('featured-posts', () =>
   queryCollection('blog')
     .where('status', '=', 'published')
-    .order('date', 'DESC')
-    .first()
+    .where('featured', '=', true)
+    .order('order', 'ASC')
+    .all()
 )
 
 const { clearSidebar } = useLayoutSidebar()
@@ -60,19 +61,21 @@ useSeoMeta({
     </div>
 
     <div class="mt-16">
-      <SectionLabel label="Latest Article" />
-      <ContentGrid staggered>
+      <SectionLabel label="Selected Articles" />
+      <ContentGrid v-if="featuredPosts?.length" staggered>
         <TheCard
-          v-if="latestPost"
-          :tag="latestPost.tag"
-          :title="latestPost.title"
-          :description="latestPost.description"
-          :specs="latestPost.specs"
-          :url="latestPost.path"
-          variant="default"
+          v-for="(post, index) in featuredPosts"
+          :key="post.path"
+          :tag="post.tag"
+          :title="post.title"
+          :description="post.description"
+          :specs="post.specs"
+          :url="post.path"
+          :variant="index % 2 !== 0 ? 'hatched' : 'default'"
         />
+      </ContentGrid>
+      <ContentGrid v-else staggered>
         <TheCard
-          v-else
           tag="BLOG"
           title="Coming soon"
           description="Technical articles on Vue, accessibility, and performance."
