@@ -18,6 +18,12 @@ const { data: latestPost } = await useAsyncData('latest-post', () =>
     .first()
 )
 
+const { clearSidebar } = useLayoutSidebar()
+
+onMounted(() => {
+  clearSidebar()
+})
+
 useSeoMeta({
   title: 'Fabian Kirchhoff',
   description: 'Full-stack developer portfolio featuring Vue, Nuxt, TypeScript, accessibility, and open-source work.',
