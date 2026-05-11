@@ -19,7 +19,6 @@ export function useSidebarReveal(
   } = options
 
   const route = useRoute()
-  const { sidebarState } = useLayoutSidebar()
   const reducedMotion = usePreferredReducedMotion()
 
   function reveal() {
@@ -56,9 +55,9 @@ export function useSidebarReveal(
   // Reveal on mount
   onMounted(() => nextTick(reveal))
 
-  // Re-reveal on route or sidebar content change
+  // Re-reveal on route change
   watch(
-    [() => route.path, () => sidebarState.value.component],
+    () => route.path,
     () => nextTick(reveal)
   )
 }
