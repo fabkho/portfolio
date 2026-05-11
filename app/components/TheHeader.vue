@@ -91,10 +91,13 @@ onMounted(() => {
 
 .logo-desktop {
   display: flex;
+  font-size: 2rem;
+  letter-spacing: -0.02em;
 }
 
 .logo-mobile {
   display: none;
+  font-size: 1.25rem;
 }
 
 .meta {

@@ -39,7 +39,7 @@ onMounted(() => {
 <style scoped>
 .logo {
   font-family: var(--font-mono);
-  font-size: 1.2rem;
+  font-size: inherit;
   font-weight: 500;
   color: var(--color-ink);
   display: flex;
