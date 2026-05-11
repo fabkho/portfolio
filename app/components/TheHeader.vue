@@ -91,13 +91,14 @@ onMounted(() => {
 
 .logo-desktop {
   display: flex;
-  font-size: 2rem;
+  font-size: 2.25rem; /* ~36px, similar to text-4xl */
   letter-spacing: -0.02em;
+  font-weight: 300;
 }
 
 .logo-mobile {
   display: none;
-  font-size: 1.25rem;
+  font-size: 1.5rem; /* ~24px */
 }
 
 .meta {
