@@ -10,3 +10,8 @@ specs:
 url: https://anny.co
 featured: false
 order: 10
+stack:
+  - Vue
+  - Nuxt
+  - Laravel
+  - TypeScript

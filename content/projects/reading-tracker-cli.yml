@@ -8,3 +8,6 @@ specs:
 url: https://github.com/fabkho/reading-tracker-cli
 featured: false
 order: 3
+stack:
+  - TypeScript
+  - Node

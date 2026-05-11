@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { Component } from 'vue'
+
 const { data: projects } = await useAsyncData('all-projects', () =>
   queryCollection('projects')
     .order('order', 'ASC')
@@ -9,6 +11,32 @@ const { data: contributions } = await useAsyncData('contributions', () =>
   queryCollection('contributions')
     .all()
 )
+
+const stack = computed(() => {
+  if (!projects.value) return []
+  const all = projects.value.flatMap(p => p.stack || [])
+  // Dedupe, preserve frequency order
+  const counts = all.reduce((acc, tech) => {
+    acc[tech] = (acc[tech] || 0) + 1
+    return acc
+  }, {} as Record<string, number>)
+  return Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([name]) => name)
+})
+
+const { setSidebar, clearSidebar } = useLayoutSidebar()
+
+watchEffect(() => {
+  if (projects.value) {
+    setSidebar(
+      resolveComponent('ProjectsSidebar') as Component,
+      { projectCount: projects.value.length, stack: stack.value }
+    )
+  }
+})
+
+onUnmounted(() => clearSidebar())
 
 useSeoMeta({
   title: 'Projects',

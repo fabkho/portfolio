@@ -1,15 +1,15 @@
 <script setup lang="ts">
 defineProps<{
-  posts: { path: string, title: string, date: string }[]
+  projectCount: number
+  stack: string[]
 }>()
 </script>
 
 <template>
-  <div class="blog-index-sidebar">
+  <div class="projects-sidebar">
     <div class="sidebar-header">
-      All Posts
+      Overview
     </div>
-
     <WaveRipple
       mode="hover"
       color="var(--color-accent-faint)"
@@ -21,39 +21,31 @@ defineProps<{
     >
       <div class="data-section__inner">
         <div class="data-section__value">
-          {{ posts.length }}
+          {{ projectCount }}
         </div>
         <div class="data-section__label">
-          ARTICLES PUBLISHED
+          PROJECTS LOGGED
         </div>
       </div>
     </WaveRipple>
-
-    <div class="data-section data-section--grow">
+    <div class="data-section">
       <div class="data-label">
-        POSTS
+        STACK (FROM PROJECTS)
       </div>
-      <NuxtLink
-        v-for="post in posts"
-        :key="post.path"
-        :to="post.path"
+      <div
+        v-for="tech in stack"
+        :key="tech"
         class="sidebar-record"
       >
-        <div>
-          <div class="record-title">
-            {{ post.title }}
-          </div>
-          <div class="record-date">
-            {{ post.date }}
-          </div>
-        </div>
-      </NuxtLink>
+        <span>{{ tech }}</span>
+      </div>
     </div>
+    <div class="data-section data-section--grow" />
   </div>
 </template>
 
 <style scoped>
-.blog-index-sidebar {
+.projects-sidebar {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -108,26 +100,12 @@ defineProps<{
 }
 
 .sidebar-record {
-  display: block;
-  text-decoration: none;
-  color: inherit;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
   border-bottom: 1px dotted var(--color-ink-faint);
   padding: 0.5rem 0;
-  transition: color 0.2s;
-}
-
-.sidebar-record:hover {
-  color: var(--color-accent);
-}
-
-.record-title {
   font-family: var(--font-sans);
   font-size: var(--text-base);
-}
-
-.record-date {
-  font-family: var(--font-mono);
-  font-size: var(--text-2xs);
-  color: var(--color-ink-faint);
 }
 </style>

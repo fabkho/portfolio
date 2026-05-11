@@ -1,10 +1,4 @@
 <script setup lang="ts">
-const { data: projects } = await useAsyncData('layout-project-count', () =>
-  queryCollection('projects')
-    .all()
-)
-
-const projectCount = computed(() => projects.value?.length ?? 0)
 const route = useRoute()
 const isBlogRoute = computed(() => route.path.startsWith('/blog'))
 const { sidebarState } = useLayoutSidebar()
@@ -35,36 +29,13 @@ useSidebarReveal(sidebarRef)
         />
         <template v-else>
           <div class="sidebar-header">
-            Overview
+            About
           </div>
-          <WaveRipple
-            mode="hover"
-            color="var(--color-accent-faint)"
-            class="data-section"
-            :spacing="8"
-            :amplitude="8"
-            :lifetime="2000"
-            :still-threshold="200"
-          >
-            <div class="data-section__inner">
-              <div class="data-section__value">
-                {{ projectCount }}
-              </div>
-              <div class="data-section__label">
-                PROJECTS LOGGED
-              </div>
-            </div>
-          </WaveRipple>
           <div class="data-section">
-            <div class="data-label">
-              CURRENT STACK
-            </div>
-            <div class="sidebar-record">
-              <span>Vue / Nuxt / TypeScript</span>
-            </div>
-            <div class="sidebar-record">
-              <span>Node / Laravel</span>
-            </div>
+            <p class="sidebar-bio">
+              Full-stack developer focused on Vue, Nuxt, and TypeScript.
+              Open-source contributor. Building tools that ship.
+            </p>
           </div>
           <div class="data-section data-section--grow" />
         </template>
@@ -102,6 +73,7 @@ useSidebarReveal(sidebarRef)
   border: 1px solid var(--color-ink);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .sidebar-default {
@@ -117,20 +89,11 @@ useSidebarReveal(sidebarRef)
   flex-direction: column;
   max-height: calc(100vh - 4rem);
   overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-ink-faint) transparent;
+  scrollbar-width: none;
 }
 
 .sidebar-sticky::-webkit-scrollbar {
-  width: 4px;
-}
-
-.sidebar-sticky::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.sidebar-sticky::-webkit-scrollbar-thumb {
-  background-color: var(--color-ink-faint);
+  display: none;
 }
 
 .sidebar-header {
@@ -224,6 +187,26 @@ useSidebarReveal(sidebarRef)
   padding: 0.5rem 0;
   font-family: var(--font-sans);
   font-size: var(--text-base);
+}
+
+.sidebar-bio {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.5;
+}
+
+.sidebar-link {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--color-ink);
+  text-decoration: none;
+  padding: 0.3rem 0;
+  transition: color 0.2s;
+}
+
+.sidebar-link:hover {
+  color: var(--color-accent);
 }
 
 @media (max-width: 1024px) {

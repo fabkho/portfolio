@@ -11,6 +11,7 @@ export default defineContentConfig({
         title: z.string(),
         description: z.string(),
         specs: z.array(z.string()),
+        stack: z.array(z.string()).optional(),
         url: z.string().url().optional(),
         featured: z.boolean().optional(),
         order: z.number().optional(),
