@@ -29,7 +29,7 @@ useSeoMeta({
 <template>
   <div>
     <SectionLabel label="Selected Works" />
-    <ContentGrid>
+    <ContentGrid staggered>
       <TheCard
         v-for="(project, index) in featuredProjects"
         :key="project.id"
@@ -39,8 +39,7 @@ useSeoMeta({
         :description="project.description"
         :specs="project.specs"
         :url="project.url"
-        :variant="index === 1 ? 'hatched' : 'default'"
-        :class="{ 'translate-y-8': index === 1 }"
+        :variant="index % 2 !== 0 ? 'hatched' : 'default'"
       />
     </ContentGrid>
 
@@ -56,7 +55,7 @@ useSeoMeta({
 
     <div class="mt-16">
       <SectionLabel label="Latest Article" />
-      <ContentGrid>
+      <ContentGrid staggered>
         <TheCard
           v-if="latestPost"
           :tag="latestPost.tag"
@@ -64,6 +63,7 @@ useSeoMeta({
           :description="latestPost.description"
           :specs="latestPost.specs"
           :url="latestPost.path"
+          variant="default"
         />
         <TheCard
           v-else
@@ -71,6 +71,7 @@ useSeoMeta({
           title="Coming soon"
           description="Technical articles on Vue, accessibility, and performance."
           :specs="['BLOG']"
+          variant="hatched"
         />
       </ContentGrid>
     </div>

@@ -83,7 +83,7 @@ useSidebarReveal(sidebarRef)
 
 .sidebar-sticky {
   position: sticky;
-  top: 2rem;
+  top: 0.5rem;
   display: flex;
   flex-direction: column;
   max-height: calc(100vh - 4rem);

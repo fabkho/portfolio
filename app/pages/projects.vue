@@ -49,9 +49,12 @@ useSeoMeta({
 <template>
   <div>
     <SectionLabel label="All Projects" />
-    <ContentGrid v-if="projects?.length">
+    <ContentGrid
+      v-if="projects?.length"
+      staggered
+    >
       <TheCard
-        v-for="project in projects"
+        v-for="(project, index) in projects"
         :key="project.id"
         :tag="project.tag"
         :label="project.label"
@@ -60,6 +63,7 @@ useSeoMeta({
         :specs="project.specs"
         :url="project.url"
         :stars="project.stars"
+        :variant="index % 2 !== 0 ? 'hatched' : 'default'"
       />
     </ContentGrid>
     <p
