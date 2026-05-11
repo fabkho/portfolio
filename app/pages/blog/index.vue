@@ -6,8 +6,6 @@ const { data: posts } = await useAsyncData('all-posts', () =>
     .all()
 )
 
-const { getVariant } = useGridVariant()
-
 useSeoMeta({
   title: 'Blog',
   description: 'Articles on Vue, Nuxt, accessibility, performance, and open-source engineering.',
@@ -27,10 +25,7 @@ useSeoMeta({
 
     <div>
       <SectionLabel label="Articles" />
-      <ContentGrid
-        v-if="posts?.length"
-        staggered
-      >
+      <ContentGrid v-if="posts?.length">
         <TheCard
           v-for="(post, index) in posts"
           :key="post.path"
@@ -39,7 +34,6 @@ useSeoMeta({
           :description="post.description"
           :specs="post.specs"
           :url="post.path"
-          :variant="getVariant(index)"
           :view-transition-name="`blog-title-${post.path.split('/').pop()}`"
         />
       </ContentGrid>
