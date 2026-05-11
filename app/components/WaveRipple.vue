@@ -10,6 +10,9 @@ const props = withDefaults(
     lifetime?: number
     stillThreshold?: number
     color?: string
+    alternateColor?: string
+    alternateEvery?: number
+    tag?: string
   }>(),
   {
     mode: 'hover',
@@ -17,7 +20,9 @@ const props = withDefaults(
     amplitude: 10,
     maxRipples: 6,
     lifetime: 1800,
-    stillThreshold: 150
+    stillThreshold: 150,
+    alternateEvery: 4,
+    tag: 'div'
   }
 )
 
@@ -41,14 +46,21 @@ function drawLines(canvas: HTMLCanvasElement, now: number) {
 
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
   ctx.clearRect(0, 0, w, h)
-  let color = props.color || ''
-  if (color.startsWith('var(')) {
-    const varName = color.slice(4, -1).trim()
-    color = getComputedStyle(canvas).getPropertyValue(varName).trim()
+  let baseColor = props.color || ''
+  if (baseColor.startsWith('var(')) {
+    const varName = baseColor.slice(4, -1).trim()
+    baseColor = getComputedStyle(canvas).getPropertyValue(varName).trim()
   }
-  ctx.strokeStyle = color
+  baseColor = baseColor
     || getComputedStyle(canvas).getPropertyValue('--line-color').trim()
     || 'rgba(0,0,0,0.12)'
+
+  let altColor = props.alternateColor || ''
+  if (altColor.startsWith('var(')) {
+    const varName = altColor.slice(4, -1).trim()
+    altColor = getComputedStyle(canvas).getPropertyValue(varName).trim()
+  }
+
   ctx.lineWidth = 1
 
   const diag = Math.hypot(w, h)
@@ -62,6 +74,11 @@ function drawLines(canvas: HTMLCanvasElement, now: number) {
   for (let i = -lineCount; i < lineCount; i++) {
     const ox = i * props.spacing * nx
     const oy = i * props.spacing * ny
+
+    const lineIndex = i + lineCount
+    ctx.strokeStyle = (altColor && lineIndex % props.alternateEvery === 0)
+      ? altColor
+      : baseColor
 
     ctx.beginPath()
     for (let s = 0; s <= steps; s++) {
@@ -188,7 +205,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div
+  <component
+    :is="tag"
     ref="wrapperRef"
     class="wave-ripple"
     :style="color ? { '--wave-ripple-color': color } : undefined"
@@ -202,7 +220,7 @@ onUnmounted(() => {
     <div class="wave-ripple__content">
       <slot />
     </div>
-  </div>
+  </component>
 </template>
 
 <style scoped>
