@@ -6,6 +6,8 @@ date: "2026-01-15"
 author: "Fabian Kirchhoff"
 specs: ["NUXT", "AUTH", "PERFORMANCE"]
 status: published
+featured: true
+order: 2
 ---
 
 # Server-Side Auth in Nuxt: From 4 Redirects to Zero

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { Component } from 'vue'
 import { flattenToc } from '~/utils/flattenToc'
 
 const route = useRoute()
@@ -29,24 +28,6 @@ const viewTransitionName = computed(() => {
   return `blog-title-${last}`
 })
 
-const { setSidebar, clearSidebar } = useLayoutSidebar()
-
-watchEffect(() => {
-  if (post.value) {
-    setSidebar(
-      resolveComponent('BlogSidebar') as Component,
-      {
-        author: post.value.author || 'Unknown',
-        date: post.value.date || '',
-        status: post.value.status || 'published',
-        toc: tocItems.value
-      }
-    )
-  }
-})
-
-onUnmounted(() => clearSidebar())
-
 useSeoMeta({
   title: post.value?.title,
   description: post.value?.description,
@@ -58,9 +39,21 @@ useSeoMeta({
 </script>
 
 <template>
-  <BlogArticle
-    v-if="post"
-    :value="post"
-    :view-transition-name="viewTransitionName"
-  />
+  <NuxtLayout name="default">
+    <template #sidebar>
+      <BlogSidebar
+        v-if="post"
+        :author="post.author || 'Unknown'"
+        :date="post.date || ''"
+        :status="post.status || 'published'"
+        :toc="tocItems"
+      />
+    </template>
+
+    <BlogArticle
+      v-if="post"
+      :value="post"
+      :view-transition-name="viewTransitionName"
+    />
+  </NuxtLayout>
 </template>

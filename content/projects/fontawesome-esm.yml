@@ -10,3 +10,6 @@ url: https://github.com/fabkho/fontawesome-esm
 featured: false
 order: 5
 stars: 0
+stack:
+  - Vue
+  - Node

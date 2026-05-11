@@ -11,11 +11,12 @@ const { data: contributions } = await useAsyncData('home-contributions', () =>
     .all()
 )
 
-const { data: latestPost } = await useAsyncData('latest-post', () =>
+const { data: featuredPosts } = await useAsyncData('featured-posts', () =>
   queryCollection('blog')
     .where('status', '=', 'published')
-    .order('date', 'DESC')
-    .first()
+    .where('featured', '=', true)
+    .order('order', 'ASC')
+    .all()
 )
 
 useSeoMeta({
@@ -27,52 +28,63 @@ useSeoMeta({
 </script>
 
 <template>
-  <div>
-    <SectionLabel label="Selected Works" />
-    <ContentGrid>
-      <TheCard
-        v-for="(project, index) in featuredProjects"
-        :key="project.id"
-        :tag="project.tag"
-        :label="project.label"
-        :title="project.title"
-        :description="project.description"
-        :specs="project.specs"
-        :url="project.url"
-        :variant="index === 1 ? 'hatched' : 'default'"
-        :class="{ 'translate-y-8': index === 1 }"
-      />
-    </ContentGrid>
-
-    <div
-      v-if="contributions?.length"
-      class="mt-16"
-    >
-      <SectionLabel label="Open Source Contributions" />
-      <LazyContributionList
-        :contributions="contributions"
-      />
-    </div>
-
-    <div class="mt-16">
-      <SectionLabel label="Latest Article" />
-      <ContentGrid>
+  <NuxtLayout name="default">
+    <div>
+      <SectionLabel label="Selected Works" />
+      <ContentGrid staggered>
         <TheCard
-          v-if="latestPost"
-          :tag="latestPost.tag"
-          :title="latestPost.title"
-          :description="latestPost.description"
-          :specs="latestPost.specs"
-          :url="latestPost.path"
-        />
-        <TheCard
-          v-else
-          tag="BLOG"
-          title="Coming soon"
-          description="Technical articles on Vue, accessibility, and performance."
-          :specs="['BLOG']"
+          v-for="(project, index) in featuredProjects"
+          :key="project.id"
+          :tag="project.tag"
+          :label="project.label"
+          :title="project.title"
+          :description="project.description"
+          :specs="project.specs"
+          :url="project.url"
+          :variant="index % 2 !== 0 ? 'hatched' : 'default'"
         />
       </ContentGrid>
+
+      <div
+        v-if="contributions?.length"
+        class="mt-16"
+      >
+        <SectionLabel label="Open Source Contributions" />
+        <LazyContributionList
+          :contributions="contributions"
+        />
+      </div>
+
+      <div class="mt-16">
+        <SectionLabel label="Selected Articles" />
+        <ContentGrid
+          v-if="featuredPosts?.length"
+          staggered
+        >
+          <TheCard
+            v-for="(post, index) in featuredPosts"
+            :key="post.path"
+            :tag="post.tag"
+            :title="post.title"
+            :description="post.description"
+            :specs="post.specs"
+            :url="post.path"
+            :variant="index % 2 !== 0 ? 'hatched' : 'default'"
+          />
+        </ContentGrid>
+        <ContentGrid
+          v-else
+          staggered
+        >
+          <TheCard
+            tag="BLOG"
+            title="Coming soon"
+            description="Technical articles on Vue, accessibility, and performance."
+            :specs="['BLOG']"
+            variant="hatched"
+          />
+        </ContentGrid>
+      </div>
     </div>
-  </div>
+  </NuxtLayout>
 </template>

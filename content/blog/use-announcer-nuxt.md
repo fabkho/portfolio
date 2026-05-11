@@ -5,7 +5,9 @@ description: "How I contributed a screen reader announcement composable and comp
 date: "2026-04-01"
 author: "Fabian Kirchhoff"
 specs: ["NUXT", "A11Y", "OPEN SOURCE"]
-status: draft
+status: published
+featured: true
+order: 1
 ---
 
 # Adding useAnnouncer to Nuxt Core

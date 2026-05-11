@@ -33,10 +33,6 @@ const NuxtLinkComp = resolveComponent('NuxtLink')
       >
         <span class="the-card__tag">{{ tag }}</span>
         <span
-          v-if="stars"
-          class="the-card__stars"
-        >★ {{ stars }}</span>
-        <span
           v-if="label"
           class="the-card__tag"
         >{{ label }}</span>
@@ -61,14 +57,22 @@ const NuxtLinkComp = resolveComponent('NuxtLink')
             {{ description }}
           </p>
           <div
-            v-if="specs?.length"
-            class="the-card__specs"
+            class="the-card__footer"
           >
-            <SpecBadge
-              v-for="spec in specs"
-              :key="spec"
-              :label="spec"
-            />
+            <div
+              v-if="specs?.length"
+              class="the-card__specs"
+            >
+              <SpecBadge
+                v-for="spec in specs"
+                :key="spec"
+                :label="spec"
+              />
+            </div>
+            <span
+              v-if="stars"
+              class="the-card__stars"
+            >★ {{ stars }}</span>
           </div>
         </div>
       </WaveRipple>
@@ -86,14 +90,22 @@ const NuxtLinkComp = resolveComponent('NuxtLink')
           {{ description }}
         </p>
         <div
-          v-if="specs?.length"
-          class="the-card__specs"
+          class="the-card__footer"
         >
-          <SpecBadge
-            v-for="spec in specs"
-            :key="spec"
-            :label="spec"
-          />
+          <div
+            v-if="specs?.length"
+            class="the-card__specs"
+          >
+            <SpecBadge
+              v-for="spec in specs"
+              :key="spec"
+              :label="spec"
+            />
+          </div>
+          <span
+            v-if="stars"
+            class="the-card__stars"
+          >★ {{ stars }}</span>
         </div>
       </div>
     </component>
@@ -152,17 +164,6 @@ const NuxtLinkComp = resolveComponent('NuxtLink')
   text-transform: uppercase;
 }
 
-.the-card__stars {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs, 0.75rem);
-  color: var(--color-bg);
-  opacity: 0.7;
-}
-
-.the-card__header--light .the-card__stars {
-  color: var(--color-ink);
-}
-
 .the-card__body {
   padding: 1.5rem;
   flex-grow: 1;
@@ -194,11 +195,26 @@ const NuxtLinkComp = resolveComponent('NuxtLink')
   flex-grow: 1;
 }
 
+.the-card__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-ink-faint);
+  gap: 1rem;
+}
+
 .the-card__specs {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--color-ink-faint);
+}
+
+.the-card__stars {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--color-ink);
+  opacity: 0.7;
+  white-space: nowrap;
 }
 </style>
