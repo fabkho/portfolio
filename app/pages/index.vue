@@ -41,7 +41,7 @@ useSeoMeta({
           :description="project.description"
           :specs="project.specs"
           :url="project.url"
-          :variant="index % 2 !== 0 ? 'hatched' : 'default'"
+          :variant="index % 2 === 0 ? 'hatched' : 'default'"
         />
       </ContentGrid>
 
@@ -69,7 +69,7 @@ useSeoMeta({
             :description="post.description"
             :specs="post.specs"
             :url="post.path"
-            :variant="index % 2 !== 0 ? 'hatched' : 'default'"
+            :variant="index % 2 === 0 ? 'hatched' : 'default'"
           />
         </ContentGrid>
         <ContentGrid
