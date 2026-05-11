@@ -41,7 +41,7 @@ export function useStaggerReveal(
         reveal(entry.target)
         observer?.disconnect()
       },
-      { threshold }
+      { threshold: 0 }
     )
     observer.observe(el)
   })
