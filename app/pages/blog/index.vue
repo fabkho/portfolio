@@ -30,14 +30,13 @@ useSeoMeta({
         staggered
       >
         <TheCard
-          v-for="(post, index) in posts"
+          v-for="post in posts"
           :key="post.path"
           :tag="post.tag"
           :title="post.title"
           :description="post.description"
           :specs="post.specs"
           :url="post.path"
-          :variant="index % 2 !== 0 ? 'hatched' : 'default'"
           :view-transition-name="`blog-title-${post.path.split('/').pop()}`"
         />
       </ContentGrid>

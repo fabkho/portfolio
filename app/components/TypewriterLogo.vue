@@ -1,17 +1,21 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 
-const text = 'fabkho'
+const props = defineProps<{
+  text?: string
+}>()
+
+const textToType = props.text || 'fabkho'
 const displayText = ref('')
 const isTyping = ref(true)
 
 onMounted(() => {
   let index = 0
   const typeChar = () => {
-    if (index < text.length) {
-      displayText.value += text.charAt(index)
+    if (index < textToType.length) {
+      displayText.value += textToType.charAt(index)
       index++
-      setTimeout(typeChar, 100 + Math.random() * 50)
+      setTimeout(typeChar, 80 + Math.random() * 40)
     } else {
       isTyping.value = false
     }
@@ -35,7 +39,7 @@ onMounted(() => {
 <style scoped>
 .logo {
   font-family: var(--font-mono);
-  font-size: 1.2rem;
+  font-size: inherit;
   font-weight: 500;
   color: var(--color-ink);
   display: flex;

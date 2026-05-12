@@ -1,9 +1,12 @@
 <script setup lang="ts">
-const { data: featuredProjects } = await useAsyncData('featured-projects', () =>
+const { data: allProjects } = await useAsyncData('all-home-projects', () =>
   queryCollection('projects')
-    .where('featured', '=', true)
     .order('order', 'ASC')
     .all()
+)
+
+const featuredProjects = computed(() =>
+  allProjects.value?.filter(p => p.featured) ?? []
 )
 
 const { data: contributions } = await useAsyncData('home-contributions', () =>
@@ -11,12 +14,15 @@ const { data: contributions } = await useAsyncData('home-contributions', () =>
     .all()
 )
 
-const { data: featuredPosts } = await useAsyncData('featured-posts', () =>
+const { data: allPosts } = await useAsyncData('all-home-posts', () =>
   queryCollection('blog')
     .where('status', '=', 'published')
-    .where('featured', '=', true)
     .order('order', 'ASC')
     .all()
+)
+
+const featuredPosts = computed(() =>
+  allPosts.value?.filter(p => p.featured) ?? []
 )
 
 useSeoMeta({
@@ -41,7 +47,7 @@ useSeoMeta({
           :description="project.description"
           :specs="project.specs"
           :url="project.url"
-          :variant="index % 2 !== 0 ? 'hatched' : 'default'"
+          :variant="index % 2 === 0 ? 'hatched' : 'default'"
         />
       </ContentGrid>
 
@@ -57,31 +63,23 @@ useSeoMeta({
 
       <div class="mt-16">
         <SectionLabel label="Selected Articles" />
-        <ContentGrid
-          v-if="featuredPosts?.length"
-          staggered
-        >
+        <ContentGrid v-if="featuredPosts?.length">
           <TheCard
-            v-for="(post, index) in featuredPosts"
+            v-for="post in featuredPosts"
             :key="post.path"
             :tag="post.tag"
             :title="post.title"
             :description="post.description"
             :specs="post.specs"
             :url="post.path"
-            :variant="index % 2 !== 0 ? 'hatched' : 'default'"
           />
         </ContentGrid>
-        <ContentGrid
-          v-else
-          staggered
-        >
+        <ContentGrid v-else>
           <TheCard
             tag="BLOG"
             title="Coming soon"
             description="Technical articles on Vue, accessibility, and performance."
             :specs="['BLOG']"
-            variant="hatched"
           />
         </ContentGrid>
       </div>

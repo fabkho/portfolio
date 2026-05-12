@@ -23,7 +23,7 @@ onMounted(() => {
         Fabian Kirchhoff
       </h1>
       <div class="mobile-logo">
-        <TypewriterLogo />
+        <TypewriterLogo text="fabkho" />
       </div>
       <div class="text-base uppercase tracking-[0.1em] mt-1 subtitle-text">
         {{ subtitle }}
@@ -199,6 +199,7 @@ onMounted(() => {
   .mobile-logo {
     display: flex;
     align-items: center;
+    font-size: 1.5rem;
   }
 
   .title-main .subtitle-text {

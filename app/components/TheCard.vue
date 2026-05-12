@@ -171,6 +171,11 @@ const NuxtLinkComp = resolveComponent('NuxtLink')
   flex-direction: column;
 }
 
+.the-card__body.wave-ripple {
+  display: flex;
+  flex-direction: column;
+}
+
 .the-card__body-inner {
   background: var(--color-bg);
   padding: 1rem;
