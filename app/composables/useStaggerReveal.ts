@@ -23,8 +23,7 @@ export function useStaggerReveal(
 ) {
   const {
     selector = ':scope > *',
-    delay = 80,
-    threshold = 0.1
+    delay = 80
   } = options
 
   const reducedMotion = usePreferredReducedMotion()

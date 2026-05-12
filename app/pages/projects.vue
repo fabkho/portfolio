@@ -48,7 +48,7 @@ useSeoMeta({
         staggered
       >
         <TheCard
-          v-for="(project, index) in projects"
+          v-for="project in projects"
           :key="project.id"
           :tag="project.tag"
           :label="project.label"
@@ -57,7 +57,7 @@ useSeoMeta({
           :specs="project.specs"
           :url="project.url"
           :stars="project.stars"
-          />
+        />
       </ContentGrid>
       <p
         v-else

@@ -25,9 +25,12 @@ useSeoMeta({
 
     <div>
       <SectionLabel label="Articles" />
-      <ContentGrid v-if="posts?.length" staggered>
+      <ContentGrid
+        v-if="posts?.length"
+        staggered
+      >
         <TheCard
-          v-for="(post, index) in posts"
+          v-for="post in posts"
           :key="post.path"
           :tag="post.tag"
           :title="post.title"
