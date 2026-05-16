@@ -1,5 +1,5 @@
 ---
-title: Screen Readers Can't See Your DOM Changes
+title: Announcing Dynamic Changes in Vue with aria-live
 author: Fabian Kirchhoff
 date: 2026-05-15
 description: How to make dynamic content changes visible to screen readers using aria-live regions, and how to wrap it into a reusable composable.
@@ -13,11 +13,11 @@ status: published
 tag: ACCESSIBILITY
 ---
 
-# Screen Readers Can't See Your DOM Changes
+# Announcing Dynamic Changes in Vue with aria-live
 
-Single-page applications mutate the DOM without full page reloads. Sighted users see the change instantly. Screen reader users hear nothing — the assistive technology has no way to know that something important just appeared on screen.
+A Vue app re-renders reactively — a ref changes, the DOM updates, the user sees it. Screen readers don't. They need to be told explicitly when something important changed.
 
-This is the core problem `aria-live` solves. It tells the browser: "When this element's content changes, announce it."
+`aria-live` is the attribute that does this. It tells the browser: "When this element's content changes, announce it."
 
 ## The Problem
 
@@ -71,6 +71,8 @@ This forces a mutation the browser recognizes as a change, guaranteeing the anno
 **Async operations** — "Loading", then "Data loaded" or "Request failed". Without these, the user has no idea the app is working.
 
 **Toast notifications** — these are visually obvious but completely invisible to screen readers without a live region backing them.
+
+> **Don't overuse this.** Most dynamic UI in Vue is better served by moving focus to the new content or using semantic HTML. `aria-live` is for the cases where there's no element to focus — a background process finishing, a count changing while the user types elsewhere. Reach for focus management first.
 
 ## The Announcer Pattern
 
