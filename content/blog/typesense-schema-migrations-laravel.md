@@ -1,11 +1,15 @@
 ---
-tag: "BACKEND"
-title: "Typesense Schema Migrations in Laravel"
-description: "How to patch Typesense collections at deploy time using Laravel migrations instead of flushing and re-indexing."
-date: "2026-05-10"
-author: "Fabian Kirchhoff"
-specs: ["LARAVEL", "TYPESENSE", "SCOUT"]
+title: Typesense Schema Migrations in Laravel
+author: Fabian Kirchhoff
+date: 2026-05-10
+description: How to patch Typesense collections at deploy time using Laravel migrations instead of flushing and re-indexing.
+featured: false
+specs:
+  - LARAVEL
+  - TYPESENSE
+  - SCOUT
 status: published
+tag: BACKEND
 ---
 
 # Typesense Schema Migrations in Laravel
@@ -58,6 +62,7 @@ php artisan scout:import "App\Models\Order"
 ```
 
 This works, but:
+
 - `scout:flush` deletes the entire Typesense collection — not just documents, the collection itself
 - During re-import, search returns no results
 - Re-indexing 500k orders takes several minutes
@@ -119,7 +124,7 @@ Two things matter:
 1. **Idempotent** — `addField` checks if the field exists before adding. Running the same migration twice doesn't fail.
 2. **Reversible** — `dropField` removes a field cleanly. Standard migration rollback.
 
-## Migrations, Not Commands
+## The Migration
 
 The key insight: treat Typesense schema changes like database schema changes. Use Laravel migrations.
 
@@ -154,23 +159,7 @@ The `isEnabled()` guard is important — in test environments or local setups wi
 
 This deploys with `php artisan migrate`, right alongside your database migrations. No separate deployment step, no manual commands.
 
-## What Happens After the Migration
-
-After the migration runs, the `tags` field exists in the Typesense schema but no documents have values for it yet. Because the field is `optional: true`, existing documents remain valid and searchable.
-
-Documents get the new field naturally through Scout's model observer — whenever an order is updated for any reason, Scout calls `toSearchableArray()` and the new field is included. Over time, the index fills in without any bulk operation.
-
-If you need the field populated faster for a subset of records, you can scope it:
-
-```php
-Order::whereHas('tags')->searchable();
-```
-
-This re-indexes only the orders that actually have tags — not the entire collection. Search stays up the whole time.
-
-## Updating toSearchableArray
-
-The model's `toSearchableArray()` method needs to include the new field:
+The model's `toSearchableArray()` needs to include the new field:
 
 ```php
 public function toSearchableArray(): array
@@ -187,30 +176,50 @@ public function toSearchableArray(): array
 }
 ```
 
-And if the new field should be included in search queries, add it to the model's `typesenseQueryBy()`:
+And if the new field should be searchable, update the Scout config:
 
 ```php
-public function typesenseQueryBy(): array
-{
-    return ['number', 'customer_name', 'tags'];
-}
+// config/scout.php → typesense.model-settings
+Order::class => [
+    'search-parameters' => [
+        'query_by' => 'number,customer_name,tags',
+    ],
+],
 ```
+
+## What Happens After the Migration
+
+The schema PATCH is a synchronous blocking operation — writes to the collection are paused while it runs, but **search queries continue working without interruption**. For adding an optional field, this completes in milliseconds.
+
+After the migration, the `tags` field exists in the Typesense schema but no documents have values for it yet. Because the field is `optional: true`, existing documents remain valid and searchable.
+
+Documents get the new field naturally through Scout's model observer — whenever an order is updated for any reason, Scout calls `toSearchableArray()` and the new field is included. Over time, the index fills in without any bulk operation.
+
+If you need the field populated faster for a subset of records, you can use Scout's `searchable()` method, which re-indexes models by calling `toSearchableArray()` and upserting the result to Typesense:
+
+```php
+Order::whereHas('tags')->searchable();
+```
+
+This re-indexes only the orders that actually have tags — not the entire collection.
 
 ## Comparison
 
-| Approach | Downtime | Data Loss Risk | Deployment | Rollback |
-|----------|----------|----------------|------------|----------|
-| `scout:flush` + `scout:import` | Minutes (proportional to data size) | High (partial re-index) | Manual commands | Re-run flush + import |
-| Schema migration + scoped re-index | Zero | None (existing documents untouched) | `php artisan migrate` | `php artisan migrate:rollback` |
+| Approach                           | Downtime                            | Data Loss Risk                      | Deployment            | Rollback                       |
+| ---------------------------------- | ----------------------------------- | ----------------------------------- | --------------------- | ------------------------------ |
+| `scout:flush` + `scout:import`     | Minutes (proportional to data size) | High (partial re-index)             | Manual commands       | Re-run flush + import          |
+| Schema migration + scoped re-index | Zero                                | None (existing documents untouched) | `php artisan migrate` | `php artisan migrate:rollback` |
 
 ## When to Use Each Approach
 
 **Schema migration** works when you're:
+
 - Adding optional fields
 - Removing fields
 - Changing field configuration (e.g., facet or index flags)
 
 **Flush and recreate** is still necessary when you:
+
 - Change a field's type (e.g., `string` → `int32`)
 - Rename a field (Typesense doesn't support renames — add new, backfill, drop old)
 - Restructure the entire schema
