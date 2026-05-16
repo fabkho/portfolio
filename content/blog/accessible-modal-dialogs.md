@@ -5,7 +5,7 @@ description: "A practical guide to focus management, ARIA roles, and keyboard tr
 date: "2025-11-22"
 author: "Fabian Kirchhoff"
 specs: ["VUE", "A11Y", "ARIA"]
-status: published
+status: draft
 ---
 
 # Accessible Modal Dialogs in Vue

@@ -5,7 +5,7 @@ description: "Comparing Vue's built-in transition system with manual FLIP animat
 date: "2025-09-03"
 author: "Fabian Kirchhoff"
 specs: ["VUE", "CSS", "ANIMATION"]
-status: published
+status: draft
 ---
 
 # Vue Transition vs FLIP: When to Use Which

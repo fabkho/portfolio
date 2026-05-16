@@ -272,3 +272,7 @@ Three cases cover almost every widget:
 - [W3C APG: Tabs Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/)
 - [W3C APG: Combobox Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/)
 - [MDN: aria-activedescendant](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-activedescendant)
+
+## Related Posts
+
+- [Adding useAnnouncer to Nuxt Core](/blog/use-announcer-nuxt) — how route changes and dynamic content updates get announced to screen readers
