@@ -54,7 +54,7 @@ async function copyCode() {
   font-family: var(--font-mono);
   font-size: var(--text-2xs);
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.6);
   letter-spacing: 0.05em;
 }
 
@@ -62,7 +62,7 @@ async function copyCode() {
   font-family: var(--font-mono);
   font-size: var(--text-2xs);
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.6);
   background: none;
   border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 0.15rem 0.5rem;
