@@ -1,28 +1,13 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 
 const props = defineProps<{
   text?: string
 }>()
 
 const textToType = props.text || 'fabkho'
-const displayText = ref('')
-const isTyping = ref(true)
-
-onMounted(() => {
-  let index = 0
-  const typeChar = () => {
-    if (index < textToType.length) {
-      displayText.value += textToType.charAt(index)
-      index++
-      setTimeout(typeChar, 80 + Math.random() * 40)
-    } else {
-      isTyping.value = false
-    }
-  }
-
-  setTimeout(typeChar, 400)
-})
+const displayText = ref(textToType)
+const isTyping = ref(false)
 </script>
 
 <template>
