@@ -19,9 +19,9 @@ onMounted(() => {
 <template>
   <header class="header">
     <div class="header-cell title-main">
-      <h1 class="font-sans font-light text-4xl uppercase tracking-[-0.02em] hidden-mobile">
+      <p class="font-sans font-light text-4xl uppercase tracking-[-0.02em] hidden-mobile">
         Fabian Kirchhoff
-      </h1>
+      </p>
       <div class="mobile-logo">
         <TypewriterLogo text="fabkho" />
       </div>
@@ -197,7 +197,7 @@ onMounted(() => {
     flex: 0 1 auto;
   }
 
-  .title-main h1.hidden-mobile {
+  .title-main p.hidden-mobile {
     display: none;
   }
 
