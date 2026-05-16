@@ -114,7 +114,6 @@ async function submitForm() {
 </script>
 ```
 
-:announcer-demo
 
 ## When Not to Use This
 
