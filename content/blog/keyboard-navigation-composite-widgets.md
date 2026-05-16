@@ -2,7 +2,7 @@
 title: Keyboard Navigation in Composite Widgets
 author: Fabian Kirchhoff
 date: 2026-05-10
-description: Roving tabindex vs aria-activedescendant — when to use each pattern, with interactive demos and production implementation details.
+description: Roving tabindex vs aria-activedescendant — when to use each pattern, with interactive demos and implementation examples.
 featured: false
 specs:
   - VUE
@@ -16,7 +16,7 @@ tag: ACCESSIBILITY
 
 Composite widgets — tab bars, toolbars, listboxes, comboboxes — contain multiple interactive elements but should behave as a single tab stop. Two W3C patterns handle this: **roving tabindex** and **aria-activedescendant**. They solve the same problem differently, and picking the wrong one makes the widget harder to use.
 
-This post walks through both with interactive demos, then shows how we implement each in production at [anny.co](https://anny.co).
+This post walks through both patterns with interactive demos and production implementation details.
 
 ## The Problem: Tab Key Overload
 
@@ -45,90 +45,55 @@ Try it: use Tab to enter the widget, then Arrow keys to move between items. Tab 
 3. Tab leaves the widget entirely. Shift+Tab re-enters at the last focused item (because it still has `tabindex="0"`)
 4. Home/End jump to first/last item
 
-The beauty of this approach: when the user tabs away and later tabs back, the previously focused item still has `tabindex="0"`, so focus returns right where they left off.
+When the user tabs away and later tabs back, the previously focused item still has `tabindex="0"` — focus returns right where they left off.
 
-### Production: TabBar
+### Implementation
 
-Here's a simplified version of how we implement roving tabindex in our TabBar component at anny.co. The key pieces:
-
-- `focusedTabValue` tracks which tab currently holds `tabindex="0"`
-- `activationMode` controls whether arrow keys also activate (switch panels) or only move focus
-- Manual activation is better when switching panels triggers expensive loads
+The core logic tracks which item currently holds `tabindex="0"` and moves it on arrow key press:
 
 ```typescript
-const focusedTabValue = ref(currentTab)
+const focusedTab = ref(tabs[0])
 
-function getTabTabindex(tab): number {
-  return tab.value === focusedTabValue.value ? 0 : -1
-}
-
-function focusTab(tab) {
-  focusedTabValue.value = tab.value
-  nextTick(() => {
-    tabsRefMap.value[`tab_${tab.value}`]?.focus()
-  })
-}
-
-function handleKeydown(event: KeyboardEvent, tab) {
-  const currentIndex = getTabIndex(tab)
-  const lastIndex = visibleTabs.value.length - 1
-  let targetTab
+function handleKeydown(event: KeyboardEvent) {
+  const idx = tabs.indexOf(focusedTab.value)
+  let next: number | null = null
 
   switch (event.key) {
     case 'ArrowRight':
-      event.preventDefault()
-      targetTab = visibleTabs.value[currentIndex === lastIndex ? 0 : currentIndex + 1]
+      next = (idx + 1) % tabs.length
       break
     case 'ArrowLeft':
-      event.preventDefault()
-      targetTab = visibleTabs.value[currentIndex === 0 ? lastIndex : currentIndex - 1]
+      next = (idx - 1 + tabs.length) % tabs.length
       break
     case 'Home':
-      event.preventDefault()
-      targetTab = visibleTabs.value[0]
+      next = 0
       break
     case 'End':
-      event.preventDefault()
-      targetTab = visibleTabs.value[lastIndex]
+      next = tabs.length - 1
       break
-    case 'Enter':
-    case ' ':
-      event.preventDefault()
-      activateTab(tab, event)
-      return
   }
 
-  if (targetTab) {
-    if (activationMode === 'automatic') {
-      focusTab(targetTab)
-      activateTab(targetTab)
-    } else {
-      focusTab(targetTab)
-    }
+  if (next !== null) {
+    event.preventDefault()
+    focusedTab.value = tabs[next]
+    tabRefs[next].focus()
   }
 }
 ```
 
-The template wires everything together — each tab gets its computed `tabindex`, and both click and keyboard events are handled:
-
 ```vue
 <button
-  v-for="tab in visibleTabs"
+  v-for="tab in tabs"
   role="tab"
-  :aria-selected="tab.value === currentTab"
-  :aria-controls="getPanelId(tab)"
-  :tabindex="getTabTabindex(tab)"
-  @click="handleClick(tab, $event)"
-  @keydown="handleKeydown($event, tab)"
-  @focus="handleFocus(tab)"
+  :aria-selected="tab === activeTab"
+  :tabindex="tab === focusedTab ? 0 : -1"
+  @keydown="handleKeydown"
 >
-  {{ tab.title }}
+  {{ tab.label }}
 </button>
 ```
 
-Notice the circular wrapping: ArrowRight on the last tab goes to the first, ArrowLeft on the first goes to the last. This matches the W3C Tabs pattern recommendation.
-
-The `activationMode` distinction matters. With `'automatic'`, arrow keys both move focus and switch the active panel — good for lightweight tabs. With `'manual'` (our default), arrow keys only move focus; Enter or Space activates. Manual is better when panel content is expensive to render or fetched from the network.
+Circular wrapping (ArrowRight on last goes to first) matches the W3C Tabs pattern recommendation.
 
 ## Pattern 2: aria-activedescendant
 
@@ -148,95 +113,56 @@ Try it: focus the input, then use Arrow keys. Notice the input stays focused the
 
 This is what makes searchable comboboxes possible. With roving tabindex, moving focus to an option would pull focus out of the input — you'd lose your cursor position and stop being able to type.
 
-### Production: VSelect
+### Implementation
 
-Here's how we use aria-activedescendant in our VSelect component. The input keeps focus and manages everything through attribute updates:
+The input keeps focus and manages everything through attribute updates:
 
 ```typescript
-const highlightedIndex = ref(-1)
+const activeIndex = ref(0)
 
-const activeDescendantId = computed(() => {
-  if (highlightedIndex.value < 0) return undefined
-  return `${menuContainerId}-option-${highlightedIndex.value}`
-})
+const activeDescendant = computed(() =>
+  options[activeIndex.value]?.id
+)
 
 function handleKeydown(event: KeyboardEvent) {
   switch (event.key) {
     case 'ArrowDown':
       event.preventDefault()
-      highlightedIndex.value = Math.min(
-        highlightedIndex.value + 1,
-        filteredOptions.value.length - 1
-      )
-      scrollHighlightedIntoView()
+      activeIndex.value = Math.min(activeIndex.value + 1, options.length - 1)
       break
     case 'ArrowUp':
       event.preventDefault()
-      highlightedIndex.value = Math.max(highlightedIndex.value - 1, 0)
-      scrollHighlightedIntoView()
+      activeIndex.value = Math.max(activeIndex.value - 1, 0)
       break
     case 'Enter':
       event.preventDefault()
-      selectHighlighted()
-      break
-    case 'Escape':
-      event.preventDefault()
-      close()
+      selectOption(options[activeIndex.value])
       break
   }
 }
 ```
 
-The template shows the ARIA relationship between the input and the listbox:
-
 ```vue
 <input
   role="combobox"
-  :aria-activedescendant="activeDescendantId"
-  :aria-controls="menuContainerId"
-  :aria-expanded="isOpen"
+  :aria-activedescendant="activeDescendant"
+  :aria-controls="listboxId"
+  aria-expanded="true"
   @keydown="handleKeydown"
 />
-<ul :id="menuContainerId" role="listbox">
+<ul :id="listboxId" role="listbox">
   <li
-    v-for="(option, index) in filteredOptions"
-    :id="`${menuContainerId}-option-${index}`"
+    v-for="option in options"
+    :id="option.id"
     role="option"
-    :aria-selected="index === highlightedIndex"
+    :aria-selected="option.id === activeDescendant"
   >
     {{ option.label }}
   </li>
 </ul>
 ```
 
-Every option needs a unique `id` that matches what `aria-activedescendant` references. We derive them from `menuContainerId` + the index, which keeps them stable as long as the filtered list doesn't change underneath us.
-
-The `scrollHighlightedIntoView()` call is critical for long lists — without it, the highlighted option scrolls out of the visible area and the user has no idea where they are.
-
-### Type-Ahead in Non-Searchable Mode
-
-For non-searchable selects (dropdowns without a text input), users still expect to type a character and jump to a matching option. We handle this with a `useMenuTypeAhead` composable:
-
-```typescript
-// useMenuTypeAhead composable (simplified)
-function handleTypeAhead(key: string) {
-  searchString.value += key
-  clearTimeout(timer)
-  timer = setTimeout(() => { searchString.value = '' }, 500)
-
-  // Search circularly from current position
-  const startIndex = (highlightedIndex.value + 1) % options.length
-  for (let i = 0; i < options.length; i++) {
-    const index = (startIndex + i) % options.length
-    if (options[index].label.toLowerCase().startsWith(searchString.value)) {
-      highlightedIndex.value = index
-      break
-    }
-  }
-}
-```
-
-Characters typed within 500ms accumulate into a search string. Typing "ca" quickly highlights "California" (or the first match starting with "ca"). The circular search starts from the current position, so typing the same letter repeatedly cycles through all options starting with that letter — just like a native `<select>`.
+Every option needs a unique `id` that matches what `aria-activedescendant` references. When filtering changes the list, reset `activeIndex` — a stale reference to a removed `id` breaks the announcement chain.
 
 ## When to Use Which
 
@@ -275,4 +201,4 @@ Three cases cover almost every widget:
 
 ## Related Posts
 
-- [Adding useAnnouncer to Nuxt Core](/blog/use-announcer-nuxt) — how route changes and dynamic content updates get announced to screen readers
+- [Announcing Dynamic Changes in Vue with aria-live](/blog/use-announcer-nuxt) — for changes that have no focus target at all

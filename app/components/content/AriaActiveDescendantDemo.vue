@@ -194,9 +194,28 @@ function selectCurrent() {
   border: 1px solid var(--color-ink-faint);
   border-top: none;
   border-radius: 0 0 6px 6px;
-  max-height: 180px;
+  height: 180px;
   overflow-y: auto;
   background: var(--color-bg);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ink-faint) transparent;
+}
+
+.listbox::-webkit-scrollbar {
+  width: 6px;
+}
+
+.listbox::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.listbox::-webkit-scrollbar-thumb {
+  background: var(--color-ink-faint);
+  border-radius: 3px;
+}
+
+.listbox::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ink-muted);
 }
 
 .listbox-option {
