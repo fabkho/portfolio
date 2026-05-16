@@ -195,7 +195,7 @@ The schema PATCH is a [synchronous blocking operation](https://typesense.org/doc
 
 After the migration, the `tags` field exists in the Typesense schema but no documents have values for it yet. Because the field is `optional: true`, existing documents remain valid and searchable.
 
-Documents get the new field naturally through Scout's model observer — whenever an order is updated for any reason, Scout calls `toSearchableArray()` and the new field is included. Over time, the index fills in without any bulk operation.
+Documents get the new field naturally through Scout's model observer — whenever an order is saved and `searchIndexShouldBeUpdated()` returns true, Scout calls `toSearchableArray()` and the new field is included. Over time, the index fills in without any bulk operation.
 
 If you need the field populated faster for a subset of records, you can use Scout's `searchable()` method, which re-indexes models by calling `toSearchableArray()` and upserting the result to Typesense:
 
