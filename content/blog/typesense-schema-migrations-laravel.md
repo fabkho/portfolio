@@ -1,11 +1,15 @@
 ---
-tag: "BACKEND"
-title: "Typesense Schema Migrations in Laravel"
-description: "How we patch Typesense collections at deploy time using Laravel migrations instead of flushing and re-indexing."
-date: "2026-05-10"
-author: "Fabian Kirchhoff"
-specs: ["LARAVEL", "TYPESENSE", "SCOUT"]
+title: Typesense Schema Migrations in Laravel
+author: Fabian Kirchhoff
+date: 2026-05-10
+description: How we patch Typesense collections at deploy time using Laravel migrations instead of flushing and re-indexing.
+featured: false
+specs:
+  - LARAVEL
+  - TYPESENSE
+  - SCOUT
 status: published
+tag: BACKEND
 ---
 
 # Typesense Schema Migrations in Laravel
@@ -60,6 +64,7 @@ php artisan scout:import "App\Models\Order"    # recreates and re-indexes everyt
 ```
 
 This works, but:
+
 - `scout:flush` **deletes the entire Typesense collection** — not just documents, the collection itself
 - During re-import, search returns no results
 - Re-indexing 500k orders takes several minutes
@@ -278,19 +283,21 @@ After our change, `query_by` includes `custom_entries_list`, so user searches au
 
 ## Comparison
 
-| Approach | Downtime | Data Loss Risk | Deployment | Rollback |
-|----------|----------|----------------|------------|----------|
-| `scout:flush` + `scout:import` | Minutes (proportional to data size) | High (partial re-index) | Manual commands | Re-run flush + import |
-| Schema migration + targeted re-index | Zero | None (existing documents untouched) | `php artisan migrate` | `php artisan migrate:rollback` |
+| Approach                             | Downtime                            | Data Loss Risk                      | Deployment            | Rollback                       |
+| ------------------------------------ | ----------------------------------- | ----------------------------------- | --------------------- | ------------------------------ |
+| `scout:flush` + `scout:import`       | Minutes (proportional to data size) | High (partial re-index)             | Manual commands       | Re-run flush + import          |
+| Schema migration + targeted re-index | Zero                                | None (existing documents untouched) | `php artisan migrate` | `php artisan migrate:rollback` |
 
 ## When to Use Each Approach
 
 **Schema migration** works when you're:
+
 - Adding optional fields
 - Removing fields
 - Changing field configuration (e.g., `searchable` flag)
 
 **Flush and recreate** is still necessary when you:
+
 - Change a field's type (e.g., `string` → `int32`)
 - Rename a field (Typesense doesn't support renames — you'd add new, backfill, drop old)
 - Restructure the entire schema

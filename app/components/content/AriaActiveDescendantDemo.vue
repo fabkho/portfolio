@@ -161,6 +161,7 @@ function selectCurrent() {
   display: flex;
   flex-direction: column;
   gap: 0;
+  margin-bottom: 1.5rem;
   font-family: var(--font-sans);
   width: 100%;
   max-width: 280px;
@@ -190,7 +191,7 @@ function selectCurrent() {
 .listbox {
   list-style: none;
   margin: 0;
-  padding-left: 0.25rem;
+  padding: 0.25rem 0 0.25rem 0.25rem;
   border: 1px solid var(--color-ink-faint);
   border-top: none;
   border-radius: 0 0 6px 6px;
