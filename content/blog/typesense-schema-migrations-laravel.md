@@ -203,7 +203,7 @@ If you need the field populated faster for a subset of records, you can use Scou
 Order::whereHas('tags')->searchable();
 ```
 
-This re-indexes only the orders that actually have tags — not the entire collection.
+This re-indexes only the orders that actually have tags — not the entire collection. Upserts don't block search; the collection stays fully queryable while documents are being updated in the background.
 
 ## Comparison
 
