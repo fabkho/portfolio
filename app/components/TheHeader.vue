@@ -17,7 +17,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <header class="header" data-allow-mismatch>
+  <header class="header">
     <div class="header-cell title-main">
       <p class="font-sans font-light text-4xl uppercase tracking-[-0.02em] hidden-mobile">
         Fabian Kirchhoff
