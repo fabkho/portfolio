@@ -207,10 +207,10 @@ This re-indexes only the orders that actually have tags — not the entire colle
 
 ## Comparison
 
-| Approach                           | Downtime                            | Data Loss Risk                      | Deployment            | Rollback                       |
-| ---------------------------------- | ----------------------------------- | ----------------------------------- | --------------------- | ------------------------------ |
-| `scout:flush` + `scout:import`     | Minutes (proportional to data size) | High (partial re-index)             | Manual commands       | Re-run flush + import          |
-| Schema migration + scoped re-index | Zero                                | None (existing documents untouched) | `php artisan migrate` | `php artisan migrate:rollback` |
+| Approach | Downtime | Data Loss Risk | Deployment | Rollback |
+|----------|----------|----------------|------------|----------|
+| Flush + import | Minutes | High (partial re-index) | Manual | Re-run flush + import |
+| Schema migration | Zero | None | `migrate` | `migrate:rollback` |
 
 ## When to Use Each Approach
 
