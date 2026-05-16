@@ -8,8 +8,8 @@ export default defineNuxtConfig({
     '@nuxt/content',
     '@nuxt/fonts',
     '@nuxt/image',
-    '@nuxt/a11y',
-    '@nuxt/hints',
+    // '@nuxt/a11y',
+    // '@nuxt/hints',
     '@nuxtjs/seo',
     '@nuxthub/core',
     '@vueuse/nuxt',
@@ -69,10 +69,7 @@ export default defineNuxtConfig({
   },
 
   vite: {
-    plugins: [tailwindcss()],
-    define: {
-      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: true
-    }
+    plugins: [tailwindcss()]
   },
 
   eslint: {
@@ -110,12 +107,5 @@ export default defineNuxtConfig({
     enabled: true
   },
 
-  studio: {
-    repository: {
-      provider: 'github',
-      owner: 'fabkho',
-      repo: 'portfolio',
-      branch: 'main'
-    }
-  }
+  studio: false,
 })
