@@ -68,6 +68,8 @@ This works, but:
 - Re-indexing 500k orders takes several minutes
 - If the import fails halfway, you're left with a partial index
 
+`scout:import` alone (without flush) upserts documents into the existing collection — it doesn't require a flush. The flush here is only needed because the collection schema itself needs to change.
+
 ### Option B: Patch the Schema
 
 Typesense's [Collection API](https://typesense.org/docs/27.1/api/collections.html#update-or-alter-a-collection) supports PATCH requests to add or remove fields from an existing collection without touching the documents already in it.
@@ -189,7 +191,7 @@ Order::class => [
 
 ## What Happens After the Migration
 
-The schema PATCH is a synchronous blocking operation — writes to the collection are paused while it runs, but **search queries continue working without interruption**. For adding an optional field, this completes in milliseconds.
+The schema PATCH is a [synchronous blocking operation](https://typesense.org/docs/27.1/api/collections.html#update-or-alter-a-collection) — incoming writes to the collection wait until it completes, but **search queries continue without interruption**. For adding an optional field, this completes in milliseconds.
 
 After the migration, the `tags` field exists in the Typesense schema but no documents have values for it yet. Because the field is `optional: true`, existing documents remain valid and searchable.
 
