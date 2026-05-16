@@ -5,7 +5,7 @@ description: "How we slashed build times by converting FontAwesome CJS icons to 
 date: "2025-10-14"
 author: "Fabian Kirchhoff"
 specs: ["VUE", "NUXT", "PERFORMANCE"]
-status: published
+status: draft
 ---
 
 # Lazy-Loading FontAwesome Icons in Vue/Nuxt

@@ -36,8 +36,6 @@ defineProps<{
   letter-spacing: 0.05em;
   margin-top: 2.5rem;
   margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--color-ink-faint);
 }
 
 .blog-article :deep(h3) {
@@ -113,17 +111,28 @@ defineProps<{
   font-weight: 600;
 }
 
-.blog-article :deep(ul),
-.blog-article :deep(ol) {
+.blog-article :deep(ul:not([role])) {
   font-family: var(--font-serif);
   font-size: 1.1rem;
   line-height: 1.7;
   margin-bottom: 1.5rem;
   padding-left: 1.5rem;
+  list-style-type: disc;
 }
 
-.blog-article :deep(li) {
+.blog-article :deep(ol:not([role])) {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+  list-style-type: decimal;
+}
+
+.blog-article :deep(ul:not([role]) > li),
+.blog-article :deep(ol:not([role]) > li) {
   margin-bottom: 0.5rem;
+  padding-left: 0.25rem;
 }
 
 .blog-article :deep(blockquote) {
@@ -132,5 +141,11 @@ defineProps<{
   font-style: italic;
   color: var(--color-ink-muted);
   margin-bottom: 1.5rem;
+}
+
+.blog-article :deep(hr) {
+  border: none;
+  border-top: 1px solid var(--color-ink-faint);
+  margin: 2.5rem 0;
 }
 </style>

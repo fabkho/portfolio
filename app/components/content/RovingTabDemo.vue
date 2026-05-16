@@ -114,7 +114,7 @@ function onKeydown(e: KeyboardEvent) {
     <KeyboardVisualizer :target="containerRef" />
     <AriaInspector
       :target="focusedTabEl"
-      :attrs="['role', 'aria-selected', 'tabindex']"
+      :attrs="['role', 'aria-selected']"
     />
   </DemoWrapper>
 </template>
