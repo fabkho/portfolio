@@ -94,6 +94,12 @@ export default defineNuxtConfig({
     ]
   },
 
+  hints: {
+    features: {
+      hydration: false
+    }
+  },
+
   ogImage: {
     zeroRuntime: true
   },
