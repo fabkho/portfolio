@@ -203,7 +203,7 @@ If you need the field populated faster for a subset of records, you can use Scou
 Order::whereHas('tags')->searchable();
 ```
 
-This re-indexes only the orders that actually have tags — not the entire collection. Upserts don't block search; the collection stays fully queryable while documents are being updated in the background.
+This re-indexes only the orders that actually have tags — not the entire collection. Typesense [interleaves imports and search queries](https://typesense.org/docs/27.1/api/documents.html#configure-batch-size) (processing 40 documents, then servicing the search queue, then the next batch), so search stays responsive throughout.
 
 ## Comparison
 
