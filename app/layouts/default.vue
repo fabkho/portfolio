@@ -83,7 +83,7 @@ useSidebarReveal(sidebarRef)
   max-height: calc(100vh - 4rem);
   overflow-y: auto;
   scrollbar-width: none;
-  align-self: flex-start;
+  width: 100%;
 }
 
 .sidebar-sticky::-webkit-scrollbar {
