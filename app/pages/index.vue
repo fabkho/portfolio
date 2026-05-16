@@ -27,9 +27,9 @@ const featuredPosts = computed(() =>
 
 useSeoMeta({
   title: 'Fabian Kirchhoff',
-  description: 'Full-stack developer portfolio featuring Vue, Nuxt, TypeScript, accessibility, and open-source work.',
+  description: 'Developer tools, Nuxt modules, and open-source packages by Fabian Kirchhoff.',
   ogTitle: 'Fabian Kirchhoff',
-  ogDescription: 'Full-stack developer portfolio featuring Vue, Nuxt, TypeScript, accessibility, and open-source work.'
+  ogDescription: 'Developer tools, Nuxt modules, and open-source packages by Fabian Kirchhoff.'
 })
 </script>
 

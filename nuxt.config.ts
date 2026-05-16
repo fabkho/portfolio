@@ -26,7 +26,16 @@ export default defineNuxtConfig({
   site: {
     url: 'https://fabkho.dev',
     name: 'Fabian Kirchhoff',
-    description: 'Full-stack developer. Open-source contributor.'
+    description: 'I build things that help developers build things — Nuxt modules, CLI tools, and open-source packages.'
+  },
+
+  sitemap: {
+    strictNuxtContentPaths: true
+  },
+
+  robots: {
+    allow: '/',
+    sitemap: 'https://fabkho.dev/sitemap.xml'
   },
 
   content: {
@@ -43,7 +52,8 @@ export default defineNuxtConfig({
     '/': { prerender: true },
     '/projects': { prerender: true },
     '/blog': { prerender: true },
-    '/blog/**': { prerender: true }
+    '/blog/**': { prerender: true },
+    '/feed.xml': { prerender: true }
   },
 
   experimental: {

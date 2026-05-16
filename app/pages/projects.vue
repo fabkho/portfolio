@@ -25,9 +25,9 @@ const stack = computed(() => {
 
 useSeoMeta({
   title: 'Projects',
-  description: 'Selected full-stack projects and open-source work by Fabian Kirchhoff.',
+  description: 'Open-source projects and developer tools by Fabian Kirchhoff.',
   ogTitle: 'Projects | Fabian Kirchhoff',
-  ogDescription: 'Selected full-stack projects and open-source work by Fabian Kirchhoff.'
+  ogDescription: 'Open-source projects and developer tools by Fabian Kirchhoff.'
 })
 </script>
 
