@@ -128,6 +128,6 @@ defineProps<{
 .record-date {
   font-family: var(--font-mono);
   font-size: var(--text-2xs);
-  color: var(--color-ink-faint);
+  color: var(--color-ink-muted);
 }
 </style>

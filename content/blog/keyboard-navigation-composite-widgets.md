@@ -1,11 +1,15 @@
 ---
-tag: "ACCESSIBILITY"
-title: "Keyboard Navigation in Composite Widgets"
-description: "Roving tabindex vs aria-activedescendant — when to use each pattern, with interactive demos and production implementation details."
-date: "2026-05-10"
-author: "Fabian Kirchhoff"
-specs: ["VUE", "A11Y", "ARIA"]
+title: Keyboard Navigation in Composite Widgets
+author: Fabian Kirchhoff
+date: 2026-05-10
+description: Roving tabindex vs aria-activedescendant — when to use each pattern, with interactive demos and production implementation details.
+featured: false
+specs:
+  - VUE
+  - A11Y
+  - ARIA
 status: published
+tag: ACCESSIBILITY
 ---
 
 # Keyboard Navigation in Composite Widgets
@@ -20,8 +24,8 @@ Imagine a tab bar with 8 tabs where each tab is a separate tab stop. A keyboard 
 
 Composite widgets should work like this:
 
-- **Tab** moves focus _into_ and _out of_ the widget (one tab stop)
-- **Arrow keys** navigate between items _within_ the widget
+- **Tab** moves focus *into* and *out of* the widget (one tab stop)
+- **Arrow keys** navigate between items *within* the widget
 - **Enter/Space** activates the focused item
 
 This is the pattern every native OS widget follows. Both roving tabindex and aria-activedescendant achieve it — but through different mechanisms.
@@ -236,36 +240,30 @@ Characters typed within 500ms accumulate into a search string. Typing "ca" quick
 
 ## When to Use Which
 
-| Criteria | Roving Tabindex | aria-activedescendant |
-|----------|----------------|----------------------|
-| DOM focus | Moves to each item | Stays on container |
-| Best for | Tabs, toolbars, radio groups, menu bars | Comboboxes, searchable selects, listboxes with input |
-| Input field | Not needed | Required (or container acts as one) |
-| Browser support | Universal | Universal (but SR support varies) |
-| Complexity | Lower | Higher (need unique ids, careful attribute management) |
-| Filtering/search | Awkward (focus + input conflict) | Natural (focus stays on input) |
-| Screen reader | Directly announced (element is focused) | Announced via relationship (more indirection) |
+| Criteria         | Roving Tabindex                         | aria-activedescendant                                  |
+| ---------------- | --------------------------------------- | ------------------------------------------------------ |
+| DOM focus        | Moves to each item                      | Stays on container                                     |
+| Best for         | Tabs, toolbars, radio groups, menu bars | Comboboxes, searchable selects, listboxes with input   |
+| Input field      | Not needed                              | Required (or container acts as one)                    |
+| Browser support  | Universal                               | Universal (but SR support varies)                      |
+| Complexity       | Lower                                   | Higher (need unique ids, careful attribute management) |
+| Filtering/search | Awkward (focus + input conflict)        | Natural (focus stays on input)                         |
+| Screen reader    | Directly announced (element is focused) | Announced via relationship (more indirection)          |
 
 ### Decision Rule
 
 Three cases cover almost every widget:
 
 1. **The widget has an input field** that the user types into while navigating options → **aria-activedescendant**. This is the only pattern that lets the input stay focused while options are highlighted. Comboboxes, searchable selects, autocompletes — all use this.
-
 2. **Items are standalone interactive elements** like tabs, toolbar buttons, or menu items → **roving tabindex**. Each item is a real focusable element, and there's no input to maintain focus on.
-
 3. **Not sure** → **roving tabindex**. It's simpler to implement, has more consistent screen reader support, and covers most composite widget patterns.
 
 ## Common Pitfalls
 
-1. **Forgetting `event.preventDefault()`** — Arrow keys scroll the page if not prevented. Every arrow key handler in a composite widget needs this.
-
+1. **Forgetting** **`event.preventDefault()`** — Arrow keys scroll the page if not prevented. Every arrow key handler in a composite widget needs this.
 2. **Not wrapping at boundaries** — When arrowing past the last item, should it cycle to the first or stop? Either is fine, but be consistent. The W3C Tabs pattern recommends wrapping; listboxes typically don't.
-
-3. **Missing `role` attributes** — Without `role="tablist"`, `role="tab"`, `role="listbox"`, and `role="option"`, screen readers can't identify the widget pattern and won't announce items correctly.
-
-4. **Stale `aria-activedescendant`** — When filtering changes the option list, the id referenced by `aria-activedescendant` might no longer exist in the DOM. Always reset `highlightedIndex` (or recompute it) when the filtered list changes.
-
+3. **Missing** **`role`** **attributes** — Without `role="tablist"`, `role="tab"`, `role="listbox"`, and `role="option"`, screen readers can't identify the widget pattern and won't announce items correctly.
+4. **Stale** **`aria-activedescendant`** — When filtering changes the option list, the id referenced by `aria-activedescendant` might no longer exist in the DOM. Always reset `highlightedIndex` (or recompute it) when the filtered list changes.
 5. **Not scrolling highlighted items into view** — In long lists, arrowing through options can move the highlight off-screen. Call `scrollIntoView({ block: 'nearest' })` on the highlighted element after each navigation.
 
 ## Resources
