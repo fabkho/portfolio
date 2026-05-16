@@ -1,5 +1,5 @@
-import { defineEventHandler, setResponseHeader } from 'h3'
-import { queryCollection } from '#imports'
+import { queryCollection } from '@nuxt/content/server'
+import type { BlogCollectionItem } from '@nuxt/content'
 
 export default defineEventHandler(async (event) => {
   const siteUrl = 'https://fabkho.dev'
@@ -7,10 +7,13 @@ export default defineEventHandler(async (event) => {
 
   const posts = await queryCollection(event, 'blog')
     .where('status', '=', 'published')
-    .order('date', 'DESC')
-    .all()
+    .all() as BlogCollectionItem[]
 
-  const items = posts.map((post) => {
+  const sorted = posts.sort((a, b) =>
+    new Date(b.date).getTime() - new Date(a.date).getTime()
+  )
+
+  const items = sorted.map((post) => {
     const link = `${siteUrl}${post.path}`
     const pubDate = new Date(post.date).toUTCString()
 
