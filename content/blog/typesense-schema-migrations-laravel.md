@@ -178,6 +178,15 @@ public function toSearchableArray(): array
 }
 ```
 
+Accessing `$this->tags` triggers a query per model. During bulk indexing, this causes N+1 queries. Use `makeAllSearchableUsing()` to eager-load relationships before indexing:
+
+```php
+public function makeAllSearchableUsing(Builder $query): Builder
+{
+    return $query->with('tags');
+}
+```
+
 And if the new field should be searchable, update the Scout config:
 
 ```php
@@ -210,7 +219,7 @@ This re-indexes only the orders that actually have tags — not the entire colle
 | Approach | Downtime | Data Loss Risk | Deployment | Rollback |
 |----------|----------|----------------|------------|----------|
 | Flush + import | Minutes | High (partial re-index) | Manual | Re-run flush + import |
-| Schema migration | Zero | None | `migrate` | `migrate:rollback` |
+| Schema migration | Reads unaffected; writes briefly blocked during PATCH | None | `migrate` | `migrate:rollback` |
 
 ## When to Use Each Approach
 

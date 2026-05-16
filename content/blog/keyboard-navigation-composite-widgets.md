@@ -49,10 +49,11 @@ When the user tabs away and later tabs back, the previously focused item still h
 
 ### Implementation
 
-The core logic tracks which item currently holds `tabindex="0"` and moves it on arrow key press:
+The core logic tracks which tab holds `tabindex="0"` (keyboard focus) separately from which tab is active (displayed panel):
 
 ```typescript
 const focusedTab = ref(tabs[0])
+const activeTab = ref(tabs[0])
 
 function handleKeydown(event: KeyboardEvent) {
   const idx = tabs.indexOf(focusedTab.value)
@@ -71,6 +72,11 @@ function handleKeydown(event: KeyboardEvent) {
     case 'End':
       next = tabs.length - 1
       break
+    case 'Enter':
+    case ' ':
+      event.preventDefault()
+      activeTab.value = focusedTab.value
+      return
   }
 
   if (next !== null) {

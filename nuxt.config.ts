@@ -37,7 +37,7 @@ export default defineNuxtConfig({
             default: 'github-dark',
             dark: 'github-dark'
           },
-          langs: ['php']
+          langs: ['php', 'json']
         }
       }
     }
