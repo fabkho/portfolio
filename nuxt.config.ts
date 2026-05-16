@@ -29,15 +29,6 @@ export default defineNuxtConfig({
     description: 'I build things that help developers build things — Nuxt modules, CLI tools, and open-source packages.'
   },
 
-  sitemap: {
-    strictNuxtContentPaths: true
-  },
-
-  robots: {
-    allow: '/',
-    sitemap: 'https://fabkho.dev/sitemap.xml'
-  },
-
   content: {
     build: {
       markdown: {
@@ -94,6 +85,15 @@ export default defineNuxtConfig({
 
   ogImage: {
     zeroRuntime: true
+  },
+
+  robots: {
+    allow: '/',
+    sitemap: 'https://fabkho.dev/sitemap.xml'
+  },
+
+  sitemap: {
+    strictNuxtContentPaths: true
   },
 
   studio: {
