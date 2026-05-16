@@ -31,6 +31,7 @@ onMounted(() => {
     </div>
 
     <div class="header-cell meta">
+      <span class="meta-location">Cologne, DE</span>
       <a
         href="https://github.com/fabkho"
         target="_blank"
@@ -99,6 +100,10 @@ onMounted(() => {
   flex-direction: column;
   justify-content: flex-end;
   gap: 0.3rem;
+}
+
+.meta-location {
+  color: var(--color-ink-muted, var(--color-ink));
 }
 
 .meta-link {

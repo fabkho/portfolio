@@ -28,8 +28,7 @@ useSidebarReveal(sidebarRef)
           </div>
           <div class="data-section">
             <p class="sidebar-bio">
-              Full-stack developer focused on Vue, Nuxt, and TypeScript.
-              Open-source contributor. Building tools that ship.
+              I build things that help developers build things — Nuxt modules, CLI tools, and open-source packages. When not coding, I'm at the gym or lost in a book.
             </p>
           </div>
           <div class="data-section data-section--grow" />
