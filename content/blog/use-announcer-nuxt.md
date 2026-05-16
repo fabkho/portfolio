@@ -1,16 +1,19 @@
 ---
-tag: "ACCESSIBILITY"
-title: "aria-live Regions and the Announcer Pattern in Vue"
-description: "How to make dynamic content changes visible to screen readers using aria-live regions, and how to wrap it into a reusable composable."
-date: "2026-05-15"
-author: "Fabian Kirchhoff"
-specs: ["VUE", "A11Y", "ARIA"]
-status: published
+title: Screen Readers Can't See Your DOM Changes
+author: Fabian Kirchhoff
+date: 2026-05-15
+description: How to make dynamic content changes visible to screen readers using aria-live regions, and how to wrap it into a reusable composable.
 featured: true
 order: 2
+specs:
+  - VUE
+  - A11Y
+  - ARIA
+status: published
+tag: ACCESSIBILITY
 ---
 
-# aria-live Regions and the Announcer Pattern in Vue
+# Screen Readers Can't See Your DOM Changes
 
 Single-page applications mutate the DOM without full page reloads. Sighted users see the change instantly. Screen reader users hear nothing — the assistive technology has no way to know that something important just appeared on screen.
 
@@ -57,16 +60,6 @@ function announce(message: string) {
 
 This forces a mutation the browser recognizes as a change, guaranteeing the announcement fires.
 
-### What Gets Announced
-
-The screen reader announces the **text content** of the live region after a mutation. It doesn't read ARIA attributes, roles, or child structure — just the flattened text. Keep messages short and self-contained:
-
-- ✅ "3 results found"
-- ✅ "Form submitted successfully"
-- ✅ "Error: Email address is required"
-- ❌ A full paragraph of instructions
-- ❌ An entire component tree
-
 ## Common Use Cases
 
 **Route changes** — SPAs don't trigger the screen reader's "new page loaded" announcement. A live region can announce the new page title after navigation.
@@ -75,70 +68,22 @@ The screen reader announces the **text content** of the live region after a muta
 
 **Live search results** — "Found 12 results" as the user types. Without this, filtering a list is completely silent.
 
-**Async operations** — "Loading", then "Data loaded" or "Request failed". Long operations need bookend announcements so the user isn't left wondering.
+**Async operations** — "Loading", then "Data loaded" or "Request failed". Without these, the user has no idea the app is working.
 
 **Toast notifications** — these are visually obvious but completely invisible to screen readers without a live region backing them.
 
 ## The Announcer Pattern
 
-Scattering `aria-live` regions throughout the app is messy and error-prone. The announcer pattern centralizes this: one live region in the DOM, one composable to control it.
+Scattering `aria-live` regions throughout the app is messy. The announcer pattern centralizes this: one hidden live region in the DOM, one composable to control it from anywhere.
 
-```vue
-<!-- App.vue or layout -->
-<template>
-  <div>
-    <slot />
-    <AnnouncerRegion />
-  </div>
-</template>
-```
-
-The region component renders a visually hidden `aria-live` element:
-
-```vue
-<!-- AnnouncerRegion.vue -->
-<script setup lang="ts">
-const { message, politeness } = useAnnouncer()
-</script>
-
-<template>
-  <div
-    :aria-live="politeness"
-    aria-atomic="true"
-    class="sr-only"
-  >
-    {{ message }}
-  </div>
-</template>
-
-<style scoped>
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-</style>
-```
-
-And the composable provides the API:
+The region component renders a visually hidden `aria-live` element. The composable controls it:
 
 ```typescript
-import { shallowRef } from 'vue'
-
-type Politeness = 'polite' | 'assertive' | 'off'
-
 const message = shallowRef('')
 const politeness = shallowRef<Politeness>('polite')
 
 export function useAnnouncer() {
   function set(msg: string, level: Politeness = 'polite') {
-    // Empty first to guarantee re-announcement
     message.value = ''
     nextTick(() => {
       politeness.value = level
@@ -146,33 +91,23 @@ export function useAnnouncer() {
     })
   }
 
-  function polite(msg: string) {
-    set(msg, 'polite')
-  }
-
-  function assertive(msg: string) {
-    set(msg, 'assertive')
-  }
+  function polite(msg: string) { set(msg, 'polite') }
+  function assertive(msg: string) { set(msg, 'assertive') }
 
   return { message, politeness, set, polite, assertive }
 }
 ```
 
-Module-level refs make this a singleton — every component that calls `useAnnouncer()` shares the same state, and there's only one live region in the DOM reading from it.
-
-### Usage
+Module-level refs make this a singleton — every call to `useAnnouncer()` shares the same live region.
 
 ```vue
 <script setup lang="ts">
 const { polite, assertive } = useAnnouncer()
 
 async function submitForm() {
-  try {
-    await $fetch('/api/contact', { method: 'POST', body: formData })
-    polite('Message sent successfully')
-  } catch {
-    assertive('Error: Failed to send message')
-  }
+  await $fetch('/api/contact', { method: 'POST', body: formData })
+    .then(() => polite('Message sent'))
+    .catch(() => assertive('Error: Failed to send message'))
 }
 </script>
 ```
@@ -195,5 +130,5 @@ For composite widgets where focus management handles navigation directly, see [K
 
 - [ARIA19: Using aria-live regions to identify errors](https://www.w3.org/WAI/WCAG22/Techniques/aria/ARIA19)
 - [MDN: ARIA live regions](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Guides/Live_regions)
-- [Nuxt `useAnnouncer` composable](https://nuxt.com/docs/api/composables/use-announcer)
+- [Nuxt](https://nuxt.com/docs/api/composables/use-announcer) [`useAnnouncer`](https://nuxt.com/docs/api/composables/use-announcer) [composable](https://nuxt.com/docs/api/composables/use-announcer)
 - [PR #34318 — feat(nuxt): add useAnnouncer](https://github.com/nuxt/nuxt/pull/34318)
