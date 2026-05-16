@@ -190,7 +190,7 @@ function selectCurrent() {
 .listbox {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding-left: 0.25rem;
   border: 1px solid var(--color-ink-faint);
   border-top: none;
   border-radius: 0 0 6px 6px;

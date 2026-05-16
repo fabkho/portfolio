@@ -111,7 +111,7 @@ defineProps<{
   font-weight: 600;
 }
 
-.blog-article :deep(ul) {
+.blog-article :deep(ul:not([role])) {
   font-family: var(--font-serif);
   font-size: 1.1rem;
   line-height: 1.7;
@@ -120,7 +120,7 @@ defineProps<{
   list-style-type: disc;
 }
 
-.blog-article :deep(ol) {
+.blog-article :deep(ol:not([role])) {
   font-family: var(--font-serif);
   font-size: 1.1rem;
   line-height: 1.7;
@@ -129,7 +129,8 @@ defineProps<{
   list-style-type: decimal;
 }
 
-.blog-article :deep(li) {
+.blog-article :deep(ul:not([role]) > li),
+.blog-article :deep(ol:not([role]) > li) {
   margin-bottom: 0.5rem;
   padding-left: 0.25rem;
 }
