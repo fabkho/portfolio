@@ -7,10 +7,13 @@ const slug = computed(() => {
   return Array.isArray(parts) ? parts.join('/') : parts
 })
 
-const { data: post } = await useAsyncData(`blog-${slug.value}`, () =>
-  queryCollection('blog')
+const { data: post } = await useAsyncData(
+  () => `blog-${slug.value}`,
+  () => queryCollection('blog')
+    .where('status', '=', 'published')
     .path(`/blog/${slug.value}`)
-    .first()
+    .first(),
+  { watch: [slug] }
 )
 
 if (!post.value) {

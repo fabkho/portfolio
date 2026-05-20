@@ -6,6 +6,10 @@ const { data: posts } = await useAsyncData('all-posts', () =>
     .all()
 )
 
+const sidebarPosts = computed(() =>
+  posts.value?.map(post => ({ path: post.path, title: post.title, date: post.date })) ?? []
+)
+
 useSeoMeta({
   title: 'Blog',
   description: 'Articles on Vue, Nuxt, accessibility, performance, and open-source engineering.',
@@ -18,8 +22,8 @@ useSeoMeta({
   <NuxtLayout name="default">
     <template #sidebar>
       <BlogIndexSidebar
-        v-if="posts?.length"
-        :posts="posts.map(p => ({ path: p.path, title: p.title, date: p.date }))"
+        v-if="sidebarPosts.length"
+        :posts="sidebarPosts"
       />
     </template>
 

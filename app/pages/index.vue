@@ -1,8 +1,24 @@
 <script setup lang="ts">
-const { data: allProjects } = await useAsyncData('all-home-projects', () =>
-  queryCollection('projects')
-    .all()
-)
+const [
+  { data: allProjects },
+  { data: allContributions },
+  { data: allPosts }
+] = await Promise.all([
+  useAsyncData('all-home-projects', () =>
+    queryCollection('projects')
+      .all()
+  ),
+  useAsyncData('home-contributions', () =>
+    queryCollection('contributions')
+      .all()
+  ),
+  useAsyncData('all-home-posts', () =>
+    queryCollection('blog')
+      .where('status', '=', 'published')
+      .order('order', 'ASC')
+      .all()
+  )
+])
 
 const featuredProjects = computed(() =>
   [...(allProjects.value ?? [])]
@@ -10,20 +26,8 @@ const featuredProjects = computed(() =>
     .sort((a, b) => (a.order ?? 99) - (b.order ?? 99))
 )
 
-const { data: allContributions } = await useAsyncData('home-contributions', () =>
-  queryCollection('contributions')
-    .all()
-)
-
 const majorContributions = computed(() =>
   allContributions.value?.filter(contribution => contribution.major) ?? []
-)
-
-const { data: allPosts } = await useAsyncData('all-home-posts', () =>
-  queryCollection('blog')
-    .where('status', '=', 'published')
-    .order('order', 'ASC')
-    .all()
 )
 
 const featuredPosts = computed(() =>
@@ -110,6 +114,7 @@ useSeoMeta({
           :delay-base="1200"
         />
         <LazyContributionList
+          hydrate-on-visible
           :contributions="majorContributions"
         />
       </section>

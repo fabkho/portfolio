@@ -1,18 +1,22 @@
 <script setup lang="ts">
-const { data: allProjects } = await useAsyncData('all-projects', () =>
-  queryCollection('projects')
-    .all()
-)
+const [
+  { data: allProjects },
+  { data: contributions }
+] = await Promise.all([
+  useAsyncData('all-projects', () =>
+    queryCollection('projects')
+      .all()
+  ),
+  useAsyncData('contributions', () =>
+    queryCollection('contributions')
+      .all()
+  )
+])
 
 const projects = computed(() =>
   [...(allProjects.value ?? [])]
     .filter(project => !project.hidden)
     .sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime())
-)
-
-const { data: contributions } = await useAsyncData('contributions', () =>
-  queryCollection('contributions')
-    .all()
 )
 
 const stack = [
@@ -77,6 +81,7 @@ useSeoMeta({
       >
         <SectionLabel label="Open Source Contributions" />
         <LazyContributionList
+          hydrate-on-visible
           :contributions="contributions"
         />
       </div>

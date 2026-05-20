@@ -1,5 +1,7 @@
 import tailwindcss from '@tailwindcss/vite'
 
+const isTest = process.env.NODE_ENV === 'test'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
 
@@ -14,7 +16,7 @@ export default defineNuxtConfig({
     '@nuxthub/core',
     '@vueuse/nuxt',
     'nuxt-studio',
-    '@nuxt/test-utils/module'
+    ...(isTest ? ['@nuxt/test-utils/module'] : [])
   ],
 
   devtools: {
@@ -47,6 +49,7 @@ export default defineNuxtConfig({
     '/': { prerender: true },
     '/projects': { prerender: true },
     '/blog': { prerender: true },
+    '/blog/**': { prerender: true },
     '/feed.xml': { prerender: true }
   },
 

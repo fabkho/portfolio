@@ -20,13 +20,22 @@ function readAttrs() {
 
 function observe(el: HTMLElement | null | undefined) {
   observer?.disconnect()
-  if (!el) return
+  observer = null
+
+  if (!el) {
+    attrValues.value = {}
+    return
+  }
+
   readAttrs()
   observer = new MutationObserver(readAttrs)
   observer.observe(el, { attributes: true, attributeFilter: props.attrs })
 }
 
-watch(() => props.target, observe, { immediate: true })
+watch([() => props.target, () => props.attrs], ([target]) => observe(target), {
+  immediate: true,
+  deep: true
+})
 
 onUnmounted(() => observer?.disconnect())
 </script>
