@@ -53,26 +53,30 @@ const { stop } = useIntersectionObserver(
   position: absolute;
   left: 0;
   bottom: 0;
-  width: 100%;
+  width: 28%;
   height: 1px;
   background: var(--color-accent);
-  transform: translateX(-100%);
+  opacity: 0;
+  transform: translateX(-120%);
 }
 
 .section-label--visible::after {
-  animation: section-label-scan 0.75s ease 0.12s both;
+  animation: section-label-scan 4.8s ease-in-out 0.4s infinite;
 }
 
 @keyframes section-label-scan {
-  0% {
-    transform: translateX(-100%);
+  0%,
+  72% {
+    opacity: 0;
+    transform: translateX(-120%);
   }
-  45%,
-  60% {
-    transform: translateX(0);
+  78%,
+  86% {
+    opacity: 0.65;
   }
   100% {
-    transform: translateX(100%);
+    opacity: 0;
+    transform: translateX(360%);
   }
 }
 

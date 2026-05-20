@@ -7,8 +7,8 @@ const props = defineProps<{
 const countTarget = ref(0)
 const prefersReducedMotion = usePreferredReducedMotion()
 const animatedCount = useTransition(countTarget, {
-  duration: 700,
-  easing: [0.22, 1, 0.36, 1],
+  duration: 1800,
+  easing: [0.16, 1, 0.3, 1],
   disabled: computed(() => prefersReducedMotion.value === 'reduce')
 })
 const displayedProjectCount = computed(() => Math.round(animatedCount.value))
