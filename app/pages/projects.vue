@@ -19,15 +19,6 @@ const projects = computed(() =>
     .sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime())
 )
 
-const stack = [
-  'TypeScript',
-  'Vue',
-  'Nuxt',
-  'Laravel',
-  'Node.js',
-  'CSS'
-]
-
 useSeoMeta({
   title: 'Projects',
   description: 'Open-source projects and developer tools by Fabian Kirchhoff.',
@@ -37,56 +28,46 @@ useSeoMeta({
 </script>
 
 <template>
-  <NuxtLayout name="default">
-    <template #sidebar>
-      <ProjectsSidebar
-        v-if="projects.length"
-        :project-count="projects.length"
-        :stack="stack"
-      />
-    </template>
-
-    <div>
-      <SectionLabel label="All Projects" />
-      <ContentGrid
-        v-if="projects?.length"
-        staggered
+  <div>
+    <SectionLabel label="All Projects" />
+    <ContentGrid
+      v-if="projects?.length"
+      staggered
+    >
+      <ContentGridItem
+        v-for="(project, index) in projects"
+        :key="project.id"
+        :index="index"
       >
-        <ContentGridItem
-          v-for="(project, index) in projects"
-          :key="project.id"
-          :index="index"
-        >
-          <TheCard
-            :tag="project.tag"
-            :label="project.label"
-            :title="project.title"
-            :description="project.description"
-            :specs="project.specs"
-            :url="project.url"
-            :stars="project.stars"
-          />
-        </ContentGridItem>
-      </ContentGrid>
-      <p
-        v-else
-        class="empty-state"
-      >
-        No projects logged yet.
-      </p>
-
-      <div
-        v-if="contributions?.length"
-        class="mt-16"
-      >
-        <SectionLabel label="Open Source Contributions" />
-        <LazyContributionList
-          hydrate-on-visible
-          :contributions="contributions"
+        <TheCard
+          :tag="project.tag"
+          :label="project.label"
+          :title="project.title"
+          :description="project.description"
+          :specs="project.specs"
+          :url="project.url"
+          :stars="project.stars"
         />
-      </div>
+      </ContentGridItem>
+    </ContentGrid>
+    <p
+      v-else
+      class="empty-state"
+    >
+      No projects logged yet.
+    </p>
+
+    <div
+      v-if="contributions?.length"
+      class="mt-16"
+    >
+      <SectionLabel label="Open Source Contributions" />
+      <LazyContributionList
+        hydrate-on-visible
+        :contributions="contributions"
+      />
     </div>
-  </NuxtLayout>
+  </div>
 </template>
 
 <style scoped>

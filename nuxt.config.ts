@@ -49,7 +49,7 @@ export default defineNuxtConfig({
     '/': { prerender: true },
     '/projects': { prerender: true },
     '/blog': { prerender: true },
-    '/blog/**': { prerender: true },
+    // '/blog/**': { prerender: true },
     '/feed.xml': { prerender: true }
   },
 

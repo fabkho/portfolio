@@ -13,6 +13,7 @@ const props = withDefaults(
     alternateColor?: string
     alternateEvery?: number
     tag?: string
+    persistKey?: string
   }>(),
   {
     mode: 'hover',
@@ -33,7 +34,11 @@ const tileSize = computed(() => props.spacing * Math.SQRT2)
 const waveRippleStyle = computed(() => ({
   '--wave-ripple-line-color': props.color || undefined
 }))
-const ripples = ref<{ x: number, y: number, time: number }[]>([])
+type Ripple = { x: number, y: number, time: number }
+
+const ripples = props.persistKey
+  ? useState<Ripple[]>(`wave-ripple:${props.persistKey}`, () => [])
+  : ref<Ripple[]>([])
 const canvasReady = ref(false)
 const reducedMotion = usePreferredReducedMotion()
 const isTouch = useMediaQuery('(pointer: coarse)')
@@ -162,7 +167,7 @@ function initCanvas() {
   canvas.height = rect.height * pixelRatio.value
   canvas.style.width = rect.width + 'px'
   canvas.style.height = rect.height + 'px'
-  drawLines(canvas, 0)
+  drawLines(canvas, performance.now())
   canvasReady.value = true
 }
 
@@ -197,8 +202,10 @@ const { pause: pauseRandom, resume: resumeRandom } = useIntervalFn(() => {
 }, 1250, { immediate: false })
 
 onMounted(() => {
+  ripples.value = ripples.value.filter(r => performance.now() - r.time < props.lifetime)
   if (isTouch.value) resumeRandom()
   initCanvas()
+  if (ripples.value.length > 0) resume()
 })
 
 watch([pixelRatio, shouldSkipMotion], () => {

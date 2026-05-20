@@ -6,10 +6,6 @@ const { data: posts } = await useAsyncData('all-posts', () =>
     .all()
 )
 
-const sidebarPosts = computed(() =>
-  posts.value?.map(post => ({ path: post.path, title: post.title, date: post.date })) ?? []
-)
-
 useSeoMeta({
   title: 'Blog',
   description: 'Articles on Vue, Nuxt, accessibility, performance, and open-source engineering.',
@@ -19,42 +15,33 @@ useSeoMeta({
 </script>
 
 <template>
-  <NuxtLayout name="default">
-    <template #sidebar>
-      <BlogIndexSidebar
-        v-if="sidebarPosts.length"
-        :posts="sidebarPosts"
-      />
-    </template>
-
-    <div>
-      <SectionLabel label="Articles" />
-      <ContentGrid
-        v-if="posts?.length"
-        staggered
+  <div>
+    <SectionLabel label="Articles" />
+    <ContentGrid
+      v-if="posts?.length"
+      staggered
+    >
+      <ContentGridItem
+        v-for="(post, index) in posts"
+        :key="post.path"
+        :index="index"
       >
-        <ContentGridItem
-          v-for="(post, index) in posts"
-          :key="post.path"
-          :index="index"
-        >
-          <TheCard
-            :tag="post.tag"
-            :title="post.title"
-            :description="post.description"
-            :specs="post.specs"
-            :url="post.path"
-          />
-        </ContentGridItem>
-      </ContentGrid>
-      <p
-        v-else
-        class="empty-state"
-      >
-        No articles published yet.
-      </p>
-    </div>
-  </NuxtLayout>
+        <TheCard
+          :tag="post.tag"
+          :title="post.title"
+          :description="post.description"
+          :specs="post.specs"
+          :url="post.path"
+        />
+      </ContentGridItem>
+    </ContentGrid>
+    <p
+      v-else
+      class="empty-state"
+    >
+      No articles published yet.
+    </p>
+  </div>
 </template>
 
 <style scoped>
