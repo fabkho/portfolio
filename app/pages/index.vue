@@ -41,24 +41,32 @@ useSeoMeta({
 <template>
   <NuxtLayout name="default">
     <div>
-      <SectionLabel label="Selected Works" />
-      <ContentGrid staggered>
-        <TheCard
-          v-for="(project, index) in featuredProjects"
-          :key="project.id"
-          :tag="project.tag"
-          :label="project.label"
-          :title="project.title"
-          :description="project.description"
-          :specs="project.specs"
-          :url="project.url"
-          :variant="index % 2 === 0 ? 'hatched' : 'default'"
-        />
-      </ContentGrid>
+      <section class="home-section">
+        <SectionLabel label="Selected Works" />
+        <ContentGrid staggered>
+          <TheCard
+            v-for="(project, index) in featuredProjects"
+            :key="project.id"
+            :tag="project.tag"
+            :label="project.label"
+            :title="project.title"
+            :description="project.description"
+            :specs="project.specs"
+            :url="project.url"
+            :variant="index % 2 === 0 ? 'hatched' : 'default'"
+          />
+        </ContentGrid>
+      </section>
 
-      <div class="mt-16">
-        <SectionLabel label="Selected Articles" />
-        <ContentGrid v-if="featuredPosts?.length">
+      <section class="home-section mt-16">
+        <SectionLabel
+          label="Selected Articles"
+          :delay-base="600"
+        />
+        <ContentGrid
+          v-if="featuredPosts?.length"
+          :delay-base="600"
+        >
           <TheCard
             v-for="post in featuredPosts"
             :key="post.path"
@@ -70,7 +78,10 @@ useSeoMeta({
             :view-transition-name="`blog-title-${post.path.split('/').pop()}`"
           />
         </ContentGrid>
-        <ContentGrid v-else>
+        <ContentGrid
+          v-else
+          :delay-base="600"
+        >
           <TheCard
             tag="BLOG"
             title="Coming soon"
@@ -78,17 +89,20 @@ useSeoMeta({
             :specs="['BLOG']"
           />
         </ContentGrid>
-      </div>
+      </section>
 
-      <div
+      <section
         v-if="majorContributions.length"
-        class="mt-16"
+        class="home-section mt-16"
       >
-        <SectionLabel label="Open Source Contributions" />
+        <SectionLabel
+          label="Open Source Contributions"
+          :delay-base="1200"
+        />
         <LazyContributionList
           :contributions="majorContributions"
         />
-      </div>
+      </section>
     </div>
   </NuxtLayout>
 </template>

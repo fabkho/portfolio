@@ -1,6 +1,7 @@
 <script setup lang="ts">
 defineProps<{
   staggered?: boolean
+  delayBase?: number
 }>()
 </script>
 
@@ -8,6 +9,7 @@ defineProps<{
   <div
     class="content-grid"
     :class="{ 'content-grid--staggered': staggered }"
+    :style="delayBase ? { '--section-delay': `${delayBase}ms` } : undefined"
   >
     <slot />
   </div>
@@ -15,6 +17,7 @@ defineProps<{
 
 <style scoped>
 .content-grid {
+  --section-delay: 0ms;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
@@ -33,20 +36,20 @@ defineProps<{
 /* CSS-only reveal so first paint starts with header/nav */
 .content-grid :deep(> *) {
   transform-origin: center top;
-  animation: card-reveal 1.15s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: card-reveal 1.15s cubic-bezier(0.16, 1, 0.3, 1) var(--section-delay) both;
 }
 
-.content-grid :deep(> *:nth-child(2)) { animation-delay: 220ms; }
-.content-grid :deep(> *:nth-child(3)) { animation-delay: 440ms; }
-.content-grid :deep(> *:nth-child(4)) { animation-delay: 660ms; }
-.content-grid :deep(> *:nth-child(5)) { animation-delay: 880ms; }
-.content-grid :deep(> *:nth-child(6)) { animation-delay: 1100ms; }
-.content-grid :deep(> *:nth-child(7)) { animation-delay: 1320ms; }
-.content-grid :deep(> *:nth-child(8)) { animation-delay: 1540ms; }
-.content-grid :deep(> *:nth-child(9)) { animation-delay: 1760ms; }
-.content-grid :deep(> *:nth-child(10)) { animation-delay: 1980ms; }
-.content-grid :deep(> *:nth-child(11)) { animation-delay: 2200ms; }
-.content-grid :deep(> *:nth-child(12)) { animation-delay: 2420ms; }
+.content-grid :deep(> *:nth-child(2)) { animation-delay: calc(var(--section-delay) + 220ms); }
+.content-grid :deep(> *:nth-child(3)) { animation-delay: calc(var(--section-delay) + 440ms); }
+.content-grid :deep(> *:nth-child(4)) { animation-delay: calc(var(--section-delay) + 660ms); }
+.content-grid :deep(> *:nth-child(5)) { animation-delay: calc(var(--section-delay) + 880ms); }
+.content-grid :deep(> *:nth-child(6)) { animation-delay: calc(var(--section-delay) + 1100ms); }
+.content-grid :deep(> *:nth-child(7)) { animation-delay: calc(var(--section-delay) + 1320ms); }
+.content-grid :deep(> *:nth-child(8)) { animation-delay: calc(var(--section-delay) + 1540ms); }
+.content-grid :deep(> *:nth-child(9)) { animation-delay: calc(var(--section-delay) + 1760ms); }
+.content-grid :deep(> *:nth-child(10)) { animation-delay: calc(var(--section-delay) + 1980ms); }
+.content-grid :deep(> *:nth-child(11)) { animation-delay: calc(var(--section-delay) + 2200ms); }
+.content-grid :deep(> *:nth-child(12)) { animation-delay: calc(var(--section-delay) + 2420ms); }
 
 @keyframes card-reveal {
   0% {

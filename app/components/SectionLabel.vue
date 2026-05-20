@@ -1,31 +1,16 @@
 <script setup lang="ts">
-import { useIntersectionObserver } from '@vueuse/core'
-
 defineProps<{
   label: string
   tag?: 'h2' | 'h3'
+  delayBase?: number
 }>()
-
-const elRef = ref<HTMLElement>()
-const visible = ref(false)
-
-const { stop } = useIntersectionObserver(
-  elRef,
-  ([entry]) => {
-    if (!entry?.isIntersecting) return
-    visible.value = true
-    stop()
-  },
-  { threshold: 0.1 }
-)
 </script>
 
 <template>
   <component
     :is="tag || 'h2'"
-    ref="elRef"
     class="section-label"
-    :class="{ 'section-label--visible': visible }"
+    :style="delayBase ? { '--section-delay': `${delayBase}ms` } : undefined"
   >
     {{ label }}
   </component>
@@ -33,6 +18,7 @@ const { stop } = useIntersectionObserver(
 
 <style scoped>
 .section-label {
+  --section-delay: 0ms;
   position: relative;
   overflow: hidden;
   font-family: var(--font-sans);
@@ -42,10 +28,7 @@ const { stop } = useIntersectionObserver(
   padding-bottom: 0.5rem;
   border-bottom: 1px solid var(--color-ink);
   margin-bottom: 2rem;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(8px);
-  transition: opacity 0.6s ease, transform 0.6s ease, visibility 0s;
+  animation: section-label-reveal 0.6s ease var(--section-delay) both;
 }
 
 .section-label::after {
@@ -57,10 +40,18 @@ const { stop } = useIntersectionObserver(
   height: 1px;
   background: var(--color-accent);
   transform: translateX(-100%);
+  animation: section-label-scan 5.2s ease-in-out calc(var(--section-delay) + 1.4s) infinite;
 }
 
-.section-label--visible::after {
-  animation: section-label-scan 5.2s ease-in-out 1.4s infinite;
+@keyframes section-label-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes section-label-scan {
@@ -77,21 +68,9 @@ const { stop } = useIntersectionObserver(
   }
 }
 
-.section-label--visible {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .section-label {
-    opacity: 1;
-    visibility: visible;
-    transform: none;
-    transition: none;
-  }
-
-  .section-label--visible::after {
+  .section-label,
+  .section-label::after {
     animation: none;
   }
 }
