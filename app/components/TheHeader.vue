@@ -10,7 +10,7 @@ const previousSubtitle = usePrevious(subtitle)
 
 watch(subtitle, (value) => {
   if (previousSubtitle.value !== value) subtitleAnimationKey.value++
-}, { immediate: true })
+})
 
 const { start: startNavAnimationTimer } = useTimeoutFn(() => {
   navAnimated.value = true

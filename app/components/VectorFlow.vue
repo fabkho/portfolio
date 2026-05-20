@@ -466,7 +466,7 @@ function draw({ delta }: { delta: number }) {
   drawFns[props.variant](ctx, w, h)
 }
 
-const { resume } = useRafFn(draw, { immediate: false })
+const { pause, resume } = useRafFn(draw, { immediate: false })
 
 function onMouseMove(e: MouseEvent) {
   const container = containerRef.value
@@ -489,16 +489,19 @@ function onMouseLeave() {
   mouse.y = -1000
 }
 
-onMounted(() => {
-  if (!prefersStaticFallback.value) {
-    resize()
-    resume()
+function syncAnimationState() {
+  if (prefersStaticFallback.value) {
+    pause()
+    return
   }
-})
 
-watch([pixelRatio, prefersStaticFallback], () => {
-  if (!prefersStaticFallback.value) resize()
-})
+  resize()
+  resume()
+}
+
+onMounted(syncAnimationState)
+
+watch([pixelRatio, prefersStaticFallback], syncAnimationState)
 
 defineExpose({ onMouseMove, onMouseLeave, setMouse })
 </script>

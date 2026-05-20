@@ -29,15 +29,19 @@ useSeoMeta({
         v-if="posts?.length"
         staggered
       >
-        <TheCard
-          v-for="post in posts"
+        <ContentGridItem
+          v-for="(post, index) in posts"
           :key="post.path"
-          :tag="post.tag"
-          :title="post.title"
-          :description="post.description"
-          :specs="post.specs"
-          :url="post.path"
-        />
+          :index="index"
+        >
+          <TheCard
+            :tag="post.tag"
+            :title="post.title"
+            :description="post.description"
+            :specs="post.specs"
+            :url="post.path"
+          />
+        </ContentGridItem>
       </ContentGrid>
       <p
         v-else
