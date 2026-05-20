@@ -21,7 +21,6 @@ defineProps<{
 }
 
 @media (min-width: 769px) {
-  /* Remove !important from initial transform so animation can override it */
   .content-grid--staggered :deep(> *:nth-child(even)) {
     transform: translateY(2.5rem);
   }
@@ -54,17 +53,14 @@ defineProps<{
     opacity: 0;
     visibility: visible;
     transform: translateY(1.75rem) scale(0.985);
-    filter: blur(6px);
   }
   58% {
     opacity: 1;
-    filter: blur(0);
   }
   100% {
     opacity: 1;
     visibility: visible;
     transform: translateY(0) scale(1);
-    filter: blur(0);
   }
 }
 
@@ -73,17 +69,14 @@ defineProps<{
     opacity: 0;
     visibility: visible;
     transform: translateY(4rem) scale(0.985);
-    filter: blur(6px);
   }
   58% {
     opacity: 1;
-    filter: blur(0);
   }
   100% {
     opacity: 1;
     visibility: visible;
     transform: translateY(2rem) scale(1);
-    filter: blur(0);
   }
 }
 
@@ -92,17 +85,14 @@ defineProps<{
     opacity: 0;
     visibility: visible;
     transform: translateY(2.75rem) scale(0.985);
-    filter: blur(6px);
   }
   58% {
     opacity: 1;
-    filter: blur(0);
   }
   100% {
     opacity: 1;
     visibility: visible;
     transform: translateY(1.25rem) scale(1);
-    filter: blur(0);
   }
 }
 
@@ -121,9 +111,6 @@ defineProps<{
     opacity: 1;
     visibility: visible;
     transform: none !important;
-  }
-
-  .content-grid :deep(> *) {
     animation: none;
   }
 
@@ -138,9 +125,7 @@ defineProps<{
   .content-grid {
     grid-template-columns: 1fr;
   }
-  .content-grid--staggered :deep(> *) {
-    transform: translateY(8px) !important;
-  }
+
   .content-grid--staggered :deep(> *) {
     animation-name: card-reveal;
   }

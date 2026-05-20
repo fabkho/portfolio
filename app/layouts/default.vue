@@ -296,7 +296,7 @@ onMounted(async () => {
 
   .schematic-area {
     grid-column: 1 / -1;
-    padding: 1rem;
+    padding: 1.75rem 1rem 1rem;
     border: none;
   }
 

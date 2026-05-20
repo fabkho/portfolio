@@ -68,6 +68,17 @@ defineProps<{
   }
 }
 
+@media (max-width: 768px) {
+  .section-label {
+    margin-bottom: 1.5rem;
+    animation-duration: 0.3s;
+  }
+
+  .section-label::after {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .section-label,
   .section-label::after {

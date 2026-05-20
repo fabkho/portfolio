@@ -348,11 +348,12 @@ onMounted(() => {
     background: transparent !important;
   }
 
-  /* Remove wave ripple on mobile */
-  :deep(.wave-ripple) {
+  .nav-cell.wave-ripple {
     background-image: none !important;
   }
-  :deep(.wave-ripple__canvas) {
+
+  .nav-cell :deep(.wave-ripple__fallback),
+  .nav-cell :deep(.wave-ripple__canvas) {
     display: none !important;
   }
 
