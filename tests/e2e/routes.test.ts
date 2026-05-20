@@ -6,11 +6,19 @@ describe('published routes', async () => {
     setupTimeout: 120_000
   })
 
-  for (const route of ['/', '/projects', '/blog', '/blog/vue-transition-vs-flip']) {
-    it(`renders ${route}`, async () => {
-      const html = await $fetch(route)
+  const routes = [
+    { path: '/', text: 'Selected Works' },
+    { path: '/projects', text: 'All Projects' },
+    { path: '/blog', text: 'Keyboard Navigation in Composite Widgets' },
+    { path: '/blog/keyboard-navigation-composite-widgets', text: 'Keyboard Navigation in Composite Widgets' }
+  ]
+
+  for (const route of routes) {
+    it(`renders ${route.path}`, async () => {
+      const html = await $fetch(route.path)
 
       expect(html).toContain('Fabian Kirchhoff')
+      expect(html).toContain(route.text)
     })
   }
 })

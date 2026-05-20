@@ -35,7 +35,7 @@ describe('getRouteSubtitle', () => {
   })
 
   it('normalizes trailing slashes', () => {
-    expect(getRouteSubtitle('/projects/')).toBe('Index of Constructed Mechanisms')
+    expect(getRouteSubtitle('/projects/')).toBe(NAV_ITEMS.find(item => item.to === '/projects')?.subtitle)
   })
 })
 
