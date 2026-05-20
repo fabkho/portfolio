@@ -25,9 +25,17 @@ onMounted(() => {
       <div class="mobile-logo">
         <TypewriterLogo text="fabkho" />
       </div>
-      <div class="text-base uppercase tracking-[0.1em] mt-1 subtitle-text">
-        {{ subtitle }}
-      </div>
+      <Transition
+        name="subtitle"
+        mode="out-in"
+      >
+        <div
+          :key="subtitle"
+          class="text-base uppercase tracking-[0.1em] mt-1 subtitle-text"
+        >
+          {{ subtitle }}
+        </div>
+      </Transition>
     </div>
 
     <div class="header-cell meta">
@@ -138,6 +146,21 @@ onMounted(() => {
   }
 }
 
+.subtitle-enter-active,
+.subtitle-leave-active {
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.subtitle-enter-from {
+  opacity: 0;
+  transform: translateY(0.35rem);
+}
+
+.subtitle-leave-to {
+  opacity: 0;
+  transform: translateY(-0.35rem);
+}
+
 .nav-link {
   position: relative;
   z-index: 10;
@@ -170,6 +193,13 @@ onMounted(() => {
 .nav-link[aria-current='page'] {
   border-color: var(--color-accent);
   color: var(--color-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .subtitle-enter-active,
+  .subtitle-leave-active {
+    transition: none;
+  }
 }
 
 @media (max-width: 1024px) {

@@ -5,7 +5,11 @@ description: Experimental Pi coding agent extensions and workflows.
 specs:
   - TYPESCRIPT
   - AI
+stack:
+  - TypeScript
 url: https://github.com/fabkho/i-love-pi
 featured: false
+hidden: false
 order: 7
 stars: 0
+updatedAt: 2026-05-03T14:18:24Z

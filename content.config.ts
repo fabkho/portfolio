@@ -14,8 +14,10 @@ export default defineContentConfig({
         stack: z.array(z.string()).optional(),
         url: z.string().url().optional(),
         featured: z.boolean().optional(),
+        hidden: z.boolean().optional(),
         order: z.number().optional(),
-        stars: z.number().optional()
+        stars: z.number().optional(),
+        updatedAt: z.string().optional()
       })
     }),
     contributions: defineCollection({
@@ -24,7 +26,9 @@ export default defineContentConfig({
       schema: z.object({
         project: z.string(),
         pr: z.string(),
-        url: z.string().url()
+        url: z.string().url(),
+        major: z.boolean().optional(),
+        date: z.string().optional()
       })
     }),
     blog: defineCollection({

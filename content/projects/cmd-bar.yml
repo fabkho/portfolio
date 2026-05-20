@@ -6,7 +6,12 @@ specs:
   - VUE
   - TYPESCRIPT
   - A11Y
+stack:
+  - Vue
+  - TypeScript
 url: https://github.com/fabkho/cmd-bar
 featured: false
+hidden: false
 order: 4
 stars: 7
+updatedAt: 2026-03-23T11:53:46Z

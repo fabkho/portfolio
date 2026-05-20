@@ -106,5 +106,5 @@ export default defineNuxtConfig({
     enabled: true
   },
 
-  studio: false,
+  studio: false
 })

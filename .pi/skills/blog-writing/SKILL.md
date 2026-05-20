@@ -1,3 +1,8 @@
+---
+name: blog-writing
+description: Writing, editing, and reviewing blog post content in content/blog/ with Fabian's voice, structure, formatting, and anti-pattern rules.
+---
+
 # Blog Post Writing
 
 ## Trigger

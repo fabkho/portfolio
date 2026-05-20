@@ -1,17 +1,22 @@
 <script setup lang="ts">
 const { data: allProjects } = await useAsyncData('all-home-projects', () =>
   queryCollection('projects')
-    .order('order', 'ASC')
     .all()
 )
 
 const featuredProjects = computed(() =>
-  allProjects.value?.filter(p => p.featured) ?? []
+  [...(allProjects.value ?? [])]
+    .filter(project => project.featured && !project.hidden)
+    .sort((a, b) => (a.order ?? 99) - (b.order ?? 99))
 )
 
-const { data: contributions } = await useAsyncData('home-contributions', () =>
+const { data: allContributions } = await useAsyncData('home-contributions', () =>
   queryCollection('contributions')
     .all()
+)
+
+const majorContributions = computed(() =>
+  allContributions.value?.filter(contribution => contribution.major) ?? []
 )
 
 const { data: allPosts } = await useAsyncData('all-home-posts', () =>
@@ -51,16 +56,6 @@ useSeoMeta({
         />
       </ContentGrid>
 
-      <div
-        v-if="contributions?.length"
-        class="mt-16"
-      >
-        <SectionLabel label="Open Source Contributions" />
-        <LazyContributionList
-          :contributions="contributions"
-        />
-      </div>
-
       <div class="mt-16">
         <SectionLabel label="Selected Articles" />
         <ContentGrid v-if="featuredPosts?.length">
@@ -82,6 +77,16 @@ useSeoMeta({
             :specs="['BLOG']"
           />
         </ContentGrid>
+      </div>
+
+      <div
+        v-if="majorContributions.length"
+        class="mt-16"
+      >
+        <SectionLabel label="Open Source Contributions" />
+        <LazyContributionList
+          :contributions="majorContributions"
+        />
       </div>
     </div>
   </NuxtLayout>

@@ -6,7 +6,12 @@ specs:
   - VUE
   - BUNDLER
   - PERFORMANCE
+stack:
+  - Vue
+  - JavaScript
 url: https://github.com/fabkho/fontawesome-esm
 featured: false
+hidden: false
 order: 5
 stars: 0
+updatedAt: 2026-02-04T01:42:00Z

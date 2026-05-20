@@ -1,0 +1,14 @@
+tag: TYPESCRIPT
+label: PI SOLO
+title: Pi Solo
+description: Pi extensions for Soloterm — agent orchestration, dispatch, and fork workflows
+specs:
+  - TYPESCRIPT
+  - EXTENSION
+  - PI
+  - SOLO
+url: https://github.com/fabkho/pi-solo
+featured: false
+hidden: false
+stars: 0
+updatedAt: 2026-05-20T11:35:04Z
