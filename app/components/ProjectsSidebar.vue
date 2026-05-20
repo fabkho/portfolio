@@ -50,7 +50,7 @@ watch(() => props.projectCount, (value) => {
         </div>
       </div>
     </WaveRipple>
-    <div class="data-section data-section--stack">
+    <div class="data-section data-section--stack data-section--grow">
       <div class="data-label">
         STACK
       </div>
@@ -62,7 +62,6 @@ watch(() => props.projectCount, (value) => {
         <span>{{ tech }}</span>
       </div>
     </div>
-    <div class="data-section data-section--grow" />
   </div>
 </template>
 

@@ -1,31 +1,14 @@
 <script setup lang="ts">
-import { useIntersectionObserver } from '@vueuse/core'
-
 defineProps<{
   label: string
   tag?: 'h2' | 'h3'
 }>()
-
-const elRef = ref<HTMLElement>()
-const visible = ref(false)
-
-const { stop } = useIntersectionObserver(
-  elRef,
-  ([entry]) => {
-    if (!entry?.isIntersecting) return
-    visible.value = true
-    stop()
-  },
-  { threshold: 0.1 }
-)
 </script>
 
 <template>
   <component
     :is="tag || 'h2'"
-    ref="elRef"
     class="section-label"
-    :class="{ 'section-label--visible': visible }"
   >
     {{ label }}
   </component>
@@ -42,10 +25,7 @@ const { stop } = useIntersectionObserver(
   padding-bottom: 0.5rem;
   border-bottom: 1px solid var(--color-ink);
   margin-bottom: 2rem;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(8px);
-  transition: opacity 0.6s ease, transform 0.6s ease, visibility 0s;
+  animation: section-label-reveal 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .section-label::after {
@@ -58,10 +38,18 @@ const { stop } = useIntersectionObserver(
   background: var(--color-accent);
   opacity: 0;
   transform: translateX(-120%);
+  animation: section-label-scan 4.8s ease-in-out 0.4s infinite;
 }
 
-.section-label--visible::after {
-  animation: section-label-scan 4.8s ease-in-out 0.4s infinite;
+@keyframes section-label-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes section-label-scan {
@@ -80,21 +68,9 @@ const { stop } = useIntersectionObserver(
   }
 }
 
-.section-label--visible {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .section-label {
-    opacity: 1;
-    visibility: visible;
-    transform: none;
-    transition: none;
-  }
-
-  .section-label--visible::after {
+  .section-label,
+  .section-label::after {
     animation: none;
   }
 }

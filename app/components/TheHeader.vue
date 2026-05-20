@@ -34,6 +34,7 @@ onMounted(() => {
       <Transition
         name="subtitle-scan"
         mode="out-in"
+        appear
       >
         <div
           :key="`${subtitle}-${subtitleAnimationKey}`"

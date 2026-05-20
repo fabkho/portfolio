@@ -28,7 +28,13 @@ const props = withDefaults(
 
 const wrapperRef = ref<HTMLElement>()
 const canvasRef = ref<HTMLCanvasElement>()
+const patternId = useId()
+const tileSize = computed(() => props.spacing * Math.SQRT2)
+const waveRippleStyle = computed(() => ({
+  '--wave-ripple-line-color': props.color || undefined
+}))
 const ripples = ref<{ x: number, y: number, time: number }[]>([])
+const canvasReady = ref(false)
 const reducedMotion = usePreferredReducedMotion()
 const isTouch = useMediaQuery('(pointer: coarse)')
 const isWrapperVisible = useElementVisibility(wrapperRef)
@@ -132,7 +138,10 @@ function spawnRipple(x: number, y: number) {
 }
 
 function initCanvas() {
-  if (shouldSkipMotion.value) return
+  if (shouldSkipMotion.value) {
+    canvasReady.value = false
+    return
+  }
   const canvas = canvasRef.value
   const wrapper = wrapperRef.value
   if (!canvas || !wrapper) return
@@ -142,6 +151,7 @@ function initCanvas() {
   canvas.style.width = rect.width + 'px'
   canvas.style.height = rect.height + 'px'
   drawLines(canvas, 0)
+  canvasReady.value = true
 }
 
 useResizeObserver(wrapperRef, () => initCanvas())
@@ -195,10 +205,38 @@ onUnmounted(() => {
     :is="tag"
     ref="wrapperRef"
     class="wave-ripple"
-    :style="color ? { '--wave-ripple-color': color } : undefined"
+    :class="{ 'wave-ripple--canvas-ready': canvasReady }"
+    :style="waveRippleStyle"
     @mousemove="onMouseMove"
     @click="onClick"
   >
+    <svg
+      class="wave-ripple__fallback"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <pattern
+          :id="patternId"
+          patternUnits="userSpaceOnUse"
+          :width="tileSize"
+          :height="tileSize"
+        >
+          <path
+            :d="`M ${-tileSize} 0 L 0 ${tileSize} M 0 0 L ${tileSize} ${tileSize} M ${tileSize} 0 L ${tileSize * 2} ${tileSize}`"
+            stroke="var(--wave-ripple-line-color)"
+            stroke-width="1"
+            fill="none"
+            vector-effect="non-scaling-stroke"
+          />
+        </pattern>
+      </defs>
+      <rect
+        width="100%"
+        height="100%"
+        :fill="`url(#${patternId})`"
+      />
+    </svg>
     <canvas
       ref="canvasRef"
       class="wave-ripple__canvas"
@@ -211,17 +249,28 @@ onUnmounted(() => {
 
 <style scoped>
 .wave-ripple {
+  --wave-ripple-line-color: var(--color-ink-faint, rgba(0, 0, 0, 0.12));
   position: relative;
   overflow: hidden;
 }
 
+.wave-ripple__fallback,
 .wave-ripple__canvas {
-  --line-color: var(--color-ink-faint, rgba(0, 0, 0, 0.12));
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
   z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
+}
+
+.wave-ripple__canvas {
+  --line-color: var(--wave-ripple-line-color);
+}
+
+.wave-ripple--canvas-ready .wave-ripple__fallback {
+  display: none;
 }
 
 /* Static hatched fallback for coarse pointers (touch) and reduced motion */

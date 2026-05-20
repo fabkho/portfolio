@@ -37,7 +37,6 @@ useSeoMeta({
           :description="post.description"
           :specs="post.specs"
           :url="post.path"
-          :view-transition-name="`blog-title-${post.path.split('/').pop()}`"
         />
       </ContentGrid>
       <p

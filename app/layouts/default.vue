@@ -1,7 +1,6 @@
 <script setup lang="ts">
 const route = useRoute()
 const isBlogRoute = computed(() => route.path.startsWith('/blog'))
-const sidebarRef = ref<HTMLElement>()
 const reducedMotion = usePreferredReducedMotion()
 const aboutText = 'I build things that help developers build things — Nuxt modules, CLI tools, and open-source packages. When not coding, I\'m at the gym or lost in a book.'
 const aboutTokens = buildAboutTokens(aboutText)
@@ -30,8 +29,6 @@ const { pause: pauseAboutTyping, resume: resumeAboutTyping } = useIntervalFn(() 
     pauseAboutTyping()
   }
 }, 18, { immediate: false })
-
-useSidebarReveal(sidebarRef)
 
 onMounted(async () => {
   if (reducedMotion.value === 'reduce' || aboutTypingDone.value) {
@@ -69,7 +66,6 @@ onMounted(async () => {
     <aside class="data-sidebar">
       <div
         id="sidebar-target"
-        ref="sidebarRef"
         :class="isBlogRoute ? 'sidebar-sticky' : 'sidebar-default'"
       >
         <slot name="sidebar">
@@ -195,42 +191,45 @@ onMounted(async () => {
   color: var(--color-accent);
 }
 
-/* Sidebar stagger reveal — individual records/items start hidden */
+/* Sidebar stagger reveal — CSS-only so first paint starts with header/nav */
 .sidebar-default :deep(.sidebar-reveal-item),
 .sidebar-sticky :deep(.sidebar-reveal-item) {
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(8px);
+  animation: sidebar-stagger-reveal 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+.sidebar-default :deep(.sidebar-reveal-item:nth-child(2)),
+.sidebar-sticky :deep(.sidebar-reveal-item:nth-child(2)) { animation-delay: 80ms; }
+.sidebar-default :deep(.sidebar-reveal-item:nth-child(3)),
+.sidebar-sticky :deep(.sidebar-reveal-item:nth-child(3)) { animation-delay: 140ms; }
+.sidebar-default :deep(.sidebar-reveal-item:nth-child(4)),
+.sidebar-sticky :deep(.sidebar-reveal-item:nth-child(4)) { animation-delay: 200ms; }
+.sidebar-default :deep(.sidebar-reveal-item:nth-child(5)),
+.sidebar-sticky :deep(.sidebar-reveal-item:nth-child(5)) { animation-delay: 260ms; }
+.sidebar-default :deep(.sidebar-reveal-item:nth-child(6)),
+.sidebar-sticky :deep(.sidebar-reveal-item:nth-child(6)) { animation-delay: 320ms; }
+.sidebar-default :deep(.sidebar-reveal-item:nth-child(7)),
+.sidebar-sticky :deep(.sidebar-reveal-item:nth-child(7)) { animation-delay: 380ms; }
+.sidebar-default :deep(.sidebar-reveal-item:nth-child(8)),
+.sidebar-sticky :deep(.sidebar-reveal-item:nth-child(8)) { animation-delay: 440ms; }
+.sidebar-default :deep(.sidebar-reveal-item:nth-child(9)),
+.sidebar-sticky :deep(.sidebar-reveal-item:nth-child(9)) { animation-delay: 500ms; }
+.sidebar-default :deep(.sidebar-reveal-item:nth-child(10)),
+.sidebar-sticky :deep(.sidebar-reveal-item:nth-child(10)) { animation-delay: 560ms; }
 
 @keyframes sidebar-stagger-reveal {
   from {
     opacity: 0;
-    visibility: visible;
     transform: translateY(0.5rem);
   }
   to {
     opacity: 1;
-    visibility: visible;
     transform: translateY(0);
   }
-}
-
-.sidebar-default :deep(.sidebar-reveal-item.reveal-visible),
-.sidebar-sticky :deep(.sidebar-reveal-item.reveal-visible) {
-  animation: sidebar-stagger-reveal 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .sidebar-default :deep(.sidebar-reveal-item),
   .sidebar-sticky :deep(.sidebar-reveal-item) {
-    opacity: 1;
-    visibility: visible;
-    transform: none;
-  }
-
-  .sidebar-default :deep(.sidebar-reveal-item.reveal-visible),
-  .sidebar-sticky :deep(.sidebar-reveal-item.reveal-visible) {
     animation: none;
   }
 }
