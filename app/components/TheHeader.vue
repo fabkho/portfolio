@@ -5,14 +5,20 @@ const subtitle = useRouteSubtitle()
 const navItems = NAV_ITEMS
 const navAnimated = useState('nav-animated', () => false)
 const skipAnimation = ref(navAnimated.value)
+const subtitleAnimationKey = ref(0)
+const previousSubtitle = usePrevious(subtitle)
+
+watch(subtitle, (value) => {
+  if (previousSubtitle.value !== value) subtitleAnimationKey.value++
+}, { immediate: true })
+
+const { start: startNavAnimationTimer } = useTimeoutFn(() => {
+  navAnimated.value = true
+  skipAnimation.value = true
+}, 600, { immediate: false })
 
 onMounted(() => {
-  if (!navAnimated.value) {
-    setTimeout(() => {
-      navAnimated.value = true
-      skipAnimation.value = true
-    }, 600)
-  }
+  if (!navAnimated.value) startNavAnimationTimer()
 })
 </script>
 
@@ -26,11 +32,12 @@ onMounted(() => {
         <TypewriterLogo text="fabkho" />
       </div>
       <Transition
-        name="subtitle"
+        name="subtitle-scan"
         mode="out-in"
+        appear
       >
         <div
-          :key="subtitle"
+          :key="`${subtitle}-${subtitleAnimationKey}`"
           class="text-base uppercase tracking-[0.1em] mt-1 subtitle-text"
         >
           {{ subtitle }}
@@ -76,9 +83,42 @@ onMounted(() => {
 
 <style scoped>
 .header {
+  position: relative;
+  overflow: hidden;
   grid-column: 1 / -1;
   display: flex;
   border: 1px solid var(--color-ink);
+}
+
+.header::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 0;
+  z-index: 20;
+  width: 18%;
+  height: 1px;
+  pointer-events: none;
+  background: var(--color-accent);
+  opacity: 0;
+  transform: translateX(-120%);
+  animation: header-border-scan 5.6s ease-in-out 1s infinite;
+}
+
+@keyframes header-border-scan {
+  0%,
+  76% {
+    opacity: 0;
+    transform: translateX(-120%);
+  }
+  82%,
+  90% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(660%);
+  }
 }
 
 .header-cell {
@@ -146,19 +186,59 @@ onMounted(() => {
   }
 }
 
-.subtitle-enter-active,
-.subtitle-leave-active {
-  transition: opacity 0.22s ease, transform 0.22s ease;
+.subtitle-text {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  color: var(--color-ink);
 }
 
-.subtitle-enter-from {
+.subtitle-text::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 42%;
+  height: 1px;
+  background: var(--color-accent);
   opacity: 0;
-  transform: translateY(0.35rem);
+  transform: translateX(-110%);
+  animation: subtitle-underline-scan 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.subtitle-leave-to {
+.subtitle-scan-enter-active,
+.subtitle-scan-leave-active {
+  transition:
+    opacity 0.28s ease,
+    transform 0.28s ease,
+    clip-path 0.28s ease;
+}
+
+.subtitle-scan-enter-from {
   opacity: 0;
-  transform: translateY(-0.35rem);
+  clip-path: inset(0 100% 0 0);
+  transform: translateY(0.15rem);
+}
+
+.subtitle-scan-leave-to {
+  opacity: 0;
+  clip-path: inset(0 0 0 100%);
+  transform: translateY(-0.15rem);
+}
+
+@keyframes subtitle-underline-scan {
+  0% {
+    opacity: 0;
+    transform: translateX(-110%);
+  }
+  25%,
+  72% {
+    opacity: 0.75;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(240%);
+  }
 }
 
 .nav-link {
@@ -196,8 +276,13 @@ onMounted(() => {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .subtitle-enter-active,
-  .subtitle-leave-active {
+  .header::after,
+  .subtitle-text::after {
+    animation: none;
+  }
+
+  .subtitle-scan-enter-active,
+  .subtitle-scan-leave-active {
     transition: none;
   }
 }
@@ -254,11 +339,12 @@ onMounted(() => {
     background: transparent !important;
   }
 
-  /* Remove wave ripple on mobile */
-  :deep(.wave-ripple) {
+  .nav-cell.wave-ripple {
     background-image: none !important;
   }
-  :deep(.wave-ripple__canvas) {
+
+  .nav-cell :deep(.wave-ripple__fallback),
+  .nav-cell :deep(.wave-ripple__canvas) {
     display: none !important;
   }
 

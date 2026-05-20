@@ -1,4 +1,4 @@
-import { usePreferredReducedMotion } from '@vueuse/core'
+import { useIntersectionObserver, usePreferredReducedMotion } from '@vueuse/core'
 import type { MaybeRefOrGetter } from 'vue'
 
 /**
@@ -23,29 +23,21 @@ export function useStaggerReveal(
 ) {
   const {
     selector = ':scope > *',
-    delay = 80
+    delay = 80,
+    threshold = 0
   } = options
 
   const reducedMotion = usePreferredReducedMotion()
-  let observer: IntersectionObserver | undefined
-
-  onMounted(() => {
-    const el = toValue(container)
-    if (!el) return
-
-    observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry?.isIntersecting) return
-        if (!(entry.target instanceof HTMLElement)) return
-        reveal(entry.target)
-        observer?.disconnect()
-      },
-      { threshold: 0 }
-    )
-    observer.observe(el)
-  })
-
-  onUnmounted(() => observer?.disconnect())
+  const { stop } = useIntersectionObserver(
+    container,
+    ([entry]) => {
+      if (!entry?.isIntersecting) return
+      if (!(entry.target instanceof HTMLElement)) return
+      reveal(entry.target)
+      stop()
+    },
+    { threshold }
+  )
 
   function reveal(el: HTMLElement) {
     const children = el.querySelectorAll(selector)
@@ -55,6 +47,7 @@ export function useStaggerReveal(
     } else {
       children.forEach((child, i) => {
         const htmlChild = child as HTMLElement
+        htmlChild.style.setProperty('--reveal-delay', `${i * delay}ms`)
         htmlChild.style.animationDelay = `${i * delay}ms`
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {

@@ -1,18 +1,15 @@
 <script setup lang="ts">
 defineProps<{
   staggered?: boolean
+  delayBase?: number
 }>()
-
-const gridRef = ref<HTMLElement>()
-
-useStaggerReveal(gridRef)
 </script>
 
 <template>
   <div
-    ref="gridRef"
     class="content-grid"
     :class="{ 'content-grid--staggered': staggered }"
+    :style="delayBase ? { '--section-delay': `${delayBase}ms` } : undefined"
   >
     <slot />
   </div>
@@ -20,58 +17,95 @@ useStaggerReveal(gridRef)
 
 <style scoped>
 .content-grid {
+  --section-delay: 0ms;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
 }
 
 @media (min-width: 769px) {
-  /* Remove !important from initial transform so animation can override it */
   .content-grid--staggered :deep(> *:nth-child(even)) {
     transform: translateY(2.5rem);
   }
+
+  .content-grid--staggered :deep(> *:nth-child(4n + 3)) {
+    transform: translateY(1.25rem);
+  }
 }
 
-/* Children start hidden, composable adds .reveal-visible */
+/* CSS-only reveal so first paint starts with header/nav */
 .content-grid :deep(> *) {
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(8px);
+  transform-origin: center top;
+  animation: card-reveal 1.15s cubic-bezier(0.16, 1, 0.3, 1) var(--section-delay) both;
 }
 
-@keyframes stagger-reveal {
-  from {
+.content-grid :deep(> *:nth-child(2)) { animation-delay: calc(var(--section-delay) + 220ms); }
+.content-grid :deep(> *:nth-child(3)) { animation-delay: calc(var(--section-delay) + 440ms); }
+.content-grid :deep(> *:nth-child(4)) { animation-delay: calc(var(--section-delay) + 660ms); }
+.content-grid :deep(> *:nth-child(5)) { animation-delay: calc(var(--section-delay) + 880ms); }
+.content-grid :deep(> *:nth-child(6)) { animation-delay: calc(var(--section-delay) + 1100ms); }
+.content-grid :deep(> *:nth-child(7)) { animation-delay: calc(var(--section-delay) + 1320ms); }
+.content-grid :deep(> *:nth-child(8)) { animation-delay: calc(var(--section-delay) + 1540ms); }
+.content-grid :deep(> *:nth-child(9)) { animation-delay: calc(var(--section-delay) + 1760ms); }
+.content-grid :deep(> *:nth-child(10)) { animation-delay: calc(var(--section-delay) + 1980ms); }
+.content-grid :deep(> *:nth-child(11)) { animation-delay: calc(var(--section-delay) + 2200ms); }
+.content-grid :deep(> *:nth-child(12)) { animation-delay: calc(var(--section-delay) + 2420ms); }
+
+@keyframes card-reveal {
+  0% {
     opacity: 0;
     visibility: visible;
-    transform: translateY(1rem);
+    transform: translateY(1.75rem) scale(0.985);
   }
-  to {
+  58% {
+    opacity: 1;
+  }
+  100% {
     opacity: 1;
     visibility: visible;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
-@keyframes stagger-reveal-shifted {
-  from {
+@keyframes card-reveal-shifted {
+  0% {
     opacity: 0;
     visibility: visible;
-    transform: translateY(3rem);
+    transform: translateY(4rem) scale(0.985);
   }
-  to {
+  58% {
+    opacity: 1;
+  }
+  100% {
     opacity: 1;
     visibility: visible;
-    transform: translateY(2rem);
+    transform: translateY(2rem) scale(1);
   }
 }
 
-.content-grid :deep(> .reveal-visible) {
-  animation: stagger-reveal 0.6s ease forwards !important;
+@keyframes card-reveal-soft-shifted {
+  0% {
+    opacity: 0;
+    visibility: visible;
+    transform: translateY(2.75rem) scale(0.985);
+  }
+  58% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(1.25rem) scale(1);
+  }
 }
 
 @media (min-width: 769px) {
-  .content-grid--staggered :deep(> .reveal-visible:nth-child(even)) {
-    animation: stagger-reveal-shifted 0.6s ease forwards !important;
+  .content-grid--staggered :deep(> *:nth-child(even)) {
+    animation-name: card-reveal-shifted;
+  }
+
+  .content-grid--staggered :deep(> *:nth-child(4n + 3)) {
+    animation-name: card-reveal-soft-shifted;
   }
 }
 
@@ -80,9 +114,6 @@ useStaggerReveal(gridRef)
     opacity: 1;
     visibility: visible;
     transform: none !important;
-  }
-
-  .content-grid :deep(> .reveal-visible) {
     animation: none;
   }
 
@@ -97,11 +128,9 @@ useStaggerReveal(gridRef)
   .content-grid {
     grid-template-columns: 1fr;
   }
+
   .content-grid--staggered :deep(> *) {
-    transform: translateY(8px) !important;
-  }
-  .content-grid--staggered :deep(> .reveal-visible) {
-    animation: stagger-reveal 0.6s ease forwards;
+    animation-name: card-reveal;
   }
 }
 </style>

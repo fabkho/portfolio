@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRafFn, useResizeObserver, useIntervalFn } from '@vueuse/core'
+import { useDevicePixelRatio, useElementVisibility, useIntervalFn, useMediaQuery, useMouseInElement, usePreferredReducedMotion, useRafFn, useResizeObserver, useThrottleFn } from '@vueuse/core'
 
 const props = withDefaults(
   defineProps<{
@@ -28,14 +28,23 @@ const props = withDefaults(
 
 const wrapperRef = ref<HTMLElement>()
 const canvasRef = ref<HTMLCanvasElement>()
+const patternId = useId()
+const tileSize = computed(() => props.spacing * Math.SQRT2)
+const waveRippleStyle = computed(() => ({
+  '--wave-ripple-line-color': props.color || undefined
+}))
 const ripples = ref<{ x: number, y: number, time: number }[]>([])
-let mouseStill = true
-let stillTimer: ReturnType<typeof setTimeout>
-let isTouch = false
+const canvasReady = ref(false)
+const reducedMotion = usePreferredReducedMotion()
+const isTouch = useMediaQuery('(pointer: coarse)')
+const isWrapperVisible = useElementVisibility(wrapperRef)
+const { pixelRatio } = useDevicePixelRatio()
+const { elementX, elementY, elementWidth, elementHeight, isOutside } = useMouseInElement(wrapperRef)
+const shouldSkipMotion = computed(() => reducedMotion.value === 'reduce')
 
 function drawLines(canvas: HTMLCanvasElement, now: number) {
   const ctx = canvas.getContext('2d')!
-  const dpr = window.devicePixelRatio
+  const dpr = pixelRatio.value
   const w = canvas.width / dpr
   const h = canvas.height / dpr
   const angle = Math.PI / 4
@@ -122,84 +131,71 @@ const { pause, resume } = useRafFn(({ timestamp }) => {
 }, { immediate: false })
 
 function spawnRipple(x: number, y: number) {
-  if (prefersReducedMotion()) return
+  if (shouldSkipMotion.value) return
   ripples.value.push({ x, y, time: performance.now() })
   if (ripples.value.length > props.maxRipples) ripples.value.shift()
   resume()
 }
 
-function prefersReducedMotion() {
-  if (import.meta.server) return false
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
-}
-
 function initCanvas() {
-  if (prefersReducedMotion()) return
+  if (shouldSkipMotion.value) {
+    canvasReady.value = false
+    return
+  }
   const canvas = canvasRef.value
   const wrapper = wrapperRef.value
   if (!canvas || !wrapper) return
   const rect = wrapper.getBoundingClientRect()
-  canvas.width = rect.width * window.devicePixelRatio
-  canvas.height = rect.height * window.devicePixelRatio
+  canvas.width = rect.width * pixelRatio.value
+  canvas.height = rect.height * pixelRatio.value
   canvas.style.width = rect.width + 'px'
   canvas.style.height = rect.height + 'px'
   drawLines(canvas, 0)
+  canvasReady.value = true
 }
 
 useResizeObserver(wrapperRef, () => initCanvas())
 
-function getLocalCoords(e: MouseEvent) {
-  const rect = wrapperRef.value!.getBoundingClientRect()
-  return { x: e.clientX - rect.left, y: e.clientY - rect.top }
-}
+const spawnHoverRipple = useThrottleFn(() => {
+  if (isOutside.value) return
+  spawnRipple(elementX.value, elementY.value)
+}, props.stillThreshold, false, true)
 
-function onMouseMove(e: MouseEvent) {
+function onMouseMove() {
   if (props.mode !== 'hover' && props.mode !== 'both') return
-  if (mouseStill) {
-    mouseStill = false
-    const { x, y } = getLocalCoords(e)
-    spawnRipple(x, y)
-  }
-  clearTimeout(stillTimer)
-  stillTimer = setTimeout(() => {
-    mouseStill = true
-  }, props.stillThreshold)
+  spawnHoverRipple()
 }
 
-function onClick(e: MouseEvent) {
+function onClick() {
   if (props.mode !== 'click' && props.mode !== 'both') return
-  const { x, y } = getLocalCoords(e)
-  spawnRipple(x, y)
+  if (isOutside.value) return
+  spawnRipple(elementX.value, elementY.value)
 }
 
 // Randomly trigger ripples for mobile devices
 const { pause: pauseRandom, resume: resumeRandom } = useIntervalFn(() => {
-  if (!wrapperRef.value || !isTouch || prefersReducedMotion()) return
+  if (!wrapperRef.value || !isTouch.value || shouldSkipMotion.value || !isWrapperVisible.value) return
 
   // 30% chance to skip a beat so it feels more organic
   if (Math.random() > 0.7) return
 
-  const rect = wrapperRef.value.getBoundingClientRect()
-  // Ensure the element is visible in the viewport before spawning ripples
-  if (rect.top > window.innerHeight || rect.bottom < 0) return
-
-  const x = Math.random() * rect.width
-  const y = Math.random() * rect.height
+  const x = Math.random() * elementWidth.value
+  const y = Math.random() * elementHeight.value
   spawnRipple(x, y)
 }, 1250, { immediate: false })
 
 onMounted(() => {
-  if (!import.meta.server) {
-    isTouch = window.matchMedia('(pointer: coarse)').matches
-    if (isTouch) {
-      resumeRandom()
-    }
-  }
+  if (isTouch.value) resumeRandom()
   initCanvas()
 })
 
+watch([pixelRatio, shouldSkipMotion], () => initCanvas())
+watch(isTouch, (touch) => {
+  if (touch) resumeRandom()
+  else pauseRandom()
+})
+
 onUnmounted(() => {
-  clearTimeout(stillTimer)
   pauseRandom()
 })
 </script>
@@ -209,10 +205,38 @@ onUnmounted(() => {
     :is="tag"
     ref="wrapperRef"
     class="wave-ripple"
-    :style="color ? { '--wave-ripple-color': color } : undefined"
+    :class="{ 'wave-ripple--canvas-ready': canvasReady }"
+    :style="waveRippleStyle"
     @mousemove="onMouseMove"
     @click="onClick"
   >
+    <svg
+      class="wave-ripple__fallback"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <pattern
+          :id="patternId"
+          patternUnits="userSpaceOnUse"
+          :width="tileSize"
+          :height="tileSize"
+        >
+          <path
+            :d="`M ${-tileSize} 0 L 0 ${tileSize} M 0 0 L ${tileSize} ${tileSize} M ${tileSize} 0 L ${tileSize * 2} ${tileSize}`"
+            stroke="var(--wave-ripple-line-color)"
+            stroke-width="1"
+            fill="none"
+            vector-effect="non-scaling-stroke"
+          />
+        </pattern>
+      </defs>
+      <rect
+        width="100%"
+        height="100%"
+        :fill="`url(#${patternId})`"
+      />
+    </svg>
     <canvas
       ref="canvasRef"
       class="wave-ripple__canvas"
@@ -225,17 +249,28 @@ onUnmounted(() => {
 
 <style scoped>
 .wave-ripple {
+  --wave-ripple-line-color: var(--color-ink-faint, rgba(0, 0, 0, 0.12));
   position: relative;
   overflow: hidden;
 }
 
+.wave-ripple__fallback,
 .wave-ripple__canvas {
-  --line-color: var(--color-ink-faint, rgba(0, 0, 0, 0.12));
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
   z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
+}
+
+.wave-ripple__canvas {
+  --line-color: var(--wave-ripple-line-color);
+}
+
+.wave-ripple--canvas-ready .wave-ripple__fallback {
+  display: none;
 }
 
 /* Static hatched fallback for coarse pointers (touch) and reduced motion */

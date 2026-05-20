@@ -1,4 +1,4 @@
-import { usePreferredReducedMotion } from '@vueuse/core'
+import { usePreferredReducedMotion, watchImmediate } from '@vueuse/core'
 import type { MaybeRefOrGetter } from 'vue'
 
 /**
@@ -14,8 +14,8 @@ export function useSidebarReveal(
   } = {}
 ) {
   const {
-    selector = ':scope > *',
-    delay = 80
+    selector = ':scope .sidebar-reveal-item',
+    delay = 90
   } = options
 
   const route = useRoute()
@@ -52,11 +52,7 @@ export function useSidebarReveal(
     }
   }
 
-  // Reveal on mount
-  onMounted(() => nextTick(reveal))
-
-  // Re-reveal on route change
-  watch(
+  watchImmediate(
     () => route.path,
     () => nextTick(reveal)
   )

@@ -4,21 +4,23 @@ const props = defineProps<{
   stack: string[]
 }>()
 
+const countRef = ref<HTMLElement>()
 const countTarget = ref(0)
 const prefersReducedMotion = usePreferredReducedMotion()
+const countVisible = useElementVisibility(countRef, { once: true })
 const animatedCount = useTransition(countTarget, {
-  duration: 700,
-  easing: [0.22, 1, 0.36, 1],
+  duration: 1800,
+  easing: [0.16, 1, 0.3, 1],
   disabled: computed(() => prefersReducedMotion.value === 'reduce')
 })
 const displayedProjectCount = computed(() => Math.round(animatedCount.value))
 
-onMounted(() => {
-  countTarget.value = props.projectCount
-})
+watch(countVisible, (visible) => {
+  if (visible) countTarget.value = props.projectCount
+}, { immediate: true })
 
 watch(() => props.projectCount, (value) => {
-  countTarget.value = value
+  if (countVisible.value) countTarget.value = value
 })
 </script>
 
@@ -36,7 +38,10 @@ watch(() => props.projectCount, (value) => {
       :lifetime="2000"
       :still-threshold="200"
     >
-      <div class="data-section__inner">
+      <div
+        ref="countRef"
+        class="data-section__inner"
+      >
         <div class="data-section__value">
           {{ displayedProjectCount }}
         </div>
@@ -45,19 +50,18 @@ watch(() => props.projectCount, (value) => {
         </div>
       </div>
     </WaveRipple>
-    <div class="data-section">
+    <div class="data-section data-section--stack data-section--grow">
       <div class="data-label">
         STACK
       </div>
       <div
         v-for="tech in stack"
         :key="tech"
-        class="sidebar-record"
+        class="sidebar-record sidebar-reveal-item"
       >
         <span>{{ tech }}</span>
       </div>
     </div>
-    <div class="data-section data-section--grow" />
   </div>
 </template>
 
@@ -82,7 +86,8 @@ watch(() => props.projectCount, (value) => {
   border-bottom: 1px solid var(--color-ink);
 }
 
-.data-section:last-child {
+.data-section:last-child,
+.data-section--stack {
   border-bottom: none;
 }
 
