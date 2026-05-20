@@ -60,15 +60,16 @@ const { stop } = useIntersectionObserver(
 }
 
 .section-label--visible::after {
-  animation: section-label-scan 0.75s ease 0.12s both;
+  animation: section-label-scan 5.2s ease-in-out 1.4s infinite;
 }
 
 @keyframes section-label-scan {
-  0% {
+  0%,
+  72% {
     transform: translateX(-100%);
   }
-  45%,
-  60% {
+  82%,
+  88% {
     transform: translateX(0);
   }
   100% {
