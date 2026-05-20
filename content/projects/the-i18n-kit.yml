@@ -6,7 +6,12 @@ specs:
   - NUXT
   - TYPESCRIPT
   - AI
+stack:
+  - Nuxt
+  - TypeScript
 url: https://github.com/fabkho/the-i18n-kit
 featured: true
+hidden: false
 order: 1
 stars: 9
+updatedAt: 2026-05-16T11:30:37Z

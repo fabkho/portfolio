@@ -6,7 +6,11 @@ specs:
   - TYPESCRIPT
   - PI
   - GIT
+stack:
+  - TypeScript
 url: https://github.com/fabkho/pi-multirepo
 featured: true
+hidden: false
 order: 2
 stars: 0
+updatedAt: 2026-05-01T09:47:53Z

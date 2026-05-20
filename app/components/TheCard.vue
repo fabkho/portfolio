@@ -114,9 +114,28 @@ const NuxtLinkComp = resolveComponent('NuxtLink')
 
 <style scoped>
 .the-card {
+  position: relative;
   border: 1px solid var(--color-ink);
   background: var(--color-bg);
   transition: border-color 0.2s ease;
+}
+
+.the-card::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--color-accent), var(--color-accent)) left top / 0 1px no-repeat,
+    linear-gradient(var(--color-accent), var(--color-accent)) right top / 1px 0 no-repeat,
+    linear-gradient(var(--color-accent), var(--color-accent)) right bottom / 0 1px no-repeat,
+    linear-gradient(var(--color-accent), var(--color-accent)) left bottom / 1px 0 no-repeat;
+  transition: background-size 0.28s ease;
+}
+
+.the-card--has-url:hover::after,
+.the-card--has-url:focus-within::after {
+  background-size: 100% 1px, 1px 100%, 100% 1px, 1px 100%;
 }
 
 .the-card--has-url:hover {
@@ -221,5 +240,12 @@ const NuxtLinkComp = resolveComponent('NuxtLink')
   color: var(--color-ink);
   opacity: 0.7;
   white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .the-card,
+  .the-card::after {
+    transition: none;
+  }
 }
 </style>

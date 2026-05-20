@@ -1,8 +1,13 @@
 <script setup lang="ts">
-const { data: projects } = await useAsyncData('all-projects', () =>
+const { data: allProjects } = await useAsyncData('all-projects', () =>
   queryCollection('projects')
-    .order('order', 'ASC')
     .all()
+)
+
+const projects = computed(() =>
+  [...(allProjects.value ?? [])]
+    .filter(project => !project.hidden)
+    .sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime())
 )
 
 const { data: contributions } = await useAsyncData('contributions', () =>
@@ -11,8 +16,7 @@ const { data: contributions } = await useAsyncData('contributions', () =>
 )
 
 const stack = computed(() => {
-  if (!projects.value) return []
-  const all = projects.value.flatMap(p => p.stack || [])
+  const all = projects.value.flatMap(p => p.stack?.length ? p.stack : p.specs || [])
   // Dedupe, preserve frequency order
   const counts = all.reduce((acc, tech) => {
     acc[tech] = (acc[tech] || 0) + 1
@@ -35,7 +39,7 @@ useSeoMeta({
   <NuxtLayout name="default">
     <template #sidebar>
       <ProjectsSidebar
-        v-if="projects"
+        v-if="projects.length"
         :project-count="projects.length"
         :stack="stack"
       />

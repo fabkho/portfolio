@@ -2,7 +2,8 @@
 # Defines which repos to feature as projects and which external repos to track contributions in.
 
 projects:
-  # Repos to EXCLUDE from auto-sync (profile READMEs, forks, experiments, etc.)
+  # Repos to EXCLUDE from auto-sync (profile READMEs, forks, experiments, etc.).
+  # Alternative: set `hidden: true` in overrides to keep rationale near repo metadata.
   exclude:
     - fabkho/fabian-kho
     - fabkho/portfolio
@@ -25,6 +26,7 @@ projects:
       label: "I18N-KIT"
       description: "A complete i18n toolkit for Nuxt — extraction, validation, and AI-powered translation."
       specs: ["NUXT", "TYPESCRIPT", "AI"]
+      stack: ["Nuxt", "TypeScript"]
 
     pi-multirepo:
       order: 2
@@ -33,6 +35,7 @@ projects:
       label: "PI-MULTIREPO"
       description: "Pi extension for multi-repo bugfixing — ClickUp to MR in one command."
       specs: ["TYPESCRIPT", "PI", "GIT"]
+      stack: ["TypeScript"]
 
     cmd-bar:
       order: 4
@@ -40,6 +43,7 @@ projects:
       label: "CMD-BAR"
       description: "Performant, unstyled command palette for Vue 3."
       specs: ["VUE", "TYPESCRIPT", "A11Y"]
+      stack: ["Vue", "TypeScript"]
 
     fontawesome-esm:
       order: 5
@@ -47,6 +51,7 @@ projects:
       label: "FONTAWESOME-ESM"
       description: "Convert FontAwesome CJS icons to ES Modules for tree-shaking in Vue/Nuxt."
       specs: ["VUE", "BUNDLER", "PERFORMANCE"]
+      stack: ["Vue", "JavaScript"]
 
     arc_boosts:
       order: 6
@@ -54,6 +59,7 @@ projects:
       label: "ARC-BOOSTS"
       description: "Collection of Arc browser boosts for Spotify, Google Calendar, and YouTube."
       specs: ["CSS", "JAVASCRIPT"]
+      stack: ["CSS", "JavaScript"]
 
     i-love-pi:
       order: 7
@@ -61,6 +67,7 @@ projects:
       label: "I-LOVE-PI"
       description: "Experimental Pi coding agent extensions and workflows."
       specs: ["TYPESCRIPT", "AI"]
+      stack: ["TypeScript"]
 
     reading-tracker-cli:
       order: 3
@@ -68,6 +75,7 @@ projects:
       label: "READING-TRACKER"
       description: "Track your reading progress from the terminal."
       specs: ["TYPESCRIPT", "CLI"]
+      stack: ["TypeScript"]
       # Private repo — manually defined
       url: "https://github.com/fabkho/reading-tracker-cli"
       private: true
@@ -79,6 +87,7 @@ projects:
       title: "anny.co"
       description: "Booking and resource management platform — full-stack development."
       specs: ["VUE", "NUXT", "LARAVEL", "TYPESCRIPT"]
+      stack: ["Vue", "Nuxt", "Laravel", "TypeScript"]
       url: "https://anny.co"
       private: true
 
@@ -92,6 +101,13 @@ contributions:
   # Individual repos to scan (for repos outside tracked orgs)
   track_repos:
     - spatie/holidays
+
+  # PRs to feature on the home page. Full contribution archive still renders on /projects.
+  major_prs:
+    - https://github.com/nuxt/nuxt/pull/34318
+    - https://github.com/nuxt/hints/pull/322
+    - https://github.com/laravel/scout/pull/908
+    - https://github.com/spatie/holidays/pull/280
 
   # PRs to exclude (noise, school projects, etc.)
   exclude_prs:

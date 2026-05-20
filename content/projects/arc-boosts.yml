@@ -5,7 +5,12 @@ description: Collection of Arc browser boosts for Spotify, Google Calendar, and 
 specs:
   - CSS
   - JAVASCRIPT
+stack:
+  - CSS
+  - JavaScript
 url: https://github.com/fabkho/arc_boosts
 featured: false
+hidden: false
 order: 6
 stars: 13
+updatedAt: 2025-06-14T14:12:58Z

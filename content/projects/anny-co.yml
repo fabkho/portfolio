@@ -7,6 +7,12 @@ specs:
   - NUXT
   - LARAVEL
   - TYPESCRIPT
+stack:
+  - Vue
+  - Nuxt
+  - Laravel
+  - TypeScript
 url: https://anny.co
 featured: false
+hidden: false
 order: 10

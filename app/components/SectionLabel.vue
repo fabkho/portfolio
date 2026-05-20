@@ -33,6 +33,8 @@ const { stop } = useIntersectionObserver(
 
 <style scoped>
 .section-label {
+  position: relative;
+  overflow: hidden;
   font-family: var(--font-sans);
   font-size: var(--text-xl);
   text-transform: uppercase;
@@ -44,6 +46,34 @@ const { stop } = useIntersectionObserver(
   visibility: hidden;
   transform: translateY(8px);
   transition: opacity 0.6s ease, transform 0.6s ease, visibility 0s;
+}
+
+.section-label::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--color-accent);
+  transform: translateX(-100%);
+}
+
+.section-label--visible::after {
+  animation: section-label-scan 0.75s ease 0.12s both;
+}
+
+@keyframes section-label-scan {
+  0% {
+    transform: translateX(-100%);
+  }
+  45%,
+  60% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 .section-label--visible {
@@ -58,6 +88,10 @@ const { stop } = useIntersectionObserver(
     visibility: visible;
     transform: none;
     transition: none;
+  }
+
+  .section-label--visible::after {
+    animation: none;
   }
 }
 </style>

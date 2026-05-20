@@ -16,6 +16,8 @@ interface GitHubRepo {
   stargazers_count: number
   fork: boolean
   archived: boolean
+  pushed_at: string | null
+  updated_at: string
 }
 
 interface ProjectOverride {
@@ -26,7 +28,10 @@ interface ProjectOverride {
   title?: string
   description?: string
   specs?: string[]
+  stack?: string[]
   url?: string
+  hidden?: boolean
+  updatedAt?: string
   private?: boolean
 }
 
@@ -96,10 +101,13 @@ function repoToProject(repo: GitHubRepo, override?: ProjectOverride) {
     title: override?.title || formatTitle(repo.name),
     description,
     specs,
+    stack: override?.stack,
     url: repo.html_url,
     featured: override?.featured ?? false,
-    order: override?.order ?? 99,
-    stars: repo.stargazers_count
+    hidden: override?.hidden ?? false,
+    order: override?.order,
+    stars: repo.stargazers_count,
+    updatedAt: override?.updatedAt || repo.pushed_at || repo.updated_at
   }
 }
 
@@ -131,6 +139,7 @@ async function main() {
     !r.fork
     && !r.archived
     && !excludeSet.has(r.full_name.toLowerCase())
+    && !config.projects.overrides[r.name]?.hidden
   )
 
   console.log(`  Found ${filtered.length} repos (excluded ${repos.length - filtered.length})`)
@@ -149,7 +158,7 @@ async function main() {
   const syncedNames = new Set(filtered.map(r => r.name))
   for (const [name, override] of Object.entries(config.projects.overrides)) {
     if (syncedNames.has(name)) continue
-    if (!override.private) continue
+    if (!override.private || override.hidden) continue
     const slug = slugify(name)
     const project = {
       tag: override.tag || 'PROJECT',
@@ -157,9 +166,12 @@ async function main() {
       title: override.title || formatTitle(name),
       description: override.description || `${name} — open source project.`,
       specs: override.specs || [],
+      stack: override.stack,
       url: override.url || `https://github.com/fabkho/${name}`,
       featured: override.featured ?? false,
-      order: override.order ?? 99
+      hidden: override.hidden ?? false,
+      order: override.order,
+      updatedAt: override.updatedAt
     }
     staged.push({ slug, content: stringifyYaml(project, { lineWidth: 120 }), order: project.order })
   }
@@ -177,7 +189,7 @@ async function main() {
   // Write all staged files
   for (const { slug, content, order } of staged) {
     writeFileSync(resolve(PROJECTS_DIR, `${slug}.yml`), content)
-    console.log(`  ✓ ${slug}.yml (order: ${order})`)
+    console.log(`  ✓ ${slug}.yml${order == null ? '' : ` (order: ${order})`}`)
   }
 
   console.log(`\n✅ Synced ${staged.length} projects`)

@@ -11,6 +11,7 @@ interface Config {
     track_orgs: string[]
     track_repos: string[]
     exclude_prs: string[]
+    major_prs?: string[]
   }
 }
 
@@ -119,6 +120,7 @@ async function main() {
 
   const config: Config = parseYaml(readFileSync(CONFIG_PATH, 'utf-8'))
   const excludeSet = new Set(config.contributions.exclude_prs)
+  const majorSet = new Set(config.contributions.major_prs ?? [])
 
   const prs = await fetchAllPRs(config)
   const filtered = prs.filter(pr => !excludeSet.has(pr.url))
@@ -132,7 +134,9 @@ async function main() {
     const data = {
       project: pr.project,
       pr: pr.pr,
-      url: pr.url
+      url: pr.url,
+      date: pr.date,
+      major: majorSet.has(pr.url) || false
     }
     staged.push({ slug, content: stringifyYaml(data, { lineWidth: 120 }) })
   }

@@ -5,6 +5,9 @@ description: Track your reading progress from the terminal.
 specs:
   - TYPESCRIPT
   - CLI
+stack:
+  - TypeScript
 url: https://github.com/fabkho/reading-tracker-cli
 featured: false
+hidden: false
 order: 3

@@ -1,8 +1,25 @@
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   projectCount: number
   stack: string[]
 }>()
+
+const countTarget = ref(0)
+const prefersReducedMotion = usePreferredReducedMotion()
+const animatedCount = useTransition(countTarget, {
+  duration: 700,
+  easing: [0.22, 1, 0.36, 1],
+  disabled: computed(() => prefersReducedMotion.value === 'reduce')
+})
+const displayedProjectCount = computed(() => Math.round(animatedCount.value))
+
+onMounted(() => {
+  countTarget.value = props.projectCount
+})
+
+watch(() => props.projectCount, (value) => {
+  countTarget.value = value
+})
 </script>
 
 <template>
@@ -21,7 +38,7 @@ defineProps<{
     >
       <div class="data-section__inner">
         <div class="data-section__value">
-          {{ projectCount }}
+          {{ displayedProjectCount }}
         </div>
         <div class="data-section__label">
           PROJECTS LOGGED
@@ -30,7 +47,7 @@ defineProps<{
     </WaveRipple>
     <div class="data-section">
       <div class="data-label">
-        STACK (FROM PROJECTS)
+        STACK
       </div>
       <div
         v-for="tech in stack"
