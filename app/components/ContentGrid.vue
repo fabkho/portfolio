@@ -25,11 +25,11 @@ defineProps<{
 
 @media (min-width: 769px) {
   .content-grid--staggered :deep(> .content-grid__item:nth-child(even)) {
-    transform: translateY(2.5rem);
+    margin-top: 2.5rem;
   }
 
   .content-grid--staggered :deep(> .content-grid__item:nth-child(4n + 3)) {
-    transform: translateY(1.25rem);
+    margin-top: 1.25rem;
   }
 }
 
@@ -54,48 +54,6 @@ defineProps<{
   }
 }
 
-@keyframes card-reveal-shifted {
-  0% {
-    opacity: 0;
-    visibility: visible;
-    transform: translateY(4rem) scale(0.985);
-  }
-  58% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(2rem) scale(1);
-  }
-}
-
-@keyframes card-reveal-soft-shifted {
-  0% {
-    opacity: 0;
-    visibility: visible;
-    transform: translateY(2.75rem) scale(0.985);
-  }
-  58% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(1.25rem) scale(1);
-  }
-}
-
-@media (min-width: 769px) {
-  .content-grid--staggered :deep(> .content-grid__item:nth-child(even)) {
-    animation-name: card-reveal-shifted;
-  }
-
-  .content-grid--staggered :deep(> .content-grid__item:nth-child(4n + 3)) {
-    animation-name: card-reveal-soft-shifted;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .content-grid :deep(> .content-grid__item) {
     opacity: 1;
@@ -103,21 +61,11 @@ defineProps<{
     transform: none !important;
     animation: none;
   }
-
-  @media (min-width: 769px) {
-    .content-grid--staggered :deep(> .content-grid__item:nth-child(even)) {
-      transform: translateY(2rem) !important;
-    }
-  }
 }
 
 @media (max-width: 768px) {
   .content-grid {
     grid-template-columns: 1fr;
-  }
-
-  .content-grid--staggered :deep(> .content-grid__item) {
-    animation-name: card-reveal;
   }
 }
 </style>
