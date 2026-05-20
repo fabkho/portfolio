@@ -22,6 +22,15 @@ function isAboutCharacterVisible(index: number) {
   return index < aboutVisibleCharacters.value
 }
 
+const { pause: pauseAboutTyping, resume: resumeAboutTyping } = useIntervalFn(() => {
+  aboutVisibleCharacters.value++
+
+  if (aboutVisibleCharacters.value >= aboutText.length) {
+    aboutVisibleCharacters.value = aboutText.length
+    pauseAboutTyping()
+  }
+}, 18, { immediate: false })
+
 useSidebarReveal(sidebarRef)
 
 onMounted(async () => {
@@ -42,11 +51,7 @@ onMounted(async () => {
   }
 
   aboutVisibleCharacters.value = 0
-
-  for (let index = 1; index <= aboutText.length; index++) {
-    aboutVisibleCharacters.value = index
-    await new Promise(resolve => setTimeout(resolve, 18))
-  }
+  resumeAboutTyping()
 })
 </script>
 

@@ -1,7 +1,26 @@
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   posts: { path: string, title: string, date: string }[]
 }>()
+
+const countRef = ref<HTMLElement>()
+const prefersReducedMotion = usePreferredReducedMotion()
+const countVisible = useElementVisibility(countRef, { once: true })
+const articleCountTarget = ref(0)
+const animatedArticleCount = useTransition(articleCountTarget, {
+  duration: 1200,
+  easing: [0.16, 1, 0.3, 1],
+  disabled: computed(() => prefersReducedMotion.value === 'reduce')
+})
+const displayedArticleCount = computed(() => Math.round(animatedArticleCount.value))
+
+watch(countVisible, (visible) => {
+  if (visible) articleCountTarget.value = props.posts.length
+}, { immediate: true })
+
+watch(() => props.posts.length, (value) => {
+  if (countVisible.value) articleCountTarget.value = value
+})
 </script>
 
 <template>
@@ -19,9 +38,12 @@ defineProps<{
       :lifetime="2000"
       :still-threshold="200"
     >
-      <div class="data-section__inner">
+      <div
+        ref="countRef"
+        class="data-section__inner"
+      >
         <div class="data-section__value">
-          {{ posts.length }}
+          {{ displayedArticleCount }}
         </div>
         <div class="data-section__label">
           ARTICLES PUBLISHED

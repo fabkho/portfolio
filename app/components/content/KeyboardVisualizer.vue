@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { useEventListener } from '@vueuse/core'
+import { refAutoReset, useEventListener } from '@vueuse/core'
 
 const props = defineProps<{
   target: HTMLElement | null | undefined
 }>()
 
 const focusedEl = ref<HTMLElement | null>(null)
-const lastKey = ref<string | null>(null)
-let keyTimeout: ReturnType<typeof setTimeout> | null = null
+const lastKey = refAutoReset<string | null>(null, 1000)
 
 const focusedInfo = computed(() => {
   const el = focusedEl.value
@@ -45,15 +44,6 @@ useEventListener(() => props.target, 'keydown', (e: KeyboardEvent) => {
     'End': 'End'
   }
   lastKey.value = keyLabels[e.key] ?? e.key
-
-  if (keyTimeout) clearTimeout(keyTimeout)
-  keyTimeout = setTimeout(() => {
-    lastKey.value = null
-  }, 1000)
-})
-
-onUnmounted(() => {
-  if (keyTimeout) clearTimeout(keyTimeout)
 })
 </script>
 

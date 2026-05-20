@@ -6,18 +6,19 @@ const navItems = NAV_ITEMS
 const navAnimated = useState('nav-animated', () => false)
 const skipAnimation = ref(navAnimated.value)
 const subtitleAnimationKey = ref(0)
+const previousSubtitle = usePrevious(subtitle)
 
-watch(subtitle, () => {
-  subtitleAnimationKey.value++
+watch(subtitle, (value) => {
+  if (previousSubtitle.value !== value) subtitleAnimationKey.value++
 }, { immediate: true })
 
+const { start: startNavAnimationTimer } = useTimeoutFn(() => {
+  navAnimated.value = true
+  skipAnimation.value = true
+}, 600, { immediate: false })
+
 onMounted(() => {
-  if (!navAnimated.value) {
-    setTimeout(() => {
-      navAnimated.value = true
-      skipAnimation.value = true
-    }, 600)
-  }
+  if (!navAnimated.value) startNavAnimationTimer()
 })
 </script>
 

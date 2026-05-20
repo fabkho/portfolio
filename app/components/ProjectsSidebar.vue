@@ -4,8 +4,10 @@ const props = defineProps<{
   stack: string[]
 }>()
 
+const countRef = ref<HTMLElement>()
 const countTarget = ref(0)
 const prefersReducedMotion = usePreferredReducedMotion()
+const countVisible = useElementVisibility(countRef, { once: true })
 const animatedCount = useTransition(countTarget, {
   duration: 1800,
   easing: [0.16, 1, 0.3, 1],
@@ -13,12 +15,12 @@ const animatedCount = useTransition(countTarget, {
 })
 const displayedProjectCount = computed(() => Math.round(animatedCount.value))
 
-onMounted(() => {
-  countTarget.value = props.projectCount
-})
+watch(countVisible, (visible) => {
+  if (visible) countTarget.value = props.projectCount
+}, { immediate: true })
 
 watch(() => props.projectCount, (value) => {
-  countTarget.value = value
+  if (countVisible.value) countTarget.value = value
 })
 </script>
 
@@ -36,7 +38,10 @@ watch(() => props.projectCount, (value) => {
       :lifetime="2000"
       :still-threshold="200"
     >
-      <div class="data-section__inner">
+      <div
+        ref="countRef"
+        class="data-section__inner"
+      >
         <div class="data-section__value">
           {{ displayedProjectCount }}
         </div>

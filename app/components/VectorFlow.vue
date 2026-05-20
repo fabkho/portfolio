@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRafFn, useResizeObserver } from '@vueuse/core'
+import { useDevicePixelRatio, useMediaQuery, useMouseInElement, usePreferredReducedMotion, useRafFn, useResizeObserver } from '@vueuse/core'
 
 type FlowVariant
   = | 'horizontal' | 'diagonal' | 'radial' | 'convergent' | 'wave'
@@ -25,21 +25,21 @@ const props = withDefaults(
 
 const canvasRef = ref<HTMLCanvasElement>()
 const containerRef = ref<HTMLElement>()
+const reducedMotion = usePreferredReducedMotion()
+const isTouch = useMediaQuery('(pointer: coarse)')
+const { pixelRatio } = useDevicePixelRatio()
+const { elementX, elementY, isOutside } = useMouseInElement(containerRef)
 let time = 0
 const mouse = reactive({ x: -1000, y: -1000 })
-
-function prefersStaticFallback() {
-  if (import.meta.server) return false
-  return window.matchMedia('(pointer: coarse)').matches
-    || window.matchMedia('(prefers-reduced-motion: reduce)').matches
-}
+const manualMouse = ref(false)
+const prefersStaticFallback = computed(() => isTouch.value || reducedMotion.value === 'reduce')
 
 function resize() {
   const canvas = canvasRef.value
   const container = containerRef.value
   if (!canvas || !container) return
   const rect = container.getBoundingClientRect()
-  const dpr = window.devicePixelRatio
+  const dpr = pixelRatio.value
   canvas.width = rect.width * dpr
   canvas.height = rect.height * dpr
   canvas.style.width = rect.width + 'px'
@@ -47,7 +47,7 @@ function resize() {
 }
 
 useResizeObserver(containerRef, () => {
-  if (!prefersStaticFallback()) resize()
+  if (!prefersStaticFallback.value) resize()
 })
 
 function getInfluence(x: number, y: number) {
@@ -449,7 +449,7 @@ function draw({ delta }: { delta: number }) {
   const canvas = canvasRef.value
   if (!canvas) return
   const ctx = canvas.getContext('2d')!
-  const dpr = window.devicePixelRatio
+  const dpr = pixelRatio.value
   const w = canvas.width / dpr
   const h = canvas.height / dpr
 
@@ -457,6 +457,11 @@ function draw({ delta }: { delta: number }) {
   ctx.clearRect(0, 0, w, h)
 
   time += delta / 1000
+
+  if (!manualMouse.value) {
+    mouse.x = isOutside.value ? -1000 : elementX.value
+    mouse.y = isOutside.value ? -1000 : elementY.value
+  }
 
   drawFns[props.variant](ctx, w, h)
 }
@@ -467,25 +472,32 @@ function onMouseMove(e: MouseEvent) {
   const container = containerRef.value
   if (!container) return
   const rect = container.getBoundingClientRect()
+  manualMouse.value = true
   mouse.x = e.clientX - rect.left
   mouse.y = e.clientY - rect.top
 }
 
 function setMouse(x: number, y: number) {
+  manualMouse.value = true
   mouse.x = x
   mouse.y = y
 }
 
 function onMouseLeave() {
+  manualMouse.value = false
   mouse.x = -1000
   mouse.y = -1000
 }
 
 onMounted(() => {
-  if (!prefersStaticFallback()) {
+  if (!prefersStaticFallback.value) {
     resize()
     resume()
   }
+})
+
+watch([pixelRatio, prefersStaticFallback], () => {
+  if (!prefersStaticFallback.value) resize()
 })
 
 defineExpose({ onMouseMove, onMouseLeave, setMouse })
