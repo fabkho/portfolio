@@ -1,14 +1,31 @@
 <script setup lang="ts">
+import { useIntersectionObserver } from '@vueuse/core'
+
 defineProps<{
   label: string
   tag?: 'h2' | 'h3'
 }>()
+
+const elRef = ref<HTMLElement>()
+const visible = ref(false)
+
+const { stop } = useIntersectionObserver(
+  elRef,
+  ([entry]) => {
+    if (!entry?.isIntersecting) return
+    visible.value = true
+    stop()
+  },
+  { threshold: 0.1 }
+)
 </script>
 
 <template>
   <component
     :is="tag || 'h2'"
+    ref="elRef"
     class="section-label"
+    :class="{ 'section-label--visible': visible }"
   >
     {{ label }}
   </component>
@@ -25,7 +42,10 @@ defineProps<{
   padding-bottom: 0.5rem;
   border-bottom: 1px solid var(--color-ink);
   margin-bottom: 2rem;
-  animation: section-label-reveal 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: opacity 0.6s ease, transform 0.6s ease, visibility 0s;
 }
 
 .section-label::after {
@@ -33,55 +53,44 @@ defineProps<{
   position: absolute;
   left: 0;
   bottom: 0;
-  width: 28%;
+  width: 100%;
   height: 1px;
   background: var(--color-accent);
-  opacity: 0;
-  transform: translateX(-120%);
-  animation: section-label-scan 4.8s ease-in-out 0.4s infinite;
+  transform: translateX(-100%);
 }
 
-@keyframes section-label-reveal {
-  from {
-    opacity: 0;
-    transform: translateY(0.5rem);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.section-label--visible::after {
+  animation: section-label-scan 0.75s ease 0.12s both;
 }
 
 @keyframes section-label-scan {
-  0%,
-  72% {
-    opacity: 0;
-    transform: translateX(-120%);
+  0% {
+    transform: translateX(-100%);
   }
-  78%,
-  86% {
-    opacity: 0.65;
+  45%,
+  60% {
+    transform: translateX(0);
   }
   100% {
-    opacity: 0;
-    transform: translateX(360%);
+    transform: translateX(100%);
   }
 }
 
-@media (max-width: 768px) {
-  .section-label {
-    margin-bottom: 1.5rem;
-    animation-duration: 0.3s;
-  }
-
-  .section-label::after {
-    display: none;
-  }
+.section-label--visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .section-label,
-  .section-label::after {
+  .section-label {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition: none;
+  }
+
+  .section-label--visible::after {
     animation: none;
   }
 }
