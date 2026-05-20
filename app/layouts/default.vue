@@ -215,6 +215,8 @@ onMounted(async () => {
 .sidebar-sticky :deep(.sidebar-reveal-item:nth-child(9)) { animation-delay: 500ms; }
 .sidebar-default :deep(.sidebar-reveal-item:nth-child(10)),
 .sidebar-sticky :deep(.sidebar-reveal-item:nth-child(10)) { animation-delay: 560ms; }
+.sidebar-default :deep(.sidebar-reveal-item:nth-child(n + 11)),
+.sidebar-sticky :deep(.sidebar-reveal-item:nth-child(n + 11)) { animation-delay: 620ms; }
 
 @keyframes sidebar-stagger-reveal {
   from {

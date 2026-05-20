@@ -44,17 +44,21 @@ useSeoMeta({
       <section class="home-section">
         <SectionLabel label="Selected Works" />
         <ContentGrid staggered>
-          <TheCard
+          <ContentGridItem
             v-for="(project, index) in featuredProjects"
             :key="project.id"
-            :tag="project.tag"
-            :label="project.label"
-            :title="project.title"
-            :description="project.description"
-            :specs="project.specs"
-            :url="project.url"
-            :variant="index % 2 === 0 ? 'hatched' : 'default'"
-          />
+            :index="index"
+          >
+            <TheCard
+              :tag="project.tag"
+              :label="project.label"
+              :title="project.title"
+              :description="project.description"
+              :specs="project.specs"
+              :url="project.url"
+              :variant="index % 2 === 0 ? 'hatched' : 'default'"
+            />
+          </ContentGridItem>
         </ContentGrid>
       </section>
 
@@ -67,27 +71,33 @@ useSeoMeta({
           v-if="featuredPosts?.length"
           :delay-base="600"
         >
-          <TheCard
-            v-for="post in featuredPosts"
+          <ContentGridItem
+            v-for="(post, index) in featuredPosts"
             :key="post.path"
-            :tag="post.tag"
-            :title="post.title"
-            :description="post.description"
-            :specs="post.specs"
-            :url="post.path"
-            :view-transition-name="`blog-title-${post.path.split('/').pop()}`"
-          />
+            :index="index"
+          >
+            <TheCard
+              :tag="post.tag"
+              :title="post.title"
+              :description="post.description"
+              :specs="post.specs"
+              :url="post.path"
+              :view-transition-name="`blog-title-${post.path?.split('/')?.pop() || ''}`"
+            />
+          </ContentGridItem>
         </ContentGrid>
         <ContentGrid
           v-else
           :delay-base="600"
         >
-          <TheCard
-            tag="BLOG"
-            title="Coming soon"
-            description="Technical articles on Vue, accessibility, and performance."
-            :specs="['BLOG']"
-          />
+          <ContentGridItem :index="0">
+            <TheCard
+              tag="BLOG"
+              title="Coming soon"
+              description="Technical articles on Vue, accessibility, and performance."
+              :specs="['BLOG']"
+            />
+          </ContentGridItem>
         </ContentGrid>
       </section>
 

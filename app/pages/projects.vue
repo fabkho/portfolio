@@ -48,17 +48,21 @@ useSeoMeta({
         v-if="projects?.length"
         staggered
       >
-        <TheCard
-          v-for="project in projects"
+        <ContentGridItem
+          v-for="(project, index) in projects"
           :key="project.id"
-          :tag="project.tag"
-          :label="project.label"
-          :title="project.title"
-          :description="project.description"
-          :specs="project.specs"
-          :url="project.url"
-          :stars="project.stars"
-        />
+          :index="index"
+        >
+          <TheCard
+            :tag="project.tag"
+            :label="project.label"
+            :title="project.title"
+            :description="project.description"
+            :specs="project.specs"
+            :url="project.url"
+            :stars="project.stars"
+          />
+        </ContentGridItem>
       </ContentGrid>
       <p
         v-else

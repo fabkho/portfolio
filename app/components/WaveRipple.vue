@@ -137,9 +137,21 @@ function spawnRipple(x: number, y: number) {
   resume()
 }
 
+function stopMotion() {
+  pause()
+  ripples.value = []
+  canvasReady.value = false
+
+  const canvas = canvasRef.value
+  if (!canvas) return
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+}
+
 function initCanvas() {
   if (shouldSkipMotion.value) {
-    canvasReady.value = false
+    stopMotion()
     return
   }
   const canvas = canvasRef.value
@@ -189,7 +201,10 @@ onMounted(() => {
   initCanvas()
 })
 
-watch([pixelRatio, shouldSkipMotion], () => initCanvas())
+watch([pixelRatio, shouldSkipMotion], () => {
+  if (shouldSkipMotion.value) stopMotion()
+  else initCanvas()
+})
 watch(isTouch, (touch) => {
   if (touch) resumeRandom()
   else pauseRandom()
