@@ -24,7 +24,7 @@ onMounted(() => {
 <template>
   <header class="header">
     <div class="header-cell title-main">
-      <p class="font-sans font-light text-4xl uppercase tracking-[-0.02em] hidden-mobile">
+      <p class="site-title hidden-mobile">
         Fabian Kirchhoff
       </p>
       <div class="mobile-logo">
@@ -131,6 +131,15 @@ onMounted(() => {
 .title-main {
   flex: 1;
   padding: 1rem 1.5rem;
+}
+
+.site-title {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: var(--text-4xl);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .mobile-logo {
@@ -310,7 +319,7 @@ onMounted(() => {
     flex: 0 1 auto;
   }
 
-  .title-main p.hidden-mobile {
+  .site-title.hidden-mobile {
     display: none;
   }
 

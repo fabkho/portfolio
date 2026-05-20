@@ -5,7 +5,7 @@ defineProps<{
 
 const gridRef = ref<HTMLElement>()
 
-useStaggerReveal(gridRef)
+useStaggerReveal(gridRef, { delay: 220 })
 </script>
 
 <template>
@@ -30,48 +30,89 @@ useStaggerReveal(gridRef)
   .content-grid--staggered :deep(> *:nth-child(even)) {
     transform: translateY(2.5rem);
   }
+
+  .content-grid--staggered :deep(> *:nth-child(4n + 3)) {
+    transform: translateY(1.25rem);
+  }
 }
 
 /* Children start hidden, composable adds .reveal-visible */
 .content-grid :deep(> *) {
   opacity: 0;
   visibility: hidden;
-  transform: translateY(8px);
+  transform: translateY(1.25rem) scale(0.985);
+  transform-origin: center top;
+  filter: blur(6px);
 }
 
-@keyframes stagger-reveal {
-  from {
+@keyframes card-reveal {
+  0% {
     opacity: 0;
     visibility: visible;
-    transform: translateY(1rem);
+    transform: translateY(1.75rem) scale(0.985);
+    filter: blur(6px);
   }
-  to {
+  58% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
     opacity: 1;
     visibility: visible;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+    filter: blur(0);
   }
 }
 
-@keyframes stagger-reveal-shifted {
-  from {
+@keyframes card-reveal-shifted {
+  0% {
     opacity: 0;
     visibility: visible;
-    transform: translateY(3rem);
+    transform: translateY(4rem) scale(0.985);
+    filter: blur(6px);
   }
-  to {
+  58% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
     opacity: 1;
     visibility: visible;
-    transform: translateY(2rem);
+    transform: translateY(2rem) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes card-reveal-soft-shifted {
+  0% {
+    opacity: 0;
+    visibility: visible;
+    transform: translateY(2.75rem) scale(0.985);
+    filter: blur(6px);
+  }
+  58% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(1.25rem) scale(1);
+    filter: blur(0);
   }
 }
 
 .content-grid :deep(> .reveal-visible) {
-  animation: stagger-reveal 0.6s ease forwards !important;
+  animation: card-reveal 1.15s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms) forwards !important;
 }
 
 @media (min-width: 769px) {
   .content-grid--staggered :deep(> .reveal-visible:nth-child(even)) {
-    animation: stagger-reveal-shifted 0.6s ease forwards !important;
+    animation: card-reveal-shifted 1.15s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms) forwards !important;
+  }
+
+  .content-grid--staggered :deep(> .reveal-visible:nth-child(4n + 3)) {
+    animation: card-reveal-soft-shifted 1.15s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms) forwards !important;
   }
 }
 
@@ -101,7 +142,7 @@ useStaggerReveal(gridRef)
     transform: translateY(8px) !important;
   }
   .content-grid--staggered :deep(> .reveal-visible) {
-    animation: stagger-reveal 0.6s ease forwards;
+    animation: card-reveal 1.15s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms) forwards;
   }
 }
 </style>

@@ -55,6 +55,7 @@ export function useStaggerReveal(
     } else {
       children.forEach((child, i) => {
         const htmlChild = child as HTMLElement
+        htmlChild.style.setProperty('--reveal-delay', `${i * delay}ms`)
         htmlChild.style.animationDelay = `${i * delay}ms`
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {

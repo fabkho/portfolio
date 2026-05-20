@@ -16,13 +16,13 @@ const activeId = useActiveSection()
     </div>
 
     <div class="data-section">
-      <div class="meta-item">
+      <div class="meta-item sidebar-reveal-item">
         AUTHOR: {{ author.toUpperCase() }}
       </div>
-      <div class="meta-item">
+      <div class="meta-item sidebar-reveal-item">
         DATE: {{ date }}
       </div>
-      <div class="meta-item">
+      <div class="meta-item sidebar-reveal-item">
         STATUS: <span class="status-value">{{ status.toUpperCase() }}</span>
       </div>
     </div>
@@ -36,7 +36,7 @@ const activeId = useActiveSection()
           v-for="item in toc"
           :key="item.id"
           :href="`#${item.id}`"
-          class="toc-link"
+          class="toc-link sidebar-reveal-item"
           :class="{
             'toc-link--active': activeId === item.id,
             'toc-link--nested': item.depth > 2

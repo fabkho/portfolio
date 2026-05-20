@@ -45,14 +45,14 @@ watch(() => props.projectCount, (value) => {
         </div>
       </div>
     </WaveRipple>
-    <div class="data-section">
+    <div class="data-section data-section--stack">
       <div class="data-label">
         STACK
       </div>
       <div
         v-for="tech in stack"
         :key="tech"
-        class="sidebar-record"
+        class="sidebar-record sidebar-reveal-item"
       >
         <span>{{ tech }}</span>
       </div>
@@ -82,7 +82,8 @@ watch(() => props.projectCount, (value) => {
   border-bottom: 1px solid var(--color-ink);
 }
 
-.data-section:last-child {
+.data-section:last-child,
+.data-section--stack {
   border-bottom: none;
 }
 

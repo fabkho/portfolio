@@ -14,8 +14,8 @@ export function useSidebarReveal(
   } = {}
 ) {
   const {
-    selector = ':scope > *',
-    delay = 80
+    selector = ':scope .sidebar-reveal-item',
+    delay = 90
   } = options
 
   const route = useRoute()

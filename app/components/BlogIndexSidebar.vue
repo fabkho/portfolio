@@ -37,7 +37,7 @@ defineProps<{
         v-for="post in posts"
         :key="post.path"
         :to="post.path"
-        class="sidebar-record"
+        class="sidebar-record sidebar-reveal-item"
       >
         <div>
           <div class="record-title">

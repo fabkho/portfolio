@@ -15,17 +15,14 @@ const { data: contributions } = await useAsyncData('contributions', () =>
     .all()
 )
 
-const stack = computed(() => {
-  const all = projects.value.flatMap(p => p.stack?.length ? p.stack : p.specs || [])
-  // Dedupe, preserve frequency order
-  const counts = all.reduce((acc, tech) => {
-    acc[tech] = (acc[tech] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)
-  return Object.entries(counts)
-    .sort((a, b) => b[1] - a[1])
-    .map(([name]) => name)
-})
+const stack = [
+  'TypeScript',
+  'Vue',
+  'Nuxt',
+  'Laravel',
+  'Node.js',
+  'CSS'
+]
 
 useSeoMeta({
   title: 'Projects',
