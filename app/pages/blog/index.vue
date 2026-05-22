@@ -15,42 +15,33 @@ useSeoMeta({
 </script>
 
 <template>
-  <NuxtLayout name="default">
-    <template #sidebar>
-      <BlogIndexSidebar
-        v-if="posts?.length"
-        :posts="posts.map(p => ({ path: p.path, title: p.title, date: p.date }))"
-      />
-    </template>
-
-    <div>
-      <SectionLabel label="Articles" />
-      <ContentGrid
-        v-if="posts?.length"
-        staggered
+  <div>
+    <SectionLabel label="Articles" />
+    <ContentGrid
+      v-if="posts?.length"
+      staggered
+    >
+      <ContentGridItem
+        v-for="(post, index) in posts"
+        :key="post.path"
+        :index="index"
       >
-        <ContentGridItem
-          v-for="(post, index) in posts"
-          :key="post.path"
-          :index="index"
-        >
-          <TheCard
-            :tag="post.tag"
-            :title="post.title"
-            :description="post.description"
-            :specs="post.specs"
-            :url="post.path"
-          />
-        </ContentGridItem>
-      </ContentGrid>
-      <p
-        v-else
-        class="empty-state"
-      >
-        No articles published yet.
-      </p>
-    </div>
-  </NuxtLayout>
+        <TheCard
+          :tag="post.tag"
+          :title="post.title"
+          :description="post.description"
+          :specs="post.specs"
+          :url="post.path"
+        />
+      </ContentGridItem>
+    </ContentGrid>
+    <p
+      v-else
+      class="empty-state"
+    >
+      No articles published yet.
+    </p>
+  </div>
 </template>
 
 <style scoped>

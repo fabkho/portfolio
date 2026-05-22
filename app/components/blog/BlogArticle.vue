@@ -8,7 +8,6 @@ defineProps<{
 <template>
   <article
     class="blog-article"
-    data-allow-mismatch
     :style="viewTransitionName ? { '--article-title-vt-name': viewTransitionName } : undefined"
   >
     <ContentRenderer :value="value" />

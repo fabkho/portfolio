@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { flattenToc } from '~/utils/flattenToc'
+
 const route = useRoute()
 const isBlogRoute = computed(() => route.path.startsWith('/blog'))
 const reducedMotion = usePreferredReducedMotion()
@@ -6,6 +8,63 @@ const aboutText = 'I build things that help developers build things — Nuxt mod
 const aboutTokens = buildAboutTokens(aboutText)
 const aboutVisibleCharacters = ref(0)
 const aboutTypingDone = useState('about-bio-typing-done', () => false)
+
+const stack = [
+  'TypeScript',
+  'Vue',
+  'Nuxt',
+  'Laravel',
+  'Node.js',
+  'CSS'
+]
+
+const { data: sidebarData } = await useAsyncData(
+  () => `layout-sidebar-${route.path}`,
+  async () => {
+    const normalizedPath = route.path.replace(/\/$/, '') || '/'
+
+    if (normalizedPath === '/projects') {
+      const projects = await queryCollection('projects').all()
+      return {
+        type: 'projects' as const,
+        projectCount: projects.filter(project => !project.hidden).length,
+        stack
+      }
+    }
+
+    if (normalizedPath === '/blog') {
+      const posts = await queryCollection('blog')
+        .where('status', '=', 'published')
+        .order('date', 'DESC')
+        .all()
+
+      return {
+        type: 'blog-index' as const,
+        posts: posts.map(post => ({ path: post.path, title: post.title, date: post.date }))
+      }
+    }
+
+    if (normalizedPath.startsWith('/blog/')) {
+      const post = await queryCollection('blog')
+        .where('status', '=', 'published')
+        .path(normalizedPath)
+        .first()
+
+      if (post) {
+        return {
+          type: 'blog-detail' as const,
+          author: post.author || 'Unknown',
+          date: post.date || '',
+          status: post.status || 'published',
+          toc: post.body?.toc?.links ? flattenToc(post.body.toc.links) : []
+        }
+      }
+    }
+
+    return { type: 'about' as const }
+  },
+  { watch: [() => route.path] }
+)
 
 function buildAboutTokens(text: string) {
   let cursor = 0
@@ -68,7 +127,23 @@ onMounted(async () => {
         id="sidebar-target"
         :class="isBlogRoute ? 'sidebar-sticky' : 'sidebar-default'"
       >
-        <slot name="sidebar">
+        <ProjectsSidebar
+          v-if="sidebarData?.type === 'projects'"
+          :project-count="sidebarData.projectCount"
+          :stack="sidebarData.stack"
+        />
+        <BlogIndexSidebar
+          v-else-if="sidebarData?.type === 'blog-index'"
+          :posts="sidebarData.posts"
+        />
+        <BlogSidebar
+          v-else-if="sidebarData?.type === 'blog-detail'"
+          :author="sidebarData.author"
+          :date="sidebarData.date"
+          :status="sidebarData.status"
+          :toc="sidebarData.toc"
+        />
+        <template v-else>
           <div class="sidebar-header">
             About
           </div>
@@ -92,7 +167,7 @@ onMounted(async () => {
             </p>
           </div>
           <div class="data-section data-section--grow" />
-        </slot>
+        </template>
       </div>
     </aside>
     <TheFooter />

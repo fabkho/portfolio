@@ -65,6 +65,7 @@ onMounted(() => {
       :lifetime="1500"
       :still-threshold="120"
       tag="nav"
+      persist-key="header-nav"
     >
       <NuxtLink
         v-for="(link, index) in navItems"

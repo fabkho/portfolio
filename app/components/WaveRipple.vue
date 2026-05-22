@@ -13,6 +13,7 @@ const props = withDefaults(
     alternateColor?: string
     alternateEvery?: number
     tag?: string
+    persistKey?: string
   }>(),
   {
     mode: 'hover',
@@ -33,7 +34,11 @@ const tileSize = computed(() => props.spacing * Math.SQRT2)
 const waveRippleStyle = computed(() => ({
   '--wave-ripple-line-color': props.color || undefined
 }))
-const ripples = ref<{ x: number, y: number, time: number }[]>([])
+type Ripple = { x: number, y: number, age: number }
+
+const ripples = props.persistKey
+  ? useState<Ripple[]>(`wave-ripple:${props.persistKey}`, () => [])
+  : ref<Ripple[]>([])
 const canvasReady = ref(false)
 const reducedMotion = usePreferredReducedMotion()
 const isTouch = useMediaQuery('(pointer: coarse)')
@@ -42,7 +47,7 @@ const { pixelRatio } = useDevicePixelRatio()
 const { elementX, elementY, elementWidth, elementHeight, isOutside } = useMouseInElement(wrapperRef)
 const shouldSkipMotion = computed(() => reducedMotion.value === 'reduce')
 
-function drawLines(canvas: HTMLCanvasElement, now: number) {
+function drawLines(canvas: HTMLCanvasElement) {
   const ctx = canvas.getContext('2d')!
   const dpr = pixelRatio.value
   const w = canvas.width / dpr
@@ -98,11 +103,11 @@ function drawLines(canvas: HTMLCanvasElement, now: number) {
       let totalDisp = 0
       for (let r = 0; r < arr.length; r++) {
         const ripple = arr[r]!
-        const elapsed = (now - ripple.time) / 1000
+        const elapsed = ripple.age / 1000
         const dist = Math.hypot(px - ripple.x, py - ripple.y)
         const distToWave = dist - elapsed * 160
         if (distToWave > 50 || distToWave < -50) continue
-        const fade = 1 - (now - ripple.time) / props.lifetime
+        const fade = 1 - ripple.age / props.lifetime
         if (fade <= 0) continue
         totalDisp += Math.sin((distToWave / 50) * Math.PI) * fade * props.amplitude
       }
@@ -119,20 +124,23 @@ function drawLines(canvas: HTMLCanvasElement, now: number) {
   }
 }
 
-const { pause, resume } = useRafFn(({ timestamp }) => {
+const { pause, resume } = useRafFn(({ delta }) => {
   const canvas = canvasRef.value
   if (!canvas) {
     pause()
     return
   }
-  ripples.value = ripples.value.filter(r => timestamp - r.time < props.lifetime)
-  drawLines(canvas, timestamp)
+  const frameDelta = Math.min(delta, 34)
+  ripples.value = ripples.value
+    .map(ripple => ({ ...ripple, age: ripple.age + frameDelta }))
+    .filter(ripple => ripple.age < props.lifetime)
+  drawLines(canvas)
   if (ripples.value.length === 0) pause()
 }, { immediate: false })
 
 function spawnRipple(x: number, y: number) {
   if (shouldSkipMotion.value) return
-  ripples.value.push({ x, y, time: performance.now() })
+  ripples.value.push({ x, y, age: 0 })
   if (ripples.value.length > props.maxRipples) ripples.value.shift()
   resume()
 }
@@ -162,7 +170,7 @@ function initCanvas() {
   canvas.height = rect.height * pixelRatio.value
   canvas.style.width = rect.width + 'px'
   canvas.style.height = rect.height + 'px'
-  drawLines(canvas, 0)
+  drawLines(canvas)
   canvasReady.value = true
 }
 
@@ -197,8 +205,10 @@ const { pause: pauseRandom, resume: resumeRandom } = useIntervalFn(() => {
 }, 1250, { immediate: false })
 
 onMounted(() => {
+  ripples.value = ripples.value.filter(ripple => ripple.age < props.lifetime)
   if (isTouch.value) resumeRandom()
   initCanvas()
+  if (ripples.value.length > 0) resume()
 })
 
 watch([pixelRatio, shouldSkipMotion], () => {
