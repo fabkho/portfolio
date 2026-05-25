@@ -1,4 +1,5 @@
 project: nuxt/nuxt
 pr: "feat(nuxt): add `useAnnouncer` composable and `<NuxtAnnouncer>` component"
 url: https://github.com/nuxt/nuxt/pull/34318
+date: 2026-02-25T09:33:31Z
 major: true

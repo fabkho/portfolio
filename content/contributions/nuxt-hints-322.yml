@@ -1,4 +1,5 @@
 project: nuxt/hints
 pr: "fix: respect `app.baseURL` in devtools iframe src"
 url: https://github.com/nuxt/hints/pull/322
+date: 2026-04-25T21:12:38Z
 major: true
