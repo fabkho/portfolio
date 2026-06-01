@@ -1,0 +1,11 @@
+tag: TYPESCRIPT
+label: CONDUCTOR
+title: Conductor
+description: Pi extension for multi-repo bugfixing — ClickUp to MR in one command
+specs:
+  - TYPESCRIPT
+url: https://github.com/fabkho/conductor
+featured: false
+hidden: false
+stars: 0
+updatedAt: 2026-05-30T19:25:25Z
