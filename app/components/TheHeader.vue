@@ -3,8 +3,9 @@ import { isRouteActive, NAV_ITEMS } from '~/utils/navigation'
 
 const subtitle = useRouteSubtitle()
 const navItems = NAV_ITEMS
-const navAnimated = useState('nav-animated', () => false)
-const skipAnimation = ref(navAnimated.value)
+const route = useRoute()
+let hasVisited = false
+const ready = ref(false)
 const subtitleAnimationKey = ref(0)
 const previousSubtitle = usePrevious(subtitle)
 
@@ -12,13 +13,35 @@ watch(subtitle, (value) => {
   if (previousSubtitle.value !== value) subtitleAnimationKey.value++
 })
 
-const { start: startNavAnimationTimer } = useTimeoutFn(() => {
-  navAnimated.value = true
-  skipAnimation.value = true
-}, 600, { immediate: false })
+function showNavLinks() {
+  ready.value = true
+  hasVisited = true
+}
 
 onMounted(() => {
-  if (!navAnimated.value) startNavAnimationTimer()
+  if (!hasVisited) {
+    // First load: wait for page to fully load + 1s delay
+    const trigger = () => {
+      setTimeout(showNavLinks, 1000)
+    }
+    if (document.readyState === 'complete') {
+      trigger()
+    } else {
+      window.addEventListener('load', trigger, { once: true })
+    }
+  } else {
+    showNavLinks()
+  }
+})
+
+// On client-side navigation: replay animation immediately
+watch(() => route.path, () => {
+  if (hasVisited) {
+    ready.value = false
+    nextTick(() => {
+      ready.value = true
+    })
+  }
 })
 </script>
 
@@ -72,8 +95,8 @@ onMounted(() => {
         :key="link.to"
         :to="link.to"
         class="nav-link"
-        :class="{ 'nav-link--no-anim': skipAnimation }"
-        :style="!skipAnimation ? { animationDelay: `${index * 0.08}s` } : undefined"
+        :class="{ 'nav-link--no-anim': !ready }"
+        :style="ready ? { animationDelay: `${index * 0.08}s` } : undefined"
         :aria-current="isRouteActive($route.path, link.to) ? 'page' : undefined"
       >
         {{ link.label }}
