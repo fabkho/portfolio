@@ -193,12 +193,11 @@ const NuxtLinkComp = resolveComponent('NuxtLink')
 .the-card__body.wave-ripple {
   display: flex;
   flex-direction: column;
-  padding: 0;
 }
 
 .the-card__body-inner {
   background: var(--color-bg);
-  padding: 1.5rem;
+  padding: 1rem;
   border: 1px solid var(--color-ink);
   flex-grow: 1;
   display: flex;
