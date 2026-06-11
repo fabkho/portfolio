@@ -166,10 +166,8 @@ function initCanvas() {
   const wrapper = wrapperRef.value
   if (!canvas || !wrapper) return
   const rect = wrapper.getBoundingClientRect()
-  canvas.width = rect.width * pixelRatio.value
-  canvas.height = rect.height * pixelRatio.value
-  canvas.style.width = rect.width + 'px'
-  canvas.style.height = rect.height + 'px'
+  canvas.width = Math.ceil(rect.width * pixelRatio.value)
+  canvas.height = Math.ceil(rect.height * pixelRatio.value)
   drawLines(canvas)
   canvasReady.value = true
 }
