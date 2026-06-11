@@ -4,7 +4,7 @@ import { isRouteActive, NAV_ITEMS } from '~/utils/navigation'
 const subtitle = useRouteSubtitle()
 const navItems = NAV_ITEMS
 const route = useRoute()
-const firstVisit = useState('nav-first-visit', () => true)
+let hasVisited = false
 const ready = ref(false)
 const subtitleAnimationKey = ref(0)
 const previousSubtitle = usePrevious(subtitle)
@@ -15,11 +15,11 @@ watch(subtitle, (value) => {
 
 function showNavLinks() {
   ready.value = true
-  firstVisit.value = false
+  hasVisited = true
 }
 
 onMounted(() => {
-  if (firstVisit.value) {
+  if (!hasVisited) {
     // First load: wait for page to fully load + 1s delay
     const trigger = () => {
       setTimeout(showNavLinks, 1000)
@@ -36,7 +36,7 @@ onMounted(() => {
 
 // On client-side navigation: replay animation immediately
 watch(() => route.path, () => {
-  if (!firstVisit.value) {
+  if (hasVisited) {
     ready.value = false
     nextTick(() => {
       ready.value = true
