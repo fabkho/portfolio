@@ -5,7 +5,7 @@ description: "How moving OAuth handling from client middleware to Nitro server m
 date: "2026-01-15"
 author: "Fabian Kirchhoff"
 specs: ["NUXT", "AUTH", "PERFORMANCE"]
-status: draft
+status: published
 featured: true
 order: 2
 ---

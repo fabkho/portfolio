@@ -3,7 +3,8 @@ title: Typesense Schema Migrations in Laravel
 author: Fabian Kirchhoff
 date: 2026-05-10
 description: How to patch Typesense collections at deploy time using Laravel migrations instead of flushing and re-indexing.
-featured: false
+featured: true
+order: 1
 specs:
   - LARAVEL
   - TYPESENSE
