@@ -1,0 +1,12 @@
+tag: TYPESCRIPT
+label: WS CLI
+title: Ws CLI
+description: TypeScript CLI wrapper for workspace-management — AI-friendly workspace orchestration with interactive
+  @clack/prompts UI
+specs:
+  - TYPESCRIPT
+url: https://github.com/fabkho/ws-cli
+featured: false
+hidden: false
+stars: 0
+updatedAt: 2026-07-31T14:23:53Z
