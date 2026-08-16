@@ -1,6 +1,6 @@
 ---
 tag: "ARCHITECTURE"
-title: "The Layout Test: What to Fetch on the Server, What to Fetch on the Client"
+title: "What to Fetch on the Server, What to Fetch on the Client"
 description: "One question decides where every fetch in a Nuxt app belongs — does the response determine the layout, or does it fill a layout that is already decided?"
 date: "2026-08-15"
 author: "Fabian Kirchhoff"
@@ -9,7 +9,7 @@ status: published
 featured: false
 ---
 
-# The Layout Test: What to Fetch on the Server, What to Fetch on the Client
+# What to Fetch on the Server, What to Fetch on the Client
 
 Nuxt gives you two places to fetch. During SSR, where the result ships inside the HTML document. Or on the client after hydration, where it arrives as a second request. The docs explain how to do both. They don't tell you which to pick.
 
