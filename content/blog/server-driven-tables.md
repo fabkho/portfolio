@@ -21,7 +21,7 @@ const columns = [
 ]
 ```
 
-That works until the columns stop being knowable at build time. Ours stopped for three reasons at once: each tenant defines their own custom fields, the bookable add-ons differ per tenant, and users save views that pin a column order, a set of widths and a filter. None of that exists in the bundle. All of it is per-tenant data.
+That works until the columns stop being knowable at build time. Ours stopped for two reasons at once: each tenant defines their own custom fields, and the bookable add-ons differ per tenant. Neither exists in the bundle. Both are per-tenant data.
 
 So I moved the column catalog to the backend. One endpoint per entity returns every column that tenant can render, already localized:
 
@@ -46,15 +46,15 @@ The endpoint isn't the interesting part. What matters is *when* you fetch it.
 
 Pull them apart and the whole design falls out:
 
-**Structure** — which columns exist, their order, their widths, which view is active, which filters it carries. Small, tenant-scoped, changes rarely, identical for every page of results.
+**Structure** — which columns exist, their order, their widths. Small, tenant-scoped, changes rarely, identical for every page of results.
 
 **Rows** — the actual data. Large, paginated, filtered, sorted, different on every request.
 
-These have nothing in common except that a table needs both. Structure is a perfect fit for SSR: a few kilobytes, cacheable per tenant and locale, and it's what determines the page's layout. Rows are a bad fit: big, slow, and they'd hold the whole document hostage.
+These have nothing in common except that a table needs both. Structure is a perfect fit for SSR: a few kilobytes, cacheable per tenant and locale, and it alone determines the page's layout. Rows are the opposite — they're slow to query and they don't affect layout at all, so blocking the document on them delays every pixel to buy nothing.
 
 So: **structure from the server, rows from the client.**
 
-The rows still arrive late. Skeletons still appear. What changes is that they appear inside columns that are already the right width, under headers that are already correct, below a view tab that's already underlined. The data drops into a table whose shape was settled before the browser painted anything.
+The rows still arrive late. Skeletons still appear. What changes is that they appear inside columns that are already the right width, under headers that are already correct. The data drops into a table whose shape was settled before the browser painted anything.
 
 :table-hydration-demo
 
@@ -100,29 +100,6 @@ const { data: rows, pending } = useFetch('/api/bookings', { server: false })
 ```
 
 `server: false` is the whole split in one option.
-
-## Views are config on top of the catalog
-
-A saved view doesn't store columns. It stores a small object that references catalog keys:
-
-```typescript
-interface TableViewConfig {
-  sort: { column: string, direction: 'asc' | 'desc' }[]
-  columnOrder: string[]
-  columnWidths: Record<string, number>
-  columnVisibility: Record<string, boolean>
-}
-```
-
-That indirection is what makes views survive schema changes. A view can't reference a column the catalog no longer exposes, so a deleted custom field degrades to "column missing from this view" instead of a render crash.
-
-Switching views splits along the same seam. The columns rearrange with no request at all — the catalog is already in memory, so reordering, resizing and hiding are local state. The rows do need a round trip, because a view's `filter` and `sort` are query parameters the server resolves, not client-side predicates:
-
-:view-config-demo
-
-So a view switch is a structural change costing zero requests and a data change costing exactly one. Skeletons come back — inside the new column layout, already at its saved widths.
-
-Views are fetched in the same SSR pass as the catalog, which is why the correct tab is underlined on first paint instead of snapping into place a moment later. A saved view is part of the structure, not part of the data.
 
 ## What a backend cannot send
 

@@ -21,9 +21,6 @@ const ROWS = [
   { customer: 'Petra Lang', service: 'Workshop Bay', date: '13 Aug, 08:00', status: 'Cancelled', total: '0.00' }
 ]
 
-const VIEWS = ['All bookings', 'Today', 'Awaiting payment']
-const ACTIVE_VIEW = 'Today'
-
 // Stretched from real numbers (~40ms / ~220ms) so the reflow is watchable.
 const FIRST_PAINT = 0
 const CONFIG_ARRIVES = 1200
@@ -74,9 +71,9 @@ onBeforeUnmount(() => cancelAnimationFrame(frame))
 // ─── The two things a table waits for ───
 
 /**
- * Structure is columns, widths, order and views. Server-driven, it is part of
- * the HTML document, so it is ready before the browser paints anything.
- * Rows are fetched from the client either way — that never changes.
+ * Structure is columns, widths and order. Server-driven, it is part of the HTML
+ * document, so it is ready before the browser paints anything. Rows are fetched
+ * from the client either way — that never changes.
  */
 const structureReadyAt = computed(() => (mode.value === 'server' ? FIRST_PAINT : CONFIG_ARRIVES))
 
@@ -93,7 +90,7 @@ const BARS = computed(() => [
   {
     key: 'structure',
     label: 'Structure',
-    detail: 'columns · widths · order · views',
+    detail: 'columns · widths · order',
     readyAt: structureReadyAt.value,
     ready: hasStructure.value
   },
@@ -183,26 +180,6 @@ const BARS = computed(() => [
       </div>
 
       <div class="hydration__viewport">
-        <div
-          v-if="hasStructure"
-          class="hydration__chrome"
-        >
-          <div class="hydration__views">
-            <span
-              v-for="view in VIEWS"
-              :key="view"
-              class="hydration__view"
-              :class="{ 'hydration__view--active': view === ACTIVE_VIEW }"
-            >{{ view }}</span>
-          </div>
-        </div>
-        <div
-          v-else
-          class="hydration__chrome"
-        >
-          <span class="hydration__skeleton hydration__skeleton--chrome" />
-        </div>
-
         <table
           class="hydration__table"
           :class="{ 'hydration__table--static': prefersReduced }"
@@ -420,31 +397,6 @@ const BARS = computed(() => [
   overflow-x: auto;
 }
 
-.hydration__chrome {
-  display: flex;
-  align-items: center;
-  padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid var(--color-ink-faint);
-  min-height: 2.25rem;
-}
-
-.hydration__views {
-  display: flex;
-  gap: 1rem;
-}
-
-.hydration__view {
-  font-size: var(--text-xs);
-  color: var(--color-ink-muted);
-  padding-bottom: 2px;
-  border-bottom: 2px solid transparent;
-}
-
-.hydration__view--active {
-  color: var(--color-ink);
-  border-bottom-color: var(--color-accent);
-}
-
 .hydration__table {
   width: 100%;
   border-collapse: collapse;
@@ -509,10 +461,6 @@ const BARS = computed(() => [
   display: block;
   height: 0.7rem;
   background: rgba(44, 44, 42, 0.12);
-}
-
-.hydration__skeleton--chrome {
-  width: 35%;
 }
 
 .hydration__verdict {
