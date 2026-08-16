@@ -1,0 +1,17 @@
+tag: VUE COMPOSABLE
+label: LEAVE-GUARDS
+title: Vue Leave Guards
+description: Nested unsaved-changes guards for Vue 3 — a dirty form inside a modal inside a drawer collapses into one route guard.
+specs:
+  - VUE
+  - TYPESCRIPT
+  - COMPOSABLE
+stack:
+  - Vue
+  - TypeScript
+url: https://github.com/fabkho/vue-leave-guards
+featured: false
+hidden: false
+order: 9
+stars: 0
+updatedAt: 2026-08-16T18:31:08Z

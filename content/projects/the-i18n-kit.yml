@@ -1,17 +1,22 @@
-tag: NUXT MODULE
+tag: DEVTOOL
 label: I18N-KIT
 title: The I18n Kit
-description: A complete i18n toolkit for Nuxt — extraction, validation, and AI-powered translation.
+description: MCP server + CLI for i18n — let your AI agent manage translations across Nuxt, Laravel, and any framework.
 specs:
+  - MCP
   - NUXT
+  - LARAVEL
   - TYPESCRIPT
   - AI
 stack:
-  - Nuxt
   - TypeScript
+  - Zod
+  - MCP SDK
+  - Vue
+  - PHP
 url: https://github.com/fabkho/the-i18n-kit
 featured: true
 hidden: false
 order: 1
 stars: 11
-updatedAt: 2026-08-09T20:20:15Z
+updatedAt: 2026-08-16T17:47:54Z

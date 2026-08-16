@@ -22,11 +22,11 @@ projects:
     the-i18n-kit:
       order: 1
       featured: true
-      tag: "NUXT MODULE"
+      tag: "DEVTOOL"
       label: "I18N-KIT"
-      description: "A complete i18n toolkit for Nuxt — extraction, validation, and AI-powered translation."
-      specs: ["NUXT", "TYPESCRIPT", "AI"]
-      stack: ["Nuxt", "TypeScript"]
+      description: "MCP server + CLI for i18n — let your AI agent manage translations across Nuxt, Laravel, and any framework."
+      specs: ["MCP", "NUXT", "LARAVEL", "TYPESCRIPT", "AI"]
+      stack: ["TypeScript", "Zod", "MCP SDK", "Vue", "PHP"]
 
     pi-multirepo:
       order: 2
@@ -43,6 +43,22 @@ projects:
       label: "CMD-BAR"
       description: "Performant, unstyled command palette for Vue 3."
       specs: ["VUE", "TYPESCRIPT", "A11Y"]
+      stack: ["Vue", "TypeScript"]
+
+    vue-tray-color-picker:
+      order: 8
+      tag: "VUE COMPONENT"
+      label: "TRAY COLOR PICKER"
+      description: "Dependency-free colour picker for Vue 3 — a floating swatch tray over a constrained hue and shade ladder."
+      specs: ["VUE", "TYPESCRIPT", "A11Y"]
+      stack: ["Vue", "TypeScript"]
+
+    vue-leave-guards:
+      order: 9
+      tag: "VUE COMPOSABLE"
+      label: "LEAVE-GUARDS"
+      description: "Nested unsaved-changes guards for Vue 3 — a dirty form inside a modal inside a drawer collapses into one route guard."
+      specs: ["VUE", "TYPESCRIPT", "COMPOSABLE"]
       stack: ["Vue", "TypeScript"]
 
     fontawesome-esm:
