@@ -90,6 +90,37 @@ const activeView = computed(() => VIEWS.find(v => v.id === activeViewId.value)!)
 
 const catalogByKey = new Map(CATALOG.map(column => [column.key, column]))
 
+/**
+ * Columns rearrange synchronously — the catalog is already loaded, so a view
+ * only reorders and resizes what is in memory. The rows are a round trip: a
+ * view's filter and sort are query parameters the server resolves.
+ */
+const reducedMotion = usePreferredReducedMotion()
+const isFetchingRows = ref(false)
+let rowsTimer: ReturnType<typeof setTimeout> | undefined
+
+function selectView(id: string) {
+  if (id === activeViewId.value) return
+  activeViewId.value = id
+
+  if (reducedMotion.value === 'reduce') return
+  clearTimeout(rowsTimer)
+  isFetchingRows.value = true
+  rowsTimer = setTimeout(() => {
+    isFetchingRows.value = false
+  }, 650)
+}
+
+onBeforeUnmount(() => clearTimeout(rowsTimer))
+
+const requestUrl = computed(() => {
+  const { filter, config } = activeView.value
+  const params = Object.entries(filter).map(([key, value]) => `filter[${key}]=${value}`)
+  const [primary] = config.sort
+  if (primary) params.push(`sort=${primary.direction === 'desc' ? '-' : ''}${primary.column}`)
+  return `GET /api/bookings${params.length ? `?${params.join('&')}` : ''}`
+})
+
 const columns = computed(() => {
   const { columnOrder, columnVisibility, columnWidths } = activeView.value.config
   return columnOrder
@@ -131,8 +162,8 @@ function formatCell(row: Row, column: CatalogColumn): string {
 <template>
   <DemoWrapper
     label="View config"
-    tag="zero requests"
-    description="One catalog, three saved views. Switching views applies a config object — no column is refetched."
+    tag="columns local · rows refetched"
+    description="One catalog, three saved views. Switching views rearranges columns instantly and sends exactly one request — for the rows."
   >
     <div class="viewconfig">
       <div
@@ -148,11 +179,19 @@ function formatCell(row: Row, column: CatalogColumn): string {
           :aria-selected="view.id === activeViewId"
           class="viewconfig__tab"
           :class="{ 'viewconfig__tab--active': view.id === activeViewId }"
-          @click="activeViewId = view.id"
+          @click="selectView(view.id)"
         >
           {{ view.name }}
         </button>
       </div>
+
+      <p
+        class="viewconfig__request"
+        :class="{ 'viewconfig__request--active': isFetchingRows }"
+      >
+        <span class="viewconfig__request-state">{{ isFetchingRows ? 'fetching' : 'idle' }}</span>
+        <code>{{ requestUrl }}</code>
+      </p>
 
       <div class="viewconfig__split">
         <div class="viewconfig__table-pane">
@@ -191,7 +230,11 @@ function formatCell(row: Row, column: CatalogColumn): string {
                   :class="{ 'viewconfig__cell--right': column.align === 'right' }"
                 >
                   <span
-                    v-if="column.type === 'badge'"
+                    v-if="isFetchingRows"
+                    class="viewconfig__skeleton"
+                  />
+                  <span
+                    v-else-if="column.type === 'badge'"
                     class="viewconfig__status"
                     :class="`viewconfig__status--${row.status.toLowerCase()}`"
                   >{{ row.status }}</span>
@@ -208,9 +251,9 @@ function formatCell(row: Row, column: CatalogColumn): string {
       </div>
 
       <p class="viewconfig__hint">
-        Column keys reference the catalog. Anything the catalog does not expose
-        cannot be persisted into a view — which is what keeps saved views valid
-        after a schema change.
+        The columns never wait for the response — they come from the catalog,
+        which is already loaded. Only the rows do, because <code>filter</code>
+        and <code>sort</code> are resolved by the server.
       </p>
     </div>
   </DemoWrapper>
@@ -246,6 +289,43 @@ function formatCell(row: Row, column: CatalogColumn): string {
 .viewconfig__tab--active {
   color: var(--color-ink);
   border-bottom-color: var(--color-accent);
+}
+
+.viewconfig__request {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin: 0 0 1rem;
+  font-size: var(--text-2xs);
+  color: var(--color-ink-muted);
+}
+
+.viewconfig .viewconfig__request code {
+  font-family: var(--font-mono);
+  font-size: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  overflow-wrap: anywhere;
+}
+
+.viewconfig__request-state {
+  flex: none;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: 1px solid var(--color-ink-faint);
+  padding: 0.1rem 0.4rem;
+}
+
+.viewconfig__request--active .viewconfig__request-state {
+  color: var(--color-accent);
+  border-color: var(--color-accent-faint);
+}
+
+.viewconfig__skeleton {
+  display: block;
+  height: 0.7rem;
+  background: rgba(44, 44, 42, 0.12);
 }
 
 .viewconfig__split {

@@ -24,17 +24,11 @@ const ROWS = [
 const VIEWS = ['All bookings', 'Today', 'Awaiting payment']
 const ACTIVE_VIEW = 'Today'
 
-// Real-world numbers are ~40ms/220ms; stretched so the reflow is watchable.
-const TIMELINE = [
-  { at: 0, key: 'html', label: 'HTML painted' },
-  { at: 900, key: 'hydrated', label: 'Hydrated' },
-  { at: 1800, key: 'config', label: 'Config response' },
-  { at: 2400, key: 'done', label: 'Interactive' }
-] as const
-
-type Phase = (typeof TIMELINE)[number]['key']
-
-const DURATION: number = TIMELINE[TIMELINE.length - 1]!.at
+// Stretched from real numbers (~40ms / ~220ms) so the reflow is watchable.
+const FIRST_PAINT = 0
+const CONFIG_ARRIVES = 1200
+const ROWS_ARRIVE = 2000
+const DURATION = 2400
 
 const reducedMotion = usePreferredReducedMotion()
 const prefersReduced = computed(() => reducedMotion.value === 'reduce')
@@ -77,42 +71,54 @@ function selectMode(next: 'client' | 'server') {
 
 onBeforeUnmount(() => cancelAnimationFrame(frame))
 
-const phase = computed<Phase>(() => {
-  let current: Phase = 'html'
-  for (const step of TIMELINE) {
-    if (elapsed.value >= step.at) current = step.key
-  }
-  return current
-})
-
-// ─── What the browser can show at each phase ───
+// ─── The two things a table waits for ───
 
 /**
- * The client-fetched table has no column list until its request resolves, so
- * everything downstream of the catalog — widths, view tabs, filters — is blank
- * too. The server-driven one ships all of it inside the same HTML document.
+ * Structure is columns, widths, order and views. Server-driven, it is part of
+ * the HTML document, so it is ready before the browser paints anything.
+ * Rows are fetched from the client either way — that never changes.
  */
-const hasConfig = computed(() =>
-  mode.value === 'server' || phase.value === 'config' || phase.value === 'done'
-)
+const structureReadyAt = computed(() => (mode.value === 'server' ? FIRST_PAINT : CONFIG_ARRIVES))
 
-const shiftCount = computed(() => (mode.value === 'server' ? 0 : 1))
+const hasStructure = computed(() => elapsed.value >= structureReadyAt.value)
+const hasRows = computed(() => elapsed.value >= ROWS_ARRIVE)
 
 const progress = computed(() => (elapsed.value / DURATION) * 100)
+
+function percent(ms: number) {
+  return (ms / DURATION) * 100
+}
+
+const BARS = computed(() => [
+  {
+    key: 'structure',
+    label: 'Structure',
+    detail: 'columns · widths · order · views',
+    readyAt: structureReadyAt.value,
+    ready: hasStructure.value
+  },
+  {
+    key: 'rows',
+    label: 'Rows',
+    detail: 'always fetched on the client',
+    readyAt: ROWS_ARRIVE,
+    ready: hasRows.value
+  }
+])
 </script>
 
 <template>
   <DemoWrapper
-    label="Hydration timeline"
+    label="What the browser is waiting for"
     :tag="mode === 'server' ? 'server-driven' : 'client-fetched'"
-    description="Same table, same data. The only difference is where the column config is resolved."
+    description="Rows load on the client in both modes. The question is whether the table's structure is settled before they arrive."
   >
     <div class="hydration">
       <div class="hydration__controls">
         <div
           class="hydration__modes"
           role="radiogroup"
-          aria-label="Config source"
+          aria-label="Where the table config is resolved"
         >
           <button
             v-for="option in (['client', 'server'] as const)"
@@ -124,7 +130,7 @@ const progress = computed(() => (elapsed.value / DURATION) * 100)
             :class="{ 'hydration__mode--active': mode === option }"
             @click="selectMode(option)"
           >
-            {{ option === 'client' ? 'Client fetch' : 'Server-driven' }}
+            {{ option === 'client' ? 'Config on client' : 'Config on server' }}
           </button>
         </div>
 
@@ -137,29 +143,48 @@ const progress = computed(() => (elapsed.value / DURATION) * 100)
         </button>
       </div>
 
-      <div class="hydration__timeline">
+      <div class="hydration__bars">
         <div
-          class="hydration__track"
-          :style="{ '--progress': `${progress}%` }"
+          v-for="bar in BARS"
+          :key="bar.key"
+          class="hydration__bar"
         >
-          <span
-            v-for="step in TIMELINE"
-            :key="step.key"
-            class="hydration__marker"
-            :class="{
-              'hydration__marker--reached': elapsed >= step.at,
-              'hydration__marker--payoff': step.key === 'config' && mode === 'client'
-            }"
-            :style="{ left: `${(step.at / DURATION) * 100}%` }"
-          >
-            <span class="hydration__marker-label">{{ step.label }}</span>
+          <span class="hydration__bar-label">
+            {{ bar.label }}
+            <em>{{ bar.detail }}</em>
           </span>
+          <div class="hydration__track">
+            <span
+              class="hydration__pending"
+              :style="{ width: `${Math.min(progress, percent(bar.readyAt))}%` }"
+            />
+            <span
+              class="hydration__ready"
+              :style="{
+                left: `${percent(bar.readyAt)}%`,
+                width: `${Math.max(0, progress - percent(bar.readyAt))}%`
+              }"
+            />
+          </div>
+          <span
+            class="hydration__bar-state"
+            :class="{ 'hydration__bar-state--ready': bar.ready }"
+          >{{ bar.ready ? 'ready' : 'waiting' }}</span>
         </div>
+
+        <p class="hydration__axis">
+          <span :style="{ left: '0%' }">First paint</span>
+          <span
+            v-if="mode === 'client'"
+            :style="{ left: `${percent(CONFIG_ARRIVES)}%` }"
+          >Config</span>
+          <span :style="{ left: `${percent(ROWS_ARRIVE)}%` }">Rows</span>
+        </p>
       </div>
 
       <div class="hydration__viewport">
         <div
-          v-if="hasConfig"
+          v-if="hasStructure"
           class="hydration__chrome"
         >
           <div class="hydration__views">
@@ -170,11 +195,10 @@ const progress = computed(() => (elapsed.value / DURATION) * 100)
               :class="{ 'hydration__view--active': view === ACTIVE_VIEW }"
             >{{ view }}</span>
           </div>
-          <span class="hydration__filter">status: confirmed, pending</span>
         </div>
         <div
           v-else
-          class="hydration__chrome hydration__chrome--empty"
+          class="hydration__chrome"
         >
           <span class="hydration__skeleton hydration__skeleton--chrome" />
         </div>
@@ -183,14 +207,11 @@ const progress = computed(() => (elapsed.value / DURATION) * 100)
           class="hydration__table"
           :class="{ 'hydration__table--static': prefersReduced }"
         >
-          <caption class="hydration__caption">
-            Bookings — {{ hasConfig ? 'rendered from config' : 'waiting for column config' }}
-          </caption>
           <colgroup>
             <col
               v-for="column in COLUMNS"
               :key="column.key"
-              :style="{ width: hasConfig ? `${column.width}px` : `${100 / COLUMNS.length}%` }"
+              :style="{ width: hasStructure ? `${column.width}px` : `${100 / COLUMNS.length}%` }"
             >
           </colgroup>
           <thead>
@@ -201,7 +222,7 @@ const progress = computed(() => (elapsed.value / DURATION) * 100)
                 scope="col"
                 :class="{ 'hydration__cell--right': column.align === 'right' }"
               >
-                <template v-if="hasConfig">
+                <template v-if="hasStructure">
                   {{ column.header }}
                 </template>
                 <span
@@ -221,7 +242,7 @@ const progress = computed(() => (elapsed.value / DURATION) * 100)
                 :key="column.key"
                 :class="{ 'hydration__cell--right': column.align === 'right' }"
               >
-                <template v-if="hasConfig">
+                <template v-if="hasRows">
                   <span
                     v-if="column.key === 'status'"
                     class="hydration__status"
@@ -248,11 +269,16 @@ const progress = computed(() => (elapsed.value / DURATION) * 100)
         class="hydration__verdict"
         aria-live="polite"
       >
-        <span class="hydration__verdict-count">{{ shiftCount }}</span>
-        {{ shiftCount === 1 ? 'layout shift' : 'layout shifts' }} —
-        {{ mode === 'server'
-          ? 'the first paint is the final paint'
-          : 'columns, widths and view tabs all arrive after hydration' }}
+        <template v-if="mode === 'server'">
+          <span class="hydration__verdict-count">0</span>
+          layout shifts — the skeleton rows are already the right shape, so the
+          data drops into a table that never moves.
+        </template>
+        <template v-else>
+          <span class="hydration__verdict-count">1</span>
+          layout shift — the skeleton is a guess until the config lands, so the
+          table reflows once before a single row exists.
+        </template>
       </p>
     </div>
   </DemoWrapper>
@@ -269,7 +295,7 @@ const progress = computed(() => (elapsed.value / DURATION) * 100)
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
 }
 
 .hydration__modes {
@@ -304,50 +330,79 @@ const progress = computed(() => (elapsed.value / DURATION) * 100)
   color: var(--color-accent);
 }
 
-.hydration__timeline {
-  /* Inset so the first and last marker labels stay inside the demo box. */
-  margin: 0 3.5rem 2.5rem;
+.hydration__bars {
+  margin-bottom: 2rem;
+}
+
+.hydration__bar {
+  display: grid;
+  grid-template-columns: 13rem minmax(0, 1fr) 4.5rem;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.hydration__bar-label {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1.3;
+}
+
+.hydration__bar-label em {
+  display: block;
+  font-style: normal;
+  font-size: var(--text-2xs);
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--color-ink-muted);
 }
 
 .hydration__track {
   position: relative;
-  height: 2px;
-  background: var(--color-ink-faint);
+  height: 10px;
+  background: rgba(44, 44, 42, 0.06);
+  overflow: hidden;
 }
 
-.hydration__track::after {
-  content: '';
+.hydration__pending {
   position: absolute;
   inset: 0 auto 0 0;
-  width: var(--progress);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(44, 44, 42, 0.22) 0 3px,
+    transparent 3px 7px
+  );
+}
+
+.hydration__ready {
+  position: absolute;
+  top: 0;
+  bottom: 0;
   background: var(--color-accent);
 }
 
-.hydration__marker {
+.hydration__bar-state {
+  font-size: var(--text-2xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-ink-muted);
+}
+
+.hydration__bar-state--ready {
+  color: var(--color-accent);
+}
+
+.hydration__axis {
+  position: relative;
+  height: 1rem;
+  margin: 0.25rem 0 0 13.75rem;
+  padding-right: 5.25rem;
+}
+
+.hydration__axis span {
   position: absolute;
-  top: -3px;
-  width: 8px;
-  height: 8px;
-  margin-left: -4px;
-  border-radius: 50%;
-  background: var(--color-bg);
-  border: 1px solid var(--color-ink-faint);
-}
-
-.hydration__marker--reached {
-  background: var(--color-ink);
-  border-color: var(--color-ink);
-}
-
-.hydration__marker--payoff.hydration__marker--reached {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-}
-
-.hydration__marker-label {
-  position: absolute;
-  top: 12px;
-  left: 0;
+  top: 0;
   transform: translateX(-50%);
   white-space: nowrap;
   font-size: var(--text-2xs);
@@ -356,12 +411,8 @@ const progress = computed(() => (elapsed.value / DURATION) * 100)
   color: var(--color-ink-muted);
 }
 
-.hydration__marker:first-child .hydration__marker-label {
-  transform: translateX(-35%);
-}
-
-.hydration__marker:last-child .hydration__marker-label {
-  transform: translateX(-65%);
+.hydration__axis span:first-child {
+  transform: none;
 }
 
 .hydration__viewport {
@@ -372,8 +423,6 @@ const progress = computed(() => (elapsed.value / DURATION) * 100)
 .hydration__chrome {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
   padding: 0.5rem 0.75rem;
   border-bottom: 1px solid var(--color-ink-faint);
   min-height: 2.25rem;
@@ -396,13 +445,6 @@ const progress = computed(() => (elapsed.value / DURATION) * 100)
   border-bottom-color: var(--color-accent);
 }
 
-.hydration__filter {
-  font-size: var(--text-2xs);
-  color: var(--color-accent);
-  border: 1px solid var(--color-accent-faint);
-  padding: 0.1rem 0.4rem;
-}
-
 .hydration__table {
   width: 100%;
   border-collapse: collapse;
@@ -412,18 +454,8 @@ const progress = computed(() => (elapsed.value / DURATION) * 100)
   font-family: var(--font-mono);
 }
 
-.hydration__caption {
-  caption-side: top;
-  text-align: left;
-  padding: 0.5rem 0.75rem;
-  font-size: var(--text-2xs);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--color-ink-muted);
-}
-
 .hydration__table col {
-  transition: width 0.35s ease;
+  transition: width 0.3s ease;
 }
 
 .hydration__table--static col {
@@ -480,7 +512,7 @@ const progress = computed(() => (elapsed.value / DURATION) * 100)
 }
 
 .hydration__skeleton--chrome {
-  width: 40%;
+  width: 35%;
 }
 
 .hydration__verdict {
@@ -489,7 +521,9 @@ const progress = computed(() => (elapsed.value / DURATION) * 100)
   gap: 0.5rem;
   margin: 1rem 0 0;
   font-size: var(--text-xs);
+  line-height: 1.6;
   color: var(--color-ink-muted);
+  max-width: 62ch;
 }
 
 .hydration__verdict-count {
