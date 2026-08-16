@@ -1,0 +1,17 @@
+tag: VUE COMPONENT
+label: TRAY COLOR PICKER
+title: Vue Tray Color Picker
+description: Dependency-free colour picker for Vue 3 — a floating swatch tray over a constrained hue and shade ladder.
+specs:
+  - VUE
+  - TYPESCRIPT
+  - A11Y
+stack:
+  - Vue
+  - TypeScript
+url: https://github.com/fabkho/vue-tray-color-picker
+featured: false
+hidden: false
+order: 8
+stars: 0
+updatedAt: 2026-08-16T12:32:07Z
