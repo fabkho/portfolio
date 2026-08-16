@@ -101,28 +101,13 @@ const { data: rows, pending } = useFetch('/api/bookings', { server: false })
 
 `server: false` is the whole split in one option.
 
-## What a backend cannot send
-
-JSON can't carry functions, and that constraint shapes the whole column contract. The split I ended up with:
-
-| Field | Owner | Why |
-|---|---|---|
-| `type` | Backend | Sort and align primitive — `text`, `date`, `currency` |
-| `format` | Backend | Declarative transform, fully enumerated server-side |
-| `cell` | Backend (descriptor) | Names a registered component + props |
-| `slot` | Frontend | Escape hatch for one-off markup |
-
-`cell` is a descriptor, not a component: `{ component: 'currency', props: { currency: 'EUR' } }`. The frontend keeps a registry mapping those names to real components. The backend picks *which* cell renders; the frontend owns *how* it renders.
-
-`format` has to be exhaustively implemented on the backend. The temptation is to leave a gap and patch it with a frontend function for the one weird column — and then that column is the only one that can't be exported, because the export pipeline reads the same catalog and has no JavaScript runtime to call into.
-
 ## When this is the wrong shape
 
 Columns known at build time don't need any of this. A static table with five fixed columns is better served by an array in the component — you get type inference, jump-to-definition, and no network dependency for your layout.
 
 It also costs a round trip on the server. If the config endpoint is slow, you've moved the delay from "the table settles late" to "the page arrives late", which is worse. Ours is cached per tenant and locale and answers in single-digit milliseconds; without that cache I wouldn't do it.
 
-And it moves presentation decisions into backend code. Deciding that "Total" is right-aligned now happens in a PHP class. That's a real cost, paid deliberately — the alternative was two sources of truth for the same column, and the export pipeline drifting out of sync with the table was how that cost got paid instead.
+And it moves presentation decisions into backend code. Deciding that "Total" is right-aligned now happens in a PHP class, which is not where a frontend developer thinks to look for it. That cost is real, and I pay it deliberately: the alternative was two definitions of the same column drifting apart.
 
 ## Resources
 
