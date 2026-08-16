@@ -2,25 +2,33 @@
 interface Column {
   key: string
   header: string
-  width: number
   align?: 'right'
 }
 
-/** What the bundle falls back to when it has to render before the config lands. */
-const GUESSED_COLUMNS: Column[] = [
-  { key: 'customer', header: 'Customer', width: 0 },
-  { key: 'service', header: 'Service', width: 0 },
-  { key: 'date', header: 'Date', width: 0 },
-  { key: 'status', header: 'Status', width: 0 },
-  { key: 'total', header: 'Total', width: 0 }
+/** Every column either layout can show, in a stable DOM order so they can be animated. */
+const COLUMNS: Column[] = [
+  { key: 'customer', header: 'Customer' },
+  { key: 'service', header: 'Service' },
+  { key: 'date', header: 'Date' },
+  { key: 'status', header: 'Status' },
+  { key: 'total', header: 'Total', align: 'right' }
 ]
 
-/** What this tenant's config actually says: no service column, total moved up. */
-const CONFIGURED_COLUMNS: Column[] = [
-  { key: 'customer', header: 'Customer', width: 200 },
-  { key: 'total', header: 'Total', width: 110, align: 'right' },
-  { key: 'date', header: 'Date', width: 130 },
-  { key: 'status', header: 'Status', width: 100 }
+/** What the bundle falls back to when it has to render before the config lands. */
+const GUESSED_LAYOUT = [
+  { key: 'customer', width: 1 },
+  { key: 'service', width: 1 },
+  { key: 'date', width: 1 },
+  { key: 'status', width: 1 },
+  { key: 'total', width: 1 }
+]
+
+/** What this tenant's config says: no service column, total moved up, real widths. */
+const CONFIGURED_LAYOUT = [
+  { key: 'customer', width: 200 },
+  { key: 'total', width: 110 },
+  { key: 'date', width: 130 },
+  { key: 'status', width: 100 }
 ]
 
 const ROWS = [
@@ -89,7 +97,60 @@ const structureReadyAt = computed(() => (mode.value === 'server' ? FIRST_PAINT :
 const hasStructure = computed(() => elapsed.value >= structureReadyAt.value)
 const hasRows = computed(() => elapsed.value >= ROWS_ARRIVE)
 
-const columns = computed(() => (hasStructure.value ? CONFIGURED_COLUMNS : GUESSED_COLUMNS))
+// ─── Column geometry ───
+
+interface Slot {
+  left: number
+  width: number
+  shown: boolean
+}
+
+/**
+ * Positions every column as a percentage so the switch can be transitioned.
+ * A column the layout drops collapses to zero width at the right edge of the
+ * last column that survived before it, so it looks like it is squeezed out
+ * rather than teleporting.
+ */
+function toSlots(layout: { key: string, width: number }[]): Record<string, Slot> {
+  const total = layout.reduce((sum, column) => sum + column.width, 0)
+  const slots: Record<string, Slot> = {}
+
+  let offset = 0
+  for (const column of layout) {
+    const width = (column.width / total) * 100
+    slots[column.key] = { left: offset, width, shown: true }
+    offset += width
+  }
+
+  COLUMNS.forEach((column, index) => {
+    if (slots[column.key]) return
+    let left = 0
+    for (let i = index - 1; i >= 0; i--) {
+      const previous = slots[COLUMNS[i]!.key]
+      if (previous?.shown) {
+        left = previous.left + previous.width
+        break
+      }
+    }
+    slots[column.key] = { left, width: 0, shown: false }
+  })
+
+  return slots
+}
+
+const guessedSlots = toSlots(GUESSED_LAYOUT)
+const configuredSlots = toSlots(CONFIGURED_LAYOUT)
+
+/** Columns that change position, not just width. They travel above the rest. */
+const MOVED_KEYS = new Set(
+  CONFIGURED_LAYOUT
+    .filter((column, index) => GUESSED_LAYOUT.findIndex(g => g.key === column.key) !== index)
+    .map(column => column.key)
+)
+
+const slots = computed(() => (hasStructure.value ? configuredSlots : guessedSlots))
+
+// ─── Readiness bars ───
 
 const progress = computed(() => (elapsed.value / DURATION) * 100)
 
@@ -190,59 +251,62 @@ const BARS = computed(() => [
         </p>
       </div>
 
-      <div class="hydration__viewport">
-        <table class="hydration__table">
-          <colgroup>
-            <col
-              v-for="column in columns"
-              :key="column.key"
-              :style="{ width: hasStructure ? `${column.width}px` : `${100 / columns.length}%` }"
+      <div
+        class="hydration__viewport"
+        aria-hidden="true"
+      >
+        <div
+          class="hydration__mock"
+          :class="{ 'hydration__mock--instant': prefersReduced }"
+        >
+          <div
+            v-for="column in COLUMNS"
+            :key="column.key"
+            class="hydration__column"
+            :class="{ 'hydration__column--moved': MOVED_KEYS.has(column.key) }"
+            :style="{
+              left: `${slots[column.key]!.left}%`,
+              width: `${slots[column.key]!.width}%`,
+              opacity: slots[column.key]!.shown ? 1 : 0
+            }"
+          >
+            <div
+              class="hydration__cell hydration__cell--header"
+              :class="{ 'hydration__cell--right': column.align === 'right' }"
             >
-          </colgroup>
-          <thead>
-            <tr>
-              <th
-                v-for="column in columns"
-                :key="column.key"
-                scope="col"
-                :class="{ 'hydration__cell--right': column.align === 'right' }"
-              >
-                {{ column.header }}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
+              {{ column.header }}
+            </div>
+            <div
               v-for="(row, index) in ROWS"
               :key="index"
+              class="hydration__cell"
+              :class="{ 'hydration__cell--right': column.align === 'right' }"
             >
-              <td
-                v-for="column in columns"
-                :key="column.key"
-                :class="{ 'hydration__cell--right': column.align === 'right' }"
-              >
-                <template v-if="hasRows">
-                  <span
-                    v-if="column.key === 'status'"
-                    class="hydration__status"
-                    :class="`hydration__status--${row.status.toLowerCase()}`"
-                  >{{ row.status }}</span>
-                  <template v-else-if="column.key === 'total'">
-                    €{{ row.total }}
-                  </template>
-                  <template v-else>
-                    {{ row[column.key as keyof typeof row] }}
-                  </template>
-                </template>
+              <template v-if="hasRows">
                 <span
-                  v-else
-                  class="hydration__skeleton"
-                />
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                  v-if="column.key === 'status'"
+                  class="hydration__status"
+                  :class="`hydration__status--${row.status.toLowerCase()}`"
+                >{{ row.status }}</span>
+                <template v-else-if="column.key === 'total'">
+                  €{{ row.total }}
+                </template>
+                <template v-else>
+                  {{ row[column.key as keyof typeof row] }}
+                </template>
+              </template>
+              <span
+                v-else
+                class="hydration__skeleton"
+              />
+            </div>
+          </div>
+        </div>
       </div>
+
+      <p class="hydration__caption">
+        The reflow is slowed here. In a browser it lands in a single frame.
+      </p>
 
       <p
         class="hydration__verdict"
@@ -399,38 +463,55 @@ const BARS = computed(() => [
   overflow-x: auto;
 }
 
-.hydration__table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-  min-width: 610px;
-  margin: 0;
-  font-family: var(--font-mono);
+.hydration__mock {
+  position: relative;
+  min-width: 560px;
+  height: 194px;
+  background: var(--color-bg);
 }
 
-/* Doubled class selectors: the article's prose `:deep(th)` / `:deep(td)` rules
-   otherwise win on equal specificity and repaint the header bar. */
-.hydration .hydration__table th,
-.hydration .hydration__table td {
-  text-align: left;
-  padding: 0.45rem 0.75rem;
-  border-bottom: 1px solid rgba(44, 44, 42, 0.12);
+.hydration__column {
+  position: absolute;
+  top: 0;
+  bottom: 0;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  background: none;
+  /* Opaque, so a column sliding past another doesn't blend into it. */
+  background: var(--color-bg);
+  transition:
+    left 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.3s linear;
 }
 
-.hydration .hydration__table th {
+.hydration__column--moved {
+  z-index: 2;
+}
+
+.hydration__mock--instant .hydration__column {
+  transition: none;
+}
+
+.hydration__cell {
+  display: flex;
+  align-items: center;
+  height: 38px;
+  padding: 0 0.75rem;
+  border-bottom: 1px solid rgba(44, 44, 42, 0.12);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.hydration__cell--header {
   font-size: var(--text-2xs);
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--color-ink-muted);
-  font-weight: 600;
+  border-bottom-color: var(--color-ink-faint);
 }
 
 .hydration__cell--right {
-  text-align: right;
+  justify-content: flex-end;
 }
 
 .hydration__status {
@@ -453,15 +534,22 @@ const BARS = computed(() => [
 
 .hydration__skeleton {
   display: block;
+  width: 100%;
   height: 0.7rem;
   background: rgba(44, 44, 42, 0.12);
+}
+
+.hydration__caption {
+  margin: 0.6rem 0 0;
+  font-size: var(--text-2xs);
+  color: var(--color-ink-muted);
 }
 
 .hydration__verdict {
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
-  margin: 1rem 0 0;
+  margin: 0.75rem 0 0;
   font-size: var(--text-xs);
   line-height: 1.6;
   color: var(--color-ink-muted);
