@@ -6,12 +6,21 @@ interface Column {
   align?: 'right'
 }
 
-const COLUMNS: Column[] = [
-  { key: 'customer', header: 'Customer', width: 165 },
-  { key: 'service', header: 'Service', width: 140 },
-  { key: 'date', header: 'Date', width: 125 },
-  { key: 'status', header: 'Status', width: 95 },
-  { key: 'total', header: 'Total', width: 85, align: 'right' }
+/** What the bundle falls back to when it has to render before the config lands. */
+const GUESSED_COLUMNS: Column[] = [
+  { key: 'customer', header: 'Customer', width: 0 },
+  { key: 'service', header: 'Service', width: 0 },
+  { key: 'date', header: 'Date', width: 0 },
+  { key: 'status', header: 'Status', width: 0 },
+  { key: 'total', header: 'Total', width: 0 }
+]
+
+/** What this tenant's config actually says: no service column, total moved up. */
+const CONFIGURED_COLUMNS: Column[] = [
+  { key: 'customer', header: 'Customer', width: 200 },
+  { key: 'total', header: 'Total', width: 110, align: 'right' },
+  { key: 'date', header: 'Date', width: 130 },
+  { key: 'status', header: 'Status', width: 100 }
 ]
 
 const ROWS = [
@@ -79,6 +88,8 @@ const structureReadyAt = computed(() => (mode.value === 'server' ? FIRST_PAINT :
 
 const hasStructure = computed(() => elapsed.value >= structureReadyAt.value)
 const hasRows = computed(() => elapsed.value >= ROWS_ARRIVE)
+
+const columns = computed(() => (hasStructure.value ? CONFIGURED_COLUMNS : GUESSED_COLUMNS))
 
 const progress = computed(() => (elapsed.value / DURATION) * 100)
 
@@ -180,32 +191,23 @@ const BARS = computed(() => [
       </div>
 
       <div class="hydration__viewport">
-        <table
-          class="hydration__table"
-          :class="{ 'hydration__table--static': prefersReduced }"
-        >
+        <table class="hydration__table">
           <colgroup>
             <col
-              v-for="column in COLUMNS"
+              v-for="column in columns"
               :key="column.key"
-              :style="{ width: hasStructure ? `${column.width}px` : `${100 / COLUMNS.length}%` }"
+              :style="{ width: hasStructure ? `${column.width}px` : `${100 / columns.length}%` }"
             >
           </colgroup>
           <thead>
             <tr>
               <th
-                v-for="column in COLUMNS"
+                v-for="column in columns"
                 :key="column.key"
                 scope="col"
                 :class="{ 'hydration__cell--right': column.align === 'right' }"
               >
-                <template v-if="hasStructure">
-                  {{ column.header }}
-                </template>
-                <span
-                  v-else
-                  class="hydration__skeleton"
-                />
+                {{ column.header }}
               </th>
             </tr>
           </thead>
@@ -215,7 +217,7 @@ const BARS = computed(() => [
               :key="index"
             >
               <td
-                v-for="column in COLUMNS"
+                v-for="column in columns"
                 :key="column.key"
                 :class="{ 'hydration__cell--right': column.align === 'right' }"
               >
@@ -248,13 +250,13 @@ const BARS = computed(() => [
       >
         <template v-if="mode === 'server'">
           <span class="hydration__verdict-count">0</span>
-          layout shifts — the skeleton rows are already the right shape, so the
-          data drops into a table that never moves.
+          layout shifts — the skeleton rows sit in the real columns, so the data
+          drops into a table that never moves.
         </template>
         <template v-else>
           <span class="hydration__verdict-count">1</span>
-          layout shift — the skeleton is a guess until the config lands, so the
-          table reflows once before a single row exists.
+          layout shift — the bundle guesses five even columns. The config drops
+          Service, moves Total up and resets every width, before a single row exists.
         </template>
       </p>
     </div>
@@ -404,14 +406,6 @@ const BARS = computed(() => [
   min-width: 610px;
   margin: 0;
   font-family: var(--font-mono);
-}
-
-.hydration__table col {
-  transition: width 0.3s ease;
-}
-
-.hydration__table--static col {
-  transition: none;
 }
 
 /* Doubled class selectors: the article's prose `:deep(th)` / `:deep(td)` rules

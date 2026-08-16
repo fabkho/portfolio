@@ -13,52 +13,43 @@ featured: false
 
 Nuxt gives you two places to fetch. During SSR, where the result ships inside the HTML document. Or on the client after hydration, where it arrives as a second request. The docs explain how to do both. They don't tell you which to pick.
 
-I use one question:
+I use one question: **does the response decide the layout, or does it fill a layout that is already decided?**
 
-**Does the response decide the layout, or does it fill a layout that is already decided?**
+:layout-test-rule
 
-Decides the layout → fetch it on the server. Fills it → fetch it on the client.
-
-Anything that decides layout has to be in the HTML, because the browser sizes the page from that HTML. If it arrives later and changes a size, it moves content the user is already looking at. Everything else can arrive whenever it wants, as long as the space it lands in is already the right shape.
+Whatever decides the layout has to be in the HTML, because the browser sizes the page from that HTML. If it arrives later and changes a size, it moves content the user is already looking at.
 
 ## One table needs both
 
-Admin tables are the clearest example I have, because a single component fetches both kinds.
+Admin tables are the clearest example I have, because one component fetches both kinds.
 
-The columns aren't knowable at build time. Each tenant defines their own custom fields, and the bookable add-ons differ per tenant, so the column list is per-tenant data that doesn't exist in the bundle. It comes from an endpoint:
-
-```
-GET /api/table-config/bookings
-```
+The columns aren't knowable at build time — each tenant defines their own custom fields, so the column list is per-tenant data that doesn't exist in the bundle. It comes from an endpoint:
 
 ```json
+// GET /api/table-config/bookings
 {
   "entity": "bookings",
   "columns": [
-    { "key": "customer", "header": "Customer", "type": "text", "width": 180 },
-    { "key": "total", "header": "Umsatz", "type": "currency", "align": "right" },
+    { "key": "customer", "header": "Customer", "type": "text", "width": 200 },
+    { "key": "total", "header": "Umsatz", "type": "currency", "width": 110 },
     { "key": "customFields.cost_center", "header": "Kostenstelle", "type": "text" }
   ]
 }
 ```
 
-Run the test on the two fetches.
+The config decides the layout: how many columns exist, how wide each one is, what order they're in.
 
-**The column config decides the layout.** How many columns exist, how wide each one is, what order they're in. Nothing about the page's shape can be known without it. It's also small, changes rarely, and is identical for every page of results, so it's cheap to render on the server and cheap to cache.
+The rows don't. A cell can render anything — a badge, a truncated name, an avatar — but it renders inside a column the config already sized. The rows change what's in the table, not its shape.
 
-**The rows fill it.** They're large, paginated, and different on every request, and they have no effect on the layout: they drop into columns whose widths the config already fixed.
-
-So the config goes in the SSR pass and the rows are fetched from the client.
-
-The rows still arrive late. The skeletons are still there. What changes is that they're already the right shape — correct number of columns, correct widths, correct headers — so when the data lands, nothing moves:
+So the config goes in the SSR pass and the rows are fetched from the client. The rows still arrive late and the skeletons are still there, but they're already sitting in the real columns:
 
 :table-hydration-demo
 
-Both modes fetch rows on the client. That never changes, and it isn't the point. The difference is whether the skeleton is the real layout or a guess that gets corrected.
+Fetch the config on the client instead and the bundle has to render something first. When the real config lands it drops a column, reorders another and resets every width — a full reflow, before a single row exists.
 
 ## Writing it down
 
-The server side is `useAsyncData`. It runs during SSR, serializes the result into the payload, and the client reads it from there instead of making a second request:
+`useAsyncData` runs during SSR, serializes the result into the payload, and the client reads it from there instead of making a second request:
 
 ```typescript
 export async function useTableConfig(entity: MaybeRefOrGetter<string>) {
@@ -73,11 +64,11 @@ export async function useTableConfig(entity: MaybeRefOrGetter<string>) {
 }
 ```
 
-The key is a function, not a string. `entity` and `locale` are reactive, and a static key freezes whatever they were on the first call, so every table after that reads the wrong cache entry. Anything the response varies by belongs in the key.
+The key is a function, not a string. `entity` and `locale` are reactive, and a static key freezes whatever they were on the first call, so every table after that reads the wrong cache entry.
 
-The `await` is load-bearing. It suspends the component during SSR until the config resolves, which is what puts the finished markup in the server response. It also means you can only call this from a setup Nuxt is allowed to suspend — a page component, or something inside `<Suspense>`. From an event handler or a `watch`, it throws.
+The `await` is load-bearing. It suspends the component during SSR until the config resolves, which is what puts the finished markup in the server response. That also means you can only call it from a setup Nuxt can suspend — a page component, or something inside `<Suspense>`.
 
-The client side is the same request with one option flipped:
+The rows are the same request with one option flipped:
 
 ```vue
 <script setup lang="ts">
@@ -97,34 +88,9 @@ const { data: rows, pending } = useFetch('/api/bookings', { server: false })
 
 `server: false` is the whole split in one option.
 
-## Running the test on everything else
+## When to break it
 
-The table is one case. The question works on any fetch:
-
-| Fetch | Decides layout? | Where |
-|---|---|---|
-| Table column config | Yes — column count and widths | Server |
-| Table rows | No — they fill fixed columns | Client |
-| Permission-filtered navigation | Yes — which sections exist | Server |
-| Feature flags that hide whole sections | Yes | Server |
-| Translated labels | Yes — text length sets widths | Server |
-| Chart series in a fixed-height card | No | Client |
-| Search results | No | Client |
-| Notification count badge | No — fixed-size slot | Client |
-
-Two of those are worth spelling out.
-
-Translated labels count as layout. A German header is routinely half again as long as its English one, so resolving translations after hydration resizes columns, buttons and tabs. That's why the config endpoint above returns `"Umsatz"` and not a translation key.
-
-Feature flags count as layout when they hide sections rather than swap contents. A flag that removes a sidebar changes every width on the page. A flag that swaps one button's label doesn't.
-
-## Where the test gives the wrong answer
-
-**The endpoint is slow.** The test assumes the thing that decides layout is cheap. If it takes 800ms, putting it in the SSR pass delays the whole document to fix a shift the user would have seen for a fraction of that. Cache it, or accept the shift. Ours answers in single-digit milliseconds; without that cache I wouldn't do it.
-
-**Crawlers need it.** Content that has to be in the HTML for SEO goes on the server whether or not it affects layout. That's a different requirement, and it outranks this one.
-
-**It's known at build time.** A static five-column table doesn't need a fetch at all. An array in the component gives you type inference, jump-to-definition and no network dependency for your layout. The test only applies once the answer genuinely lives on the server.
+The rule assumes what decides layout is cheap. If that endpoint takes 800ms, putting it in the SSR pass delays the whole document to fix a shift the user would have seen for a fraction of that. Cache it, or accept the shift. Ours answers in single-digit milliseconds; without that cache I wouldn't do it.
 
 ## Resources
 
