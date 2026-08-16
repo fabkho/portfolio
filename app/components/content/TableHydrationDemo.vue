@@ -31,6 +31,9 @@ const CONFIGURED_LAYOUT = [
   { key: 'status', width: 100 }
 ]
 
+/** The right columns at the wrong widths — the state between the two shifts. */
+const COLUMNS_ONLY_LAYOUT = CONFIGURED_LAYOUT.map(column => ({ key: column.key, width: 1 }))
+
 const ROWS = [
   { customer: 'Marta Feld', service: 'Studio A', date: '12 Aug, 09:00', status: 'Confirmed', total: '120.00' },
   { customer: 'Jonas Weiler', service: 'Meeting Room 2', date: '12 Aug, 11:30', status: 'Pending', total: '45.00' },
@@ -38,10 +41,11 @@ const ROWS = [
   { customer: 'Petra Lang', service: 'Workshop Bay', date: '13 Aug, 08:00', status: 'Cancelled', total: '0.00' }
 ]
 
-// Stretched from real numbers (~40ms / ~220ms) so the reflow is watchable.
+// Stretched from real numbers (~40ms / ~220ms) so each reflow is watchable.
 const FIRST_PAINT = 0
-const CONFIG_ARRIVES = 1200
-const ROWS_ARRIVE = 2000
+const COLUMNS_ARRIVE = 950
+const WIDTHS_SETTLE = 1450
+const ROWS_ARRIVE = 2050
 const DURATION = 2400
 
 const reducedMotion = usePreferredReducedMotion()
@@ -91,10 +95,16 @@ onBeforeUnmount(() => cancelAnimationFrame(frame))
  * Structure is columns, widths and order. Server-driven, it is part of the HTML
  * document, so it is ready before the browser paints anything. Rows are fetched
  * from the client either way — that never changes.
+ *
+ * Client-side, the structure lands in two moves: which columns exist, then how
+ * wide each one is. Each move is its own reflow.
  */
-const structureReadyAt = computed(() => (mode.value === 'server' ? FIRST_PAINT : CONFIG_ARRIVES))
+const isServer = computed(() => mode.value === 'server')
 
-const hasStructure = computed(() => elapsed.value >= structureReadyAt.value)
+const structureReadyAt = computed(() => (isServer.value ? FIRST_PAINT : WIDTHS_SETTLE))
+
+const hasColumns = computed(() => isServer.value || elapsed.value >= COLUMNS_ARRIVE)
+const hasWidths = computed(() => isServer.value || elapsed.value >= WIDTHS_SETTLE)
 const hasRows = computed(() => elapsed.value >= ROWS_ARRIVE)
 
 // ─── Column geometry ───
@@ -139,6 +149,7 @@ function toSlots(layout: { key: string, width: number }[]): Record<string, Slot>
 }
 
 const guessedSlots = toSlots(GUESSED_LAYOUT)
+const columnsOnlySlots = toSlots(COLUMNS_ONLY_LAYOUT)
 const configuredSlots = toSlots(CONFIGURED_LAYOUT)
 
 /** Columns that change position, not just width. They travel above the rest. */
@@ -148,7 +159,10 @@ const MOVED_KEYS = new Set(
     .map(column => column.key)
 )
 
-const slots = computed(() => (hasStructure.value ? configuredSlots : guessedSlots))
+const slots = computed(() => {
+  if (hasWidths.value) return configuredSlots
+  return hasColumns.value ? columnsOnlySlots : guessedSlots
+})
 
 // ─── Readiness bars ───
 
@@ -160,11 +174,18 @@ function percent(ms: number) {
 
 const BARS = computed(() => [
   {
-    key: 'structure',
-    label: 'Structure',
-    detail: 'columns · widths · order',
+    key: 'columns',
+    label: 'Column set',
+    detail: 'which columns · what order',
+    readyAt: isServer.value ? FIRST_PAINT : COLUMNS_ARRIVE,
+    ready: hasColumns.value
+  },
+  {
+    key: 'widths',
+    label: 'Column widths',
+    detail: 'how wide each one is',
     readyAt: structureReadyAt.value,
-    ready: hasStructure.value
+    ready: hasWidths.value
   },
   {
     key: 'rows',
@@ -243,10 +264,16 @@ const BARS = computed(() => [
 
         <p class="hydration__axis">
           <span :style="{ left: '0%' }">First paint</span>
-          <span
-            v-if="mode === 'client'"
-            :style="{ left: `${percent(CONFIG_ARRIVES)}%` }"
-          >Config</span>
+          <template v-if="mode === 'client'">
+            <span
+              class="hydration__axis-shift"
+              :style="{ left: `${percent(COLUMNS_ARRIVE)}%` }"
+            >Shift 1</span>
+            <span
+              class="hydration__axis-shift"
+              :style="{ left: `${percent(WIDTHS_SETTLE)}%` }"
+            >Shift 2</span>
+          </template>
           <span :style="{ left: `${percent(ROWS_ARRIVE)}%` }">Rows</span>
         </p>
       </div>
@@ -305,7 +332,8 @@ const BARS = computed(() => [
       </div>
 
       <p class="hydration__caption">
-        The reflow is slowed here. In a browser it lands in a single frame.
+        Slowed down so each reflow is visible. In a browser they land as fast as
+        the response is parsed.
       </p>
 
       <p
@@ -314,13 +342,14 @@ const BARS = computed(() => [
       >
         <template v-if="mode === 'server'">
           <span class="hydration__verdict-count">0</span>
-          layout shifts — the skeleton rows sit in the real columns, so the data
-          drops into a table that never moves.
+          layout shifts — the skeleton rows sit in the real columns at their real
+          widths, so the data drops into a table that never moves.
         </template>
         <template v-else>
-          <span class="hydration__verdict-count">1</span>
-          layout shift — the bundle guesses five even columns. The config drops
-          Service, moves Total up and resets every width, before a single row exists.
+          <span class="hydration__verdict-count">2</span>
+          layout shifts, and that is the floor. The column set corrects, then every
+          width does — two independent moves before a single row exists. A config
+          further from the guess costs more.
         </template>
       </p>
     </div>
@@ -456,6 +485,10 @@ const BARS = computed(() => [
 
 .hydration__axis span:first-child {
   transform: none;
+}
+
+.hydration__axis-shift {
+  color: var(--color-accent);
 }
 
 .hydration__viewport {

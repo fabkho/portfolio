@@ -45,7 +45,7 @@ So the config goes in the SSR pass and the rows are fetched from the client. The
 
 :table-hydration-demo
 
-Fetch the config on the client instead and the bundle has to render something first. When the real config lands it drops a column, reorders another and resets every width — a full reflow, before a single row exists.
+Fetch the config on the client instead and the bundle has to render something first. The real config then corrects it in two independent moves: which columns exist, and how wide each one is. That's two layout shifts before a single row exists, and two is the floor — a tenant whose column set is further from the default pays more.
 
 ## Writing it down
 
