@@ -1,0 +1,17 @@
+tag: TECHNIQUE DEMO
+label: OVERLAY-MORPH
+title: Overlay Morph
+description: One overlay, three layouts — slideover, modal and fullscreen morphing into each other with the View Transitions API, text staying crisp.
+specs:
+  - VUE
+  - CSS
+  - VIEW TRANSITIONS
+stack:
+  - Vue
+  - TypeScript
+url: https://github.com/fabkho/overlay-morph
+featured: false
+hidden: false
+order: 10
+stars: 0
+updatedAt: 2026-08-17T17:00:00Z
