@@ -1,0 +1,11 @@
+tag: CSS
+label: OVERLAY MORPH
+title: Overlay Morph
+description: One overlay, three layouts — morphing between slideover, modal and fullscreen with the View Transitions API
+specs:
+  - CSS
+url: https://github.com/fabkho/overlay-morph
+featured: false
+hidden: false
+stars: 0
+updatedAt: 2026-08-17T16:50:36Z
