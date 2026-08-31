@@ -1,11 +1,15 @@
 tag: TYPESCRIPT
 label: AMT
 title: Amt
-description: amt — open source project.
+description: Ein Amt für die Jobsuche — a CLI + MCP job-search clerk that crawls job APIs and LinkedIn, keeps ranked
+  markdown notes, and drafts your CV & cover letters.
 specs:
   - TYPESCRIPT
+  - CLI
+  - JOB-SEARCH
+  - MCP
 url: https://github.com/fabkho/amt
 featured: false
 hidden: false
-stars: 2
-updatedAt: 2026-08-23T17:59:10Z
+stars: 3
+updatedAt: 2026-08-26T17:36:07Z
