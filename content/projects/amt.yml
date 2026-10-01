@@ -1,0 +1,15 @@
+tag: TYPESCRIPT
+label: AMT
+title: Amt
+description: Ein Amt für die Jobsuche — a CLI + MCP job-search clerk that crawls job APIs, ranks the results, and drafts
+  your CV & cover letters.
+specs:
+  - TYPESCRIPT
+  - CLI
+  - JOB-SEARCH
+  - MCP
+url: https://github.com/fabkho/amt
+featured: false
+hidden: false
+stars: 3
+updatedAt: 2026-09-06T10:22:58Z
