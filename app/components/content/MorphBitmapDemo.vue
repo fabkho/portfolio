@@ -17,14 +17,12 @@ async function toggle() {
   let vt: ViewTransition
   try {
     vt = document.startViewTransition({ update, types: ['mb-demo'] })
-  }
-  catch {
+  } catch {
     vt = document.startViewTransition(update)
   }
   try {
     await vt.finished
-  }
-  finally {
+  } finally {
     transitioning.value = false
   }
 }

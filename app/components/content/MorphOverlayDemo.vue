@@ -21,14 +21,12 @@ async function switchTo(target: Mode) {
   let vt: ViewTransition
   try {
     vt = document.startViewTransition({ update, types: ['mo-demo'] })
-  }
-  catch {
+  } catch {
     vt = document.startViewTransition(update)
   }
   try {
     await vt.finished
-  }
-  finally {
+  } finally {
     transitioning.value = false
   }
 }
