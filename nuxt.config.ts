@@ -55,10 +55,13 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
+      // /books data lives in R2 (pnpm books:publish), not in the repo.
+      // Offline dev: pnpm books:sync, then
+      // NUXT_PUBLIC_REGAL_LIBRARY_SRC=/books-data/library.json NUXT_PUBLIC_REGAL_ASSETS_BASE=/books-data/
       regal: {
         mode: 'embed',
-        librarySrc: '/books-data/library.json',
-        assetsBase: '/books-data/'
+        librarySrc: 'https://books.fabkho.dev/library.json',
+        assetsBase: 'https://books.fabkho.dev/'
       }
     }
   },
