@@ -6,6 +6,10 @@ jobs:
   ci:
     runs-on: ${{ matrix.os }}
 
+    # Regal (the /books layer) is a private repo: Nuxt downloads it with this token.
+    env:
+      GIGET_AUTH: ${{ secrets.GIGET_AUTH }}
+
     strategy:
       matrix:
         os: [ubuntu-latest]

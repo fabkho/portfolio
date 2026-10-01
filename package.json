@@ -12,7 +12,9 @@
     "typecheck": "nuxt typecheck",
     "sync:projects": "tsx scripts/sync-projects.ts",
     "sync:contributions": "tsx scripts/sync-contributions.ts",
-    "sync": "tsx scripts/sync-projects.ts && tsx scripts/sync-contributions.ts"
+    "sync": "tsx scripts/sync-projects.ts && tsx scripts/sync-contributions.ts",
+    "books:sync": "tsx scripts/sync-books.ts",
+    "books:publish": "tsx scripts/publish-books.ts"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.104",
@@ -46,6 +48,7 @@
     "typescript": "^6.0.3",
     "vitest": "^4.1.5",
     "vue-tsc": "^3.2.7",
+    "wrangler": "4.146.0",
     "yaml": "^2.8.4"
   },
   "packageManager": "pnpm@10.33.2",
