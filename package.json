@@ -14,11 +14,13 @@
     "sync:contributions": "tsx scripts/sync-contributions.ts",
     "sync": "tsx scripts/sync-projects.ts && tsx scripts/sync-contributions.ts",
     "books:sync": "tsx scripts/sync-books.ts",
-    "books:publish": "tsx scripts/publish-books.ts"
+    "books:publish": "tsx scripts/publish-books.ts",
+    "deploy:cloudflare": "wrangler --cwd .output/server d1 migrations apply DB --remote && wrangler --cwd .output deploy --keep-vars"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.104",
     "@iconify-json/simple-icons": "^1.2.80",
+    "@libsql/client": "^0.18.0",
     "@nuxt/a11y": "1.0.0-alpha.1",
     "@nuxt/content": "^3.13.0",
     "@nuxt/fonts": "^0.14.0",
@@ -29,6 +31,7 @@
     "@vueuse/core": "^14.3.0",
     "@vueuse/nuxt": "^14.3.0",
     "better-sqlite3": "^12.9.0",
+    "drizzle-orm": "^0.45.3",
     "nuxt": "^4.4.2",
     "nuxt-studio": "^1.7.0",
     "satori": "^0.26.0",
@@ -41,6 +44,7 @@
     "@nuxtjs/seo": "^5.1.3",
     "@tailwindcss/vite": "^4.2.4",
     "@vue/test-utils": "^2.4.10",
+    "drizzle-kit": "^0.31.11",
     "eslint": "^10.2.1",
     "happy-dom": "^20.9.0",
     "playwright-core": "^1.59.1",
