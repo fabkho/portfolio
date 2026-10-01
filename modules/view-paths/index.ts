@@ -1,5 +1,7 @@
 import { resolve } from 'node:path'
-import { addServerTemplate, addTypeTemplate, defineNuxtModule } from '@nuxt/kit'
+// `nuxt/kit`, not `@nuxt/kit`: the latter isn't a direct dependency, so pnpm
+// doesn't hoist it and TypeScript can't resolve it.
+import { addServerTemplate, addTypeTemplate, defineNuxtModule } from 'nuxt/kit'
 import { NAV_ITEMS } from '../../app/utils/navigation'
 import { readPublishedBlogPaths } from './blog-paths'
 
@@ -30,9 +32,11 @@ export default defineNuxtModule({
       }
     })
 
+    // Declared for the app project too, not just Nitro: the typed-$fetch route
+    // map pulls server handlers — and their imports — into the app project.
     addTypeTemplate({
       filename: 'types/view-paths.d.ts',
       getContents: () => `declare module '#view-paths' {\n  export const viewPaths: Set<string>\n}\n`
-    }, { nitro: true })
+    }, { nitro: true, nuxt: true })
   }
 })
