@@ -3,6 +3,7 @@ import { flattenToc } from '~/utils/flattenToc'
 
 const route = useRoute()
 const isBlogRoute = computed(() => route.path.startsWith('/blog'))
+const isBooksRoute = computed(() => (route.path.replace(/\/$/, '') || '/') === '/books')
 const reducedMotion = usePreferredReducedMotion()
 const aboutText = 'I build things that help developers build things — Nuxt modules, CLI tools, and open-source packages. When not coding, I\'m at the gym or lost in a book.'
 const aboutTokens = buildAboutTokens(aboutText)
@@ -42,6 +43,10 @@ const { data: sidebarData } = await useAsyncData(
         type: 'blog-index' as const,
         posts: posts.map(post => ({ path: post.path, title: post.title, date: post.date }))
       }
+    }
+
+    if (normalizedPath === '/books') {
+      return { type: 'books' as const }
     }
 
     if (normalizedPath.startsWith('/blog/')) {
@@ -117,15 +122,16 @@ onMounted(async () => {
     <main
       id="main-content"
       class="schematic-area"
+      :class="{ 'schematic-area--fill': isBooksRoute }"
     >
-      <div class="relative z-10">
+      <div class="relative z-10 schematic-area__content">
         <slot />
       </div>
     </main>
     <aside class="data-sidebar">
       <div
         id="sidebar-target"
-        :class="isBlogRoute ? 'sidebar-sticky' : 'sidebar-default'"
+        :class="isBlogRoute ? 'sidebar-sticky' : isBooksRoute ? 'sidebar-fill' : 'sidebar-default'"
       >
         <ProjectsSidebar
           v-if="sidebarData?.type === 'projects'"
@@ -143,6 +149,7 @@ onMounted(async () => {
           :status="sidebarData.status"
           :toc="sidebarData.toc"
         />
+        <BooksSidebar v-else-if="sidebarData?.type === 'books'" />
         <template v-else>
           <div class="sidebar-header">
             About
@@ -197,6 +204,18 @@ onMounted(async () => {
   flex-direction: column;
 }
 
+/* /books: the page fills the main area edge to edge (3D Stack) */
+.schematic-area--fill {
+  padding: 0;
+}
+
+.schematic-area--fill .schematic-area__content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
 .data-sidebar {
   grid-column: 2 / 3;
   border: 1px solid var(--color-ink);
@@ -208,6 +227,18 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+}
+
+.sidebar-fill {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Out of flow, so the sidebar's records scroll inside the row height set by the main area */
+.sidebar-fill > * {
+  position: absolute;
+  inset: 0;
 }
 
 .sidebar-sticky {
@@ -389,6 +420,10 @@ onMounted(async () => {
   .sidebar-sticky {
     position: static;
     max-height: none;
+  }
+
+  .sidebar-fill > * {
+    position: static;
   }
 }
 </style>

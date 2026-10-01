@@ -12,7 +12,8 @@
     "typecheck": "nuxt typecheck",
     "sync:projects": "tsx scripts/sync-projects.ts",
     "sync:contributions": "tsx scripts/sync-contributions.ts",
-    "sync": "tsx scripts/sync-projects.ts && tsx scripts/sync-contributions.ts"
+    "sync": "tsx scripts/sync-projects.ts && tsx scripts/sync-contributions.ts",
+    "books:sync": "tsx scripts/sync-books.ts"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.104",

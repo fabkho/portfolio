@@ -2,8 +2,16 @@ import tailwindcss from '@tailwindcss/vite'
 
 const isTest = process.env.NODE_ENV === 'test'
 
+// Regal (3D bookshelf for /books) as a Nuxt layer. Local checkout when
+// REGAL_LAYER is set (e.g. REGAL_LAYER=/Users/fabkho/code/regal), otherwise
+// from the private GitHub repo (GIGET_AUTH holds the token).
+const regalLayer = process.env.REGAL_LAYER ? process.env.REGAL_LAYER.replace(/\/?$/, '/') : undefined
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  extends: [
+    regalLayer ?? ['github:fabkho/regal#feat/reading-tracker-pipeline', { install: true, auth: process.env.GIGET_AUTH }]
+  ],
 
   modules: [
     '@nuxt/eslint',
@@ -41,6 +49,16 @@ export default defineNuxtConfig({
           },
           langs: ['php', 'json']
         }
+      }
+    }
+  },
+
+  runtimeConfig: {
+    public: {
+      regal: {
+        mode: 'embed',
+        librarySrc: '/books-data/library.json',
+        assetsBase: '/books-data/'
       }
     }
   },

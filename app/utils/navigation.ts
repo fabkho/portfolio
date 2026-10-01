@@ -19,6 +19,11 @@ export const NAV_ITEMS = [
     to: '/blog',
     label: 'Blog',
     subtitle: 'Technical Memos & Articles'
+  },
+  {
+    to: '/books',
+    label: 'Books',
+    subtitle: 'Bookshelf & Reading Log'
   }
 ] as const satisfies readonly NavItem[]
 
