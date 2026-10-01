@@ -7,7 +7,7 @@
  *
  * Usage: pnpm books:sync
  */
-import { copyFile, mkdir, readdir, readFile, rm, stat } from 'node:fs/promises'
+import { copyFile, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
 
@@ -16,6 +16,8 @@ const TARGET = resolve(import.meta.dirname, '../public/books-data')
 
 const ROOT_FILES = ['library.json', 'manifest.json']
 const BOOK_FILES = ['front.webp', 'spine.webp', 'back.webp']
+/** Book fields that never leave the owner's machine. */
+const PRIVATE_FIELDS = ['notePath']
 
 async function exists(path: string) {
   return stat(path).then(() => true, () => false)
@@ -31,9 +33,12 @@ async function main() {
   await rm(TARGET, { recursive: true, force: true })
   await mkdir(TARGET, { recursive: true })
 
-  for (const file of ROOT_FILES) {
-    await copyFile(join(SOURCE, file), join(TARGET, file))
-  }
+  await copyFile(join(SOURCE, 'manifest.json'), join(TARGET, 'manifest.json'))
+  // library.json is published with the site: drop fields that only make sense
+  // (or leak something) on the owner's machine, like local note paths.
+  const source = JSON.parse(await readFile(join(SOURCE, 'library.json'), 'utf8')) as { books?: Record<string, unknown>[] }
+  const published = { ...source, books: (source.books ?? []).map(book => Object.fromEntries(Object.entries(book).filter(([key]) => !PRIVATE_FIELDS.includes(key)))) }
+  await writeFile(join(TARGET, 'library.json'), `${JSON.stringify(published, null, 1)}\n`)
 
   const manifest = JSON.parse(await readFile(join(SOURCE, 'manifest.json'), 'utf8')) as Record<string, unknown>
   const entries = await readdir(SOURCE, { withFileTypes: true })
