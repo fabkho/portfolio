@@ -10,7 +10,7 @@ const regalLayer = process.env.REGAL_LAYER ? process.env.REGAL_LAYER.replace(/\/
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   extends: [
-    regalLayer ?? ['github:fabkho/regal#feat/reading-tracker-pipeline', { install: true, auth: process.env.GIGET_AUTH }]
+    regalLayer ?? ['github:fabkho/regal', { install: true, auth: process.env.GIGET_AUTH }]
   ],
 
   modules: [
