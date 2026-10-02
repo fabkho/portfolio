@@ -91,6 +91,14 @@ export default defineNuxtConfig({
     }
   },
 
+  // Page-view counter (server/api/views.post.ts). Local SQLite in dev, D1 on
+  // Cloudflare — the D1 binding itself is declared in wrangler.jsonc.
+  hub: {
+    db: 'sqlite',
+    // Keep e2e runs from writing into the local dev database.
+    dir: isTest ? '.data/test' : '.data'
+  },
+
   vite: {
     plugins: [tailwindcss()]
   },

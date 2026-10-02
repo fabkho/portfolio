@@ -1,0 +1,13 @@
+// Merged by Nitro into the generated .output/server/wrangler.json at build time.
+// NuxtHub fills in `migrations_table` / `migrations_dir` for the DB binding;
+// apply migrations with `pnpm run deploy:cloudflare` (see package.json).
+{
+  "d1_databases": [
+    {
+      // Shared by the page-view counter (hub:db) and Nuxt Content on Cloudflare.
+      "binding": "DB",
+      "database_name": "portfolio",
+      "database_id": "cb007da5-39aa-41c6-b15c-36bb17f235bc"
+    }
+  ]
+}
