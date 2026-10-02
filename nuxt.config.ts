@@ -4,13 +4,16 @@ const isTest = process.env.NODE_ENV === 'test'
 
 // Regal (3D bookshelf for /books) as a Nuxt layer. Local checkout when
 // REGAL_LAYER is set (e.g. REGAL_LAYER=/Users/fabkho/code/regal), otherwise
-// from the private GitHub repo (GIGET_AUTH holds the token).
+// from the private GitHub repo (GIGET_AUTH holds the token), pinned to a tag:
+// Regal's main changes without the portfolio noticing, so a new Regal reaches
+// /books only when this ref is bumped (after checking /books against it).
+const regalRef = 'portfolio-v1'
 const regalLayer = process.env.REGAL_LAYER ? process.env.REGAL_LAYER.replace(/\/?$/, '/') : undefined
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   extends: [
-    regalLayer ?? ['github:fabkho/regal', { install: true, auth: process.env.GIGET_AUTH }]
+    regalLayer ?? [`github:fabkho/regal#${regalRef}`, { install: true, auth: process.env.GIGET_AUTH }]
   ],
 
   modules: [
