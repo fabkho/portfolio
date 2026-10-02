@@ -2,7 +2,7 @@ import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { readPublishedBlogPaths, toContentPath } from '../../modules/view-paths/blog-paths'
-import { normalizeViewPath, shouldCountView } from '../../server/utils/views'
+import { createViewSalt, normalizeViewPath, shouldCountView, viewDay, visitorHash } from '../../server/utils/views'
 
 const BROWSER_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36'
 
@@ -94,5 +94,47 @@ describe('readPublishedBlogPaths', () => {
     // `status: draft` in its frontmatter
     expect(paths).not.toContain('/blog/vue-transition-vs-flip')
     expect(paths.every(path => path.startsWith('/blog/'))).toBe(true)
+  })
+})
+
+describe('viewDay', () => {
+  it('uses the UTC calendar day', () => {
+    expect(viewDay(new Date('2026-10-02T23:30:00-02:00'))).toBe('2026-10-03')
+    expect(viewDay(new Date('2026-10-02T00:00:00Z'))).toBe('2026-10-02')
+  })
+})
+
+describe('createViewSalt', () => {
+  it('returns a fresh 128-bit hex salt each time', () => {
+    const a = createViewSalt()
+    expect(a).toMatch(/^[0-9a-f]{32}$/)
+    expect(createViewSalt()).not.toBe(a)
+  })
+})
+
+describe('visitorHash', () => {
+  const visit = { salt: 'salt', ip: '203.0.113.7', userAgent: BROWSER_UA, path: '/blog/foo' }
+
+  it('is stable for the same visitor, page, and salt', async () => {
+    const hash = await visitorHash(visit)
+    expect(hash).toMatch(/^[0-9a-f]{64}$/)
+    expect(await visitorHash({ ...visit })).toBe(hash)
+  })
+
+  it('changes with the salt, so days can not be linked', async () => {
+    expect(await visitorHash({ ...visit, salt: 'tomorrow' })).not.toBe(await visitorHash(visit))
+  })
+
+  it('tells visitors and pages apart', async () => {
+    const base = await visitorHash(visit)
+    expect(await visitorHash({ ...visit, ip: '203.0.113.8' })).not.toBe(base)
+    expect(await visitorHash({ ...visit, userAgent: `${BROWSER_UA} Edg/130.0` })).not.toBe(base)
+    expect(await visitorHash({ ...visit, path: '/blog/bar' })).not.toBe(base)
+  })
+
+  it('does not let fields run into each other', async () => {
+    const a = await visitorHash({ ...visit, ip: '1.2.3.4', userAgent: '5' })
+    const b = await visitorHash({ ...visit, ip: '1.2.3.45', userAgent: '' })
+    expect(a).not.toBe(b)
   })
 })

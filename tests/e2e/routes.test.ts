@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto'
+
 import { $fetch, fetch, setup } from '@nuxt/test-utils/e2e'
 import { describe, expect, it } from 'vitest'
 
@@ -37,17 +39,24 @@ describe('published routes', async () => {
   describe('POST /api/views', () => {
     const article = '/blog/use-announcer-nuxt'
 
-    function postView(path: unknown, userAgent = BROWSER_UA, extraHeaders: Record<string, string> = {}) {
+    // Every request here comes from localhost, and the server counts each
+    // visitor once per page per day — so each new visitor needs its own user
+    // agent. Random per run, because the test database outlives the run.
+    function visitorUa(base = BROWSER_UA) {
+      return `${base} e2e/${randomUUID()}`
+    }
+
+    function postView(path: unknown, userAgent: string, extra: { headers?: Record<string, string>, count?: boolean } = {}) {
       return $fetch<ViewsResponse>('/api/views', {
         method: 'POST',
-        body: { path },
-        headers: { 'user-agent': userAgent, ...extraHeaders }
+        body: extra.count === undefined ? { path } : { path, count: extra.count },
+        headers: { 'user-agent': userAgent, ...extra.headers }
       })
     }
 
-    it('counts a view and returns the page count and site total', async () => {
-      const first = await postView(article)
-      const second = await postView(`${article}/?utm_source=test`)
+    it('counts a new visitor and returns the page count and site total', async () => {
+      const first = await postView(article, visitorUa())
+      const second = await postView(`${article}/?utm_source=test`, visitorUa())
 
       expect(second.path).toBe(article)
       expect(second.views).toBe(first.views + 1)
@@ -55,26 +64,53 @@ describe('published routes', async () => {
       expect(second.total).toBeGreaterThanOrEqual(second.views)
     })
 
+    it('counts the same visitor once per page per day, however often they reload', async () => {
+      const ua = visitorUa()
+      const first = await postView(article, ua)
+      for (let i = 0; i < 5; i++) await postView(article, ua)
+      const afterReloads = await postView(article, ua)
+
+      expect(afterReloads.views).toBe(first.views)
+      expect(afterReloads.total).toBe(first.total)
+
+      // Another page is a separate count for the same visitor.
+      const otherPage = await postView('/blog/nuxt-server-side-auth', ua)
+      expect(otherPage.total).toBe(afterReloads.total + 1)
+    })
+
+    it('does not count a browser that opted out, but still returns the counts', async () => {
+      const ua = visitorUa()
+      const before = await postView(article, visitorUa(), { count: false })
+      const optedOut = await postView(article, ua, { count: false })
+
+      expect(optedOut.views).toBe(before.views)
+      expect(optedOut.total).toBe(before.total)
+
+      // The same visitor without the opt-out is new, so the opt-out — not
+      // dedupe — is what kept the count flat.
+      const counted = await postView(article, ua)
+      expect(counted.views).toBe(before.views + 1)
+    })
+
+    // Each case is a brand-new visitor, so dedupe can't hide a broken check.
     it('reports but does not count bots, AI agents, and cross-site requests', async () => {
-      const before = await postView(article)
+      const before = await postView(article, visitorUa(), { count: false })
 
-      const bot = await postView(article, 'Mozilla/5.0 (compatible; Googlebot/2.1)')
-      const crossSite = await postView(article, BROWSER_UA, { 'sec-fetch-site': 'cross-site' })
-      // No "bot" anywhere in it — the old pattern counted this one.
-      const aiFetcher = await postView(article, 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Claude-User/1.0)')
-      const signedAgent = await postView(article, BROWSER_UA, { 'signature-agent': '"https://chatgpt.com"' })
+      const bot = await postView(article, visitorUa('Mozilla/5.0 (compatible; Googlebot/2.1)'))
+      const crossSite = await postView(article, visitorUa(), { headers: { 'sec-fetch-site': 'cross-site' } })
+      // No "bot" anywhere in it — the original pattern counted this one.
+      const aiFetcher = await postView(article, visitorUa('Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Claude-User/1.0)'))
+      const signedAgent = await postView(article, visitorUa(), { headers: { 'signature-agent': '"https://chatgpt.com"' } })
 
-      expect(bot.views).toBe(before.views)
-      expect(crossSite.views).toBe(before.views)
-      expect(crossSite.total).toBe(before.total)
-      expect(aiFetcher.views).toBe(before.views)
-      expect(signedAgent.views).toBe(before.views)
-      expect(signedAgent.total).toBe(before.total)
+      for (const result of [bot, crossSite, aiFetcher, signedAgent]) {
+        expect(result.views).toBe(before.views)
+        expect(result.total).toBe(before.total)
+      }
     })
 
     it('counts every page in the main navigation', async () => {
       for (const item of NAV_ITEMS) {
-        const result = await postView(item.to)
+        const result = await postView(item.to, visitorUa())
         expect(result.path).toBe(item.to)
       }
     })
