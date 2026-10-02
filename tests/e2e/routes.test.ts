@@ -55,15 +55,21 @@ describe('published routes', async () => {
       expect(second.total).toBeGreaterThanOrEqual(second.views)
     })
 
-    it('reports but does not count bots and cross-site requests', async () => {
+    it('reports but does not count bots, AI agents, and cross-site requests', async () => {
       const before = await postView(article)
 
       const bot = await postView(article, 'Mozilla/5.0 (compatible; Googlebot/2.1)')
       const crossSite = await postView(article, BROWSER_UA, { 'sec-fetch-site': 'cross-site' })
+      // No "bot" anywhere in it — the old pattern counted this one.
+      const aiFetcher = await postView(article, 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Claude-User/1.0)')
+      const signedAgent = await postView(article, BROWSER_UA, { 'signature-agent': '"https://chatgpt.com"' })
 
       expect(bot.views).toBe(before.views)
       expect(crossSite.views).toBe(before.views)
       expect(crossSite.total).toBe(before.total)
+      expect(aiFetcher.views).toBe(before.views)
+      expect(signedAgent.views).toBe(before.views)
+      expect(signedAgent.total).toBe(before.total)
     })
 
     it('counts every page in the main navigation', async () => {

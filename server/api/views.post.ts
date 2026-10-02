@@ -26,7 +26,8 @@ export default defineEventHandler(async (event) => {
   const { pageViews } = schema
   const counted = shouldCountView({
     userAgent: getRequestHeader(event, 'user-agent'),
-    secFetchSite: getRequestHeader(event, 'sec-fetch-site')
+    secFetchSite: getRequestHeader(event, 'sec-fetch-site'),
+    signatureAgent: getRequestHeader(event, 'signature-agent')
   })
 
   const [row] = counted

@@ -6,6 +6,24 @@ import { normalizeViewPath, shouldCountView } from '../../server/utils/views'
 
 const BROWSER_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36'
 
+const REAL_BROWSERS = [
+  BROWSER_UA,
+  'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1',
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0',
+  'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Mobile Safari/537.36',
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36 Edg/130.0',
+  'Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/26.0 Chrome/122.0 Mobile Safari/537.36'
+]
+
+// AI crawlers, assistants, and agents, as their token appears in a
+// `compatible; …` user agent. Several don't contain "bot" at all.
+const AI_AGENTS = [
+  'GPTBot', 'ChatGPT-User', 'OAI-SearchBot', 'ClaudeBot', 'Claude-User', 'Claude-SearchBot',
+  'PerplexityBot', 'Perplexity-User', 'MistralAI-User', 'meta-externalagent', 'Google-Agent',
+  'Gemini-Deep-Research', 'cohere-ai', 'NovaAct', 'Bytespider', 'CCBot', 'Amazonbot', 'Applebot'
+]
+const compatibleUa = (token: string) => `Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ${token}/1.0)`
+
 describe('normalizeViewPath', () => {
   it('keeps the root and strips trailing slashes elsewhere', () => {
     expect(normalizeViewPath('/')).toBe('/')
@@ -42,6 +60,19 @@ describe('shouldCountView', () => {
 
   it('does not count requests another site makes on its visitors behalf', () => {
     expect(shouldCountView({ userAgent: BROWSER_UA, secFetchSite: 'cross-site' })).toBe(false)
+  })
+
+  it.each(AI_AGENTS)('does not count %s', (token) => {
+    expect(shouldCountView({ userAgent: compatibleUa(token) })).toBe(false)
+  })
+
+  it('does not count agents that sign requests with Web Bot Auth', () => {
+    // ChatGPT Agent drives a real Chrome; only this header gives it away.
+    expect(shouldCountView({ userAgent: BROWSER_UA, signatureAgent: '"https://chatgpt.com"' })).toBe(false)
+  })
+
+  it.each(REAL_BROWSERS)('still counts a real browser: %s', (userAgent) => {
+    expect(shouldCountView({ userAgent })).toBe(true)
   })
 })
 
