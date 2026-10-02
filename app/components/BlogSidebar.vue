@@ -7,6 +7,15 @@ defineProps<{
 }>()
 
 const activeId = useActiveSection()
+
+const route = useRoute()
+const pageViews = usePageViews()
+// `—` until the client-side count lands. The row is always rendered, so the
+// sticky TOC below never shifts when the number arrives.
+const views = computed(() => {
+  const count = pageViews.value.byPath[route.path.replace(/\/+$/, '')]
+  return count === undefined ? '—' : formatViewCount(count)
+})
 </script>
 
 <template>
@@ -24,6 +33,9 @@ const activeId = useActiveSection()
       </div>
       <div class="meta-item sidebar-reveal-item">
         STATUS: <span class="status-value">{{ status.toUpperCase() }}</span>
+      </div>
+      <div class="meta-item sidebar-reveal-item">
+        VIEWS: {{ views }}
       </div>
     </div>
 

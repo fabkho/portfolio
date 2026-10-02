@@ -2,8 +2,16 @@ import tailwindcss from '@tailwindcss/vite'
 
 const isTest = process.env.NODE_ENV === 'test'
 
+// Regal (3D bookshelf for /books) as a Nuxt layer. Local checkout when
+// REGAL_LAYER is set (e.g. REGAL_LAYER=/Users/fabkho/code/regal), otherwise
+// from the private GitHub repo (GIGET_AUTH holds the token).
+const regalLayer = process.env.REGAL_LAYER ? process.env.REGAL_LAYER.replace(/\/?$/, '/') : undefined
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  extends: [
+    regalLayer ?? ['github:fabkho/regal', { install: true, auth: process.env.GIGET_AUTH }]
+  ],
 
   modules: [
     '@nuxt/eslint',
@@ -45,6 +53,19 @@ export default defineNuxtConfig({
     }
   },
 
+  runtimeConfig: {
+    public: {
+      // /books data lives in R2 (pnpm books:publish), not in the repo.
+      // Offline dev: pnpm books:sync, then
+      // NUXT_PUBLIC_REGAL_LIBRARY_SRC=/books-data/library.json NUXT_PUBLIC_REGAL_ASSETS_BASE=/books-data/
+      regal: {
+        mode: 'embed',
+        librarySrc: 'https://books.fabkho.dev/library.json',
+        assetsBase: 'https://books.fabkho.dev/'
+      }
+    }
+  },
+
   routeRules: {
     '/': { prerender: true },
     '/projects': { prerender: true },
@@ -55,6 +76,10 @@ export default defineNuxtConfig({
 
   experimental: {
     viewTransition: true,
+    // Replaced by plugins/navigation-repaint.client.ts: Nuxt's version waits
+    // for a frame that never comes while a view transition is running (the
+    // page is frozen until its 100ms fallback timeout on every navigation)
+    navigationRepaint: false,
     defaults: {
       nuxtLink: {
         prefetchOn: { interaction: true }
@@ -68,6 +93,14 @@ export default defineNuxtConfig({
       crawlLinks: true,
       routes: ['/blog', '/projects', '/feed.xml']
     }
+  },
+
+  // Page-view counter (server/api/views.post.ts). Local SQLite in dev, D1 on
+  // Cloudflare — the D1 binding itself is declared in wrangler.jsonc.
+  hub: {
+    db: 'sqlite',
+    // Keep e2e runs from writing into the local dev database.
+    dir: isTest ? '.data/test' : '.data'
   },
 
   vite: {
