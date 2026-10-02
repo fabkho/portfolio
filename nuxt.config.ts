@@ -76,6 +76,10 @@ export default defineNuxtConfig({
 
   experimental: {
     viewTransition: true,
+    // Replaced by plugins/navigation-repaint.client.ts: Nuxt's version waits
+    // for a frame that never comes while a view transition is running (the
+    // page is frozen until its 100ms fallback timeout on every navigation)
+    navigationRepaint: false,
     defaults: {
       nuxtLink: {
         prefetchOn: { interaction: true }
