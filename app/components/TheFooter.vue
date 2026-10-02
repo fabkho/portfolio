@@ -1,6 +1,17 @@
+<script setup lang="ts">
+const pageViews = usePageViews()
+</script>
+
 <template>
   <footer class="footer">
     <span class="footer-copy">© {{ new Date().getFullYear() }} Fabian Kirchhoff</span>
+    <!-- Reserved but invisible until the count lands, so nothing shifts. -->
+    <span
+      class="footer-views"
+      :class="{ 'footer-views--pending': pageViews.total === null }"
+    >
+      {{ pageViews.total === null ? '—' : formatViewCount(pageViews.total) }} views
+    </span>
     <a
       href="https://github.com/fabkho"
       target="_blank"
@@ -24,9 +35,14 @@
   text-transform: uppercase;
 }
 
-.footer-copy {
+.footer-copy,
+.footer-views {
   font-family: var(--font-mono);
   color: var(--color-ink-subtle);
+}
+
+.footer-views--pending {
+  visibility: hidden;
 }
 
 .footer-link {
