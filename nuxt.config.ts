@@ -71,7 +71,11 @@ export default defineNuxtConfig({
     '/projects': { prerender: true },
     '/blog': { prerender: true },
     // '/blog/**': { prerender: true },
-    '/feed.xml': { prerender: true }
+    '/feed.xml': { prerender: true },
+    // Rendered per request: the Library comes from R2 (books.fabkho.dev),
+    // which the daily books job updates. Prerendering (crawlLinks reaches it
+    // from the nav) would bake the Library in at build time.
+    '/books': { prerender: false }
   },
 
   experimental: {
