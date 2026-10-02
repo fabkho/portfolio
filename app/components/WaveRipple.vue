@@ -1,6 +1,12 @@
 <script setup lang="ts">
-import { useDevicePixelRatio, useElementVisibility, useIntervalFn, useMediaQuery, useMouseInElement, usePreferredReducedMotion, useRafFn, useResizeObserver, useThrottleFn } from '@vueuse/core'
+import { useDevicePixelRatio, useElementVisibility, useIntervalFn, useMediaQuery, usePreferredReducedMotion, useResizeObserver } from '@vueuse/core'
+import { attachWaveCanvas, type WaveSurface } from '~/workers/wave-ripple-client'
+import type { WaveOptions } from '~/workers/wave-ripple-draw'
 
+// A hatch of 45° lines that ripples under the pointer. The static hatch is
+// an SVG pattern; the animated one is a canvas drawn by a shared worker
+// (OffscreenCanvas), so it never competes with the main thread. Without
+// OffscreenCanvas the same engine runs on the main thread.
 const props = withDefaults(
   defineProps<{
     mode?: 'click' | 'hover' | 'both'
@@ -13,6 +19,7 @@ const props = withDefaults(
     alternateColor?: string
     alternateEvery?: number
     tag?: string
+    /** Ripples survive an unmount/remount with the same key (e.g. across pages) */
     persistKey?: string
   }>(),
   {
@@ -34,185 +41,115 @@ const tileSize = computed(() => props.spacing * Math.SQRT2)
 const waveRippleStyle = computed(() => ({
   '--wave-ripple-line-color': props.color || undefined
 }))
-type Ripple = { x: number, y: number, age: number }
 
-const ripples = props.persistKey
-  ? useState<Ripple[]>(`wave-ripple:${props.persistKey}`, () => [])
-  : ref<Ripple[]>([])
 const canvasReady = ref(false)
 const reducedMotion = usePreferredReducedMotion()
 const isTouch = useMediaQuery('(pointer: coarse)')
 const isWrapperVisible = useElementVisibility(wrapperRef)
 const { pixelRatio } = useDevicePixelRatio()
-const { elementX, elementY, elementWidth, elementHeight, isOutside } = useMouseInElement(wrapperRef)
 const shouldSkipMotion = computed(() => reducedMotion.value === 'reduce')
 
-function drawLines(canvas: HTMLCanvasElement) {
-  const ctx = canvas.getContext('2d')!
-  const dpr = pixelRatio.value
-  const w = canvas.width / dpr
-  const h = canvas.height / dpr
-  const angle = Math.PI / 4
-  const cos = Math.cos(angle)
-  const sin = Math.sin(angle)
-  const nx = -sin
-  const ny = cos
+// Not reactive: the canvas belongs to the wave engine once attached
+let surface: WaveSurface | undefined
+let width = 0
+let height = 0
+let lastHoverRipple = -Infinity
 
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-  ctx.clearRect(0, 0, w, h)
-  let baseColor = props.color || ''
-  if (baseColor.startsWith('var(')) {
-    const varName = baseColor.slice(4, -1).trim()
-    baseColor = getComputedStyle(canvas).getPropertyValue(varName).trim()
-  }
-  baseColor = baseColor
-    || getComputedStyle(canvas).getPropertyValue('--line-color').trim()
-    || 'rgba(0,0,0,0.12)'
+function resolveColor(canvas: HTMLCanvasElement, value: string | undefined) {
+  if (!value?.startsWith('var(')) return value || ''
+  return getComputedStyle(canvas).getPropertyValue(value.slice(4, -1).trim()).trim()
+}
 
-  let altColor = props.alternateColor || ''
-  if (altColor.startsWith('var(')) {
-    const varName = altColor.slice(4, -1).trim()
-    altColor = getComputedStyle(canvas).getPropertyValue(varName).trim()
-  }
-
-  ctx.lineWidth = 1
-
-  const diag = Math.hypot(w, h)
-  const lineCount = Math.ceil(diag / props.spacing) * 2
-  const steps = Math.max(30, Math.ceil(diag / 8))
-  const lineLen = diag * 1.6
-  const startX = -lineLen * 0.3
-  const stepSize = lineLen / steps
-  const arr = ripples.value
-
-  for (let i = -lineCount; i < lineCount; i++) {
-    const ox = i * props.spacing * nx
-    const oy = i * props.spacing * ny
-
-    const lineIndex = i + lineCount
-    ctx.strokeStyle = (altColor && lineIndex % props.alternateEvery === 0)
-      ? altColor
-      : baseColor
-
-    ctx.beginPath()
-    for (let s = 0; s <= steps; s++) {
-      const along = startX + s * stepSize
-      let px = along * cos + ox
-      let py = along * sin + oy
-
-      let totalDisp = 0
-      for (let r = 0; r < arr.length; r++) {
-        const ripple = arr[r]!
-        const elapsed = ripple.age / 1000
-        const dist = Math.hypot(px - ripple.x, py - ripple.y)
-        const distToWave = dist - elapsed * 160
-        if (distToWave > 50 || distToWave < -50) continue
-        const fade = 1 - ripple.age / props.lifetime
-        if (fade <= 0) continue
-        totalDisp += Math.sin((distToWave / 50) * Math.PI) * fade * props.amplitude
-      }
-
-      if (totalDisp !== 0) {
-        px += nx * totalDisp
-        py += ny * totalDisp
-      }
-
-      if (s === 0) ctx.moveTo(px, py)
-      else ctx.lineTo(px, py)
-    }
-    ctx.stroke()
+// Read once per attach/prop change, never per frame
+function readOptions(canvas: HTMLCanvasElement): WaveOptions {
+  return {
+    spacing: props.spacing,
+    amplitude: props.amplitude,
+    lifetime: props.lifetime,
+    maxRipples: props.maxRipples,
+    alternateEvery: props.alternateEvery,
+    color: resolveColor(canvas, props.color)
+      || getComputedStyle(canvas).getPropertyValue('--line-color').trim()
+      || 'rgba(0,0,0,0.12)',
+    alternateColor: resolveColor(canvas, props.alternateColor)
   }
 }
 
-const { pause, resume } = useRafFn(({ delta }) => {
+function attach() {
   const canvas = canvasRef.value
-  if (!canvas) {
-    pause()
-    return
-  }
-  const frameDelta = Math.min(delta, 34)
-  ripples.value = ripples.value
-    .map(ripple => ({ ...ripple, age: ripple.age + frameDelta }))
-    .filter(ripple => ripple.age < props.lifetime)
-  drawLines(canvas)
-  if (ripples.value.length === 0) pause()
-}, { immediate: false })
+  if (surface || !canvas || shouldSkipMotion.value || width === 0 || height === 0) return
+  surface = attachWaveCanvas(
+    canvas,
+    { width, height, dpr: pixelRatio.value, options: readOptions(canvas), persistKey: props.persistKey },
+    () => { canvasReady.value = !shouldSkipMotion.value }
+  )
+}
+
+// The wrapper's padding box is what the absolutely positioned canvas covers
+useResizeObserver(wrapperRef, () => {
+  const wrapper = wrapperRef.value
+  if (!wrapper) return
+  width = wrapper.clientWidth
+  height = wrapper.clientHeight
+  if (surface) surface.resize(width, height, pixelRatio.value)
+  else attach()
+})
+
+watch(pixelRatio, (dpr) => {
+  surface?.resize(width, height, dpr)
+})
+
+watch(() => [props.spacing, props.amplitude, props.lifetime, props.maxRipples, props.alternateEvery, props.color, props.alternateColor], () => {
+  if (surface && canvasRef.value) surface.setOptions(readOptions(canvasRef.value))
+})
+
+// Reduced motion: back to the static SVG hatch (a transferred canvas can't
+// be handed over again, so the surface stays and is just hidden)
+watch(shouldSkipMotion, (skip) => {
+  if (skip) canvasReady.value = false
+  else if (surface) canvasReady.value = true
+  else attach()
+})
 
 function spawnRipple(x: number, y: number) {
-  if (shouldSkipMotion.value) return
-  ripples.value.push({ x, y, age: 0 })
-  if (ripples.value.length > props.maxRipples) ripples.value.shift()
-  resume()
+  if (shouldSkipMotion.value || !canvasReady.value) return
+  surface?.ripple(x, y)
 }
 
-function stopMotion() {
-  pause()
-  ripples.value = []
-  canvasReady.value = false
-
-  const canvas = canvasRef.value
-  if (!canvas) return
-  const ctx = canvas.getContext('2d')
-  if (!ctx) return
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
-}
-
-function initCanvas() {
-  if (shouldSkipMotion.value) {
-    stopMotion()
-    return
-  }
-  const canvas = canvasRef.value
+function spawnAtPointer(event: MouseEvent) {
   const wrapper = wrapperRef.value
-  if (!canvas || !wrapper) return
+  if (!wrapper) return
   const rect = wrapper.getBoundingClientRect()
-  canvas.width = Math.ceil(rect.width * pixelRatio.value)
-  canvas.height = Math.ceil(rect.height * pixelRatio.value)
-  drawLines(canvas)
-  canvasReady.value = true
+  spawnRipple(event.clientX - rect.left - wrapper.clientLeft, event.clientY - rect.top - wrapper.clientTop)
 }
 
-useResizeObserver(wrapperRef, () => initCanvas())
-
-const spawnHoverRipple = useThrottleFn(() => {
-  if (isOutside.value) return
-  spawnRipple(elementX.value, elementY.value)
-}, props.stillThreshold, false, true)
-
-function onMouseMove() {
+// Leading-edge throttle: one ripple, then nothing for stillThreshold ms
+function onMouseMove(event: MouseEvent) {
   if (props.mode !== 'hover' && props.mode !== 'both') return
-  spawnHoverRipple()
+  if (event.timeStamp - lastHoverRipple < props.stillThreshold) return
+  lastHoverRipple = event.timeStamp
+  spawnAtPointer(event)
 }
 
-function onClick() {
+function onClick(event: MouseEvent) {
   if (props.mode !== 'click' && props.mode !== 'both') return
-  if (isOutside.value) return
-  spawnRipple(elementX.value, elementY.value)
+  spawnAtPointer(event)
 }
 
 // Randomly trigger ripples for mobile devices
 const { pause: pauseRandom, resume: resumeRandom } = useIntervalFn(() => {
-  if (!wrapperRef.value || !isTouch.value || shouldSkipMotion.value || !isWrapperVisible.value) return
+  if (!isTouch.value || !isWrapperVisible.value) return
 
   // 30% chance to skip a beat so it feels more organic
   if (Math.random() > 0.7) return
 
-  const x = Math.random() * elementWidth.value
-  const y = Math.random() * elementHeight.value
-  spawnRipple(x, y)
+  spawnRipple(Math.random() * width, Math.random() * height)
 }, 1250, { immediate: false })
 
 onMounted(() => {
-  ripples.value = ripples.value.filter(ripple => ripple.age < props.lifetime)
   if (isTouch.value) resumeRandom()
-  initCanvas()
-  if (ripples.value.length > 0) resume()
 })
 
-watch([pixelRatio, shouldSkipMotion], () => {
-  if (shouldSkipMotion.value) stopMotion()
-  else initCanvas()
-})
 watch(isTouch, (touch) => {
   if (touch) resumeRandom()
   else pauseRandom()
@@ -220,6 +157,8 @@ watch(isTouch, (touch) => {
 
 onUnmounted(() => {
   pauseRandom()
+  surface?.dispose()
+  surface = undefined
 })
 </script>
 
@@ -294,6 +233,11 @@ onUnmounted(() => {
 
 .wave-ripple--canvas-ready .wave-ripple__fallback {
   display: none;
+}
+
+/* Until the engine has drawn (and again under reduced motion) the SVG shows */
+.wave-ripple:not(.wave-ripple--canvas-ready) .wave-ripple__canvas {
+  visibility: hidden;
 }
 
 /* Static hatched fallback for coarse pointers (touch) and reduced motion */
