@@ -51,3 +51,33 @@ export function shouldCountView(headers: {
   if (headers.secFetchSite === 'cross-site') return false
   return true
 }
+
+/** The UTC calendar day a visit belongs to, e.g. `2026-10-02`. */
+export function viewDay(date: Date = new Date()): string {
+  return date.toISOString().slice(0, 10)
+}
+
+/** A fresh random salt for a new day, hex-encoded. */
+export function createViewSalt(): string {
+  return toHex(crypto.getRandomValues(new Uint8Array(16)))
+}
+
+/**
+ * Identifies one visitor on one page for one day without storing who they
+ * are. With the salt deleted the next day, the hash can't be reversed or
+ * matched against any other day's.
+ */
+export async function visitorHash(input: {
+  salt: string
+  ip: string
+  userAgent: string
+  path: string
+}): Promise<string> {
+  // Unit separators keep the fields from running into each other.
+  const data = new TextEncoder().encode([input.salt, input.ip, input.userAgent, input.path].join('\u001F'))
+  return toHex(new Uint8Array(await crypto.subtle.digest('SHA-256', data)))
+}
+
+function toHex(bytes: Uint8Array): string {
+  return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('')
+}

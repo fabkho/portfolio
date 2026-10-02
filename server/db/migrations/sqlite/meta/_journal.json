@@ -8,6 +8,13 @@
       "when": 1790888063899,
       "tag": "0000_aromatic_wither",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1790967919336,
+      "tag": "0001_rich_nightshade",
+      "breakpoints": true
     }
   ]
 }
