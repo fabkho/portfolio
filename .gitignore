@@ -23,5 +23,3 @@ logs
 .env.*
 !.env.example
 
-# Regal book data for /books (synced via `pnpm books:sync`)
-public/books-data/
