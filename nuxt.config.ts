@@ -4,16 +4,14 @@ const isTest = process.env.NODE_ENV === 'test'
 
 // Regal (3D bookshelf for /books) as a Nuxt layer. Local checkout when
 // REGAL_LAYER is set (e.g. REGAL_LAYER=/Users/fabkho/code/regal), otherwise
-// from the private GitHub repo (GIGET_AUTH holds the token), pinned to a tag:
-// Regal's main changes without the portfolio noticing, so a new Regal reaches
-// /books only when this ref is bumped (after checking /books against it).
-const regalRef = 'portfolio-v1'
+// the default branch of the private GitHub repo (GIGET_AUTH holds the token),
+// so Regal changes reach /books on the next install or build.
 const regalLayer = process.env.REGAL_LAYER ? process.env.REGAL_LAYER.replace(/\/?$/, '/') : undefined
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   extends: [
-    regalLayer ?? [`github:fabkho/regal#${regalRef}`, { install: true, auth: process.env.GIGET_AUTH }]
+    regalLayer ?? ['github:fabkho/regal', { install: true, auth: process.env.GIGET_AUTH }]
   ],
 
   modules: [
@@ -58,13 +56,12 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      // /books data lives in R2 (pnpm books:publish), not in the repo.
-      // Offline dev: pnpm books:sync, then
-      // NUXT_PUBLIC_REGAL_LIBRARY_SRC=/books-data/library.json NUXT_PUBLIC_REGAL_ASSETS_BASE=/books-data/
+      // /books data lives in R2, not in the repo: the Regal library file
+      // (version 2) that Regal's pipeline publishes under v2/, with its images
+      // next to it (relative references). Any other file works for local dev:
+      // NUXT_PUBLIC_REGAL_LIBRARY_SRC=http://localhost:3045/library.json
       regal: {
-        mode: 'embed',
-        librarySrc: 'https://books.fabkho.dev/library.json',
-        assetsBase: 'https://books.fabkho.dev/'
+        librarySrc: 'https://books.fabkho.dev/v2/library.json'
       }
     }
   },
