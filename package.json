@@ -13,8 +13,6 @@
     "sync:projects": "tsx scripts/sync-projects.ts",
     "sync:contributions": "tsx scripts/sync-contributions.ts",
     "sync": "tsx scripts/sync-projects.ts && tsx scripts/sync-contributions.ts",
-    "books:sync": "tsx scripts/sync-books.ts",
-    "books:publish": "tsx scripts/publish-books.ts",
     "deploy:cloudflare": "wrangler --cwd .output/server d1 migrations apply DB --remote && wrangler --cwd .output deploy --keep-vars"
   },
   "dependencies": {
