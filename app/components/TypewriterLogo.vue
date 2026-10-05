@@ -45,11 +45,19 @@ onMounted(async () => {
 <template>
   <div class="logo">
     <span class="prefix">~ </span>
-    <span class="text">{{ displayText }}</span>
-    <span
-      class="cursor"
-      :class="{ blinking: !isTyping }"
-    >_</span>
+    <!-- Both layers share one grid cell. The invisible full text always
+         reserves the final width, so the logo doesn't grow while typing and
+         push its neighbours around (the phone nav shrank as it typed). -->
+    <span class="typed">
+      <span
+        class="typed__reserve"
+        aria-hidden="true"
+      >{{ textToType }}<span class="cursor">_</span></span>
+      <span class="typed__live"><span class="text">{{ displayText }}</span><span
+        class="cursor"
+        :class="{ blinking: !isTyping }"
+      >_</span></span>
+    </span>
   </div>
 </template>
 
@@ -66,6 +74,22 @@ onMounted(async () => {
 .prefix {
   color: var(--color-accent);
   margin-right: 0.5rem;
+}
+
+.typed {
+  display: inline-grid;
+}
+
+.typed__reserve,
+.typed__live {
+  grid-area: 1 / 1;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.typed__reserve {
+  visibility: hidden;
 }
 
 .cursor {
