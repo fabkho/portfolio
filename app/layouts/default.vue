@@ -4,8 +4,6 @@ import { flattenToc } from '~/utils/flattenToc'
 const route = useRoute()
 const isBlogRoute = computed(() => route.path.startsWith('/blog'))
 const isBooksRoute = computed(() => (route.path.replace(/\/$/, '') || '/') === '/books')
-// PROTOTYPE (phase 1): ?filters=a|b|c picks the phone filter bar.
-const booksFilters = computed(() => (['a', 'b', 'c'] as const).find(variant => variant === route.query.filters) ?? 'a')
 const reducedMotion = usePreferredReducedMotion()
 const aboutText = 'I build things that help developers build things — Nuxt modules, CLI tools, and open-source packages. When not coding, I\'m at the gym or lost in a book.'
 const aboutTokens = buildAboutTokens(aboutText)
@@ -121,7 +119,7 @@ onMounted(async () => {
 <template>
   <div
     class="drafting-board paper-texture"
-    :class="isBooksRoute && `drafting-board--filters-${booksFilters}`"
+    :class="{ 'drafting-board--books': isBooksRoute }"
   >
     <TheHeader />
     <!-- Phone only: the Books page's sort & filters sit right under the header,
@@ -130,7 +128,7 @@ onMounted(async () => {
       v-if="isBooksRoute"
       class="books-filters"
     >
-      <RegalBooksFilters :variant="({ a: 'scroll', b: 'bar', c: 'rows' } as const)[booksFilters]" />
+      <RegalBooksFilters />
     </div>
     <main
       id="main-content"
@@ -426,21 +424,12 @@ onMounted(async () => {
   }
 
   /* /books: the filter bar is a row of its own under the header, sticky for the whole page. */
-  .drafting-board--filters-a,
-  .drafting-board--filters-b,
-  .drafting-board--filters-c {
+  .drafting-board--books {
     grid-template-rows: none;
-    /* the swipeable filter row must not stretch the page */
+    /* wide content inside must not stretch the page */
     grid-template-columns: minmax(0, 1fr);
-    --books-filters: 3.15rem;
-  }
-
-  .drafting-board--filters-b {
+    /* Regal's filter bar height: books.vue sizes the pile below it */
     --books-filters: 2.8rem;
-  }
-
-  .drafting-board--filters-c {
-    --books-filters: 6.5rem;
   }
 
   .schematic-area--fill {
@@ -453,7 +442,8 @@ onMounted(async () => {
     min-width: 0;
     position: sticky;
     top: 0;
-    z-index: 10;
+    /* above the page content (z-10) and the 3D: the open panel is an overlay */
+    z-index: 20;
   }
 
   .data-sidebar {
