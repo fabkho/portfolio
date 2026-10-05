@@ -103,4 +103,11 @@
   font-family: var(--font-mono);
   font-size: var(--text-2xs);
 }
+
+/* Phone: the filters sit above the pile (books page), not here. */
+@media (max-width: 1024px) {
+  .books-sidebar :deep(.sidebar__filters) {
+    display: none;
+  }
+}
 </style>

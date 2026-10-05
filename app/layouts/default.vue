@@ -117,8 +117,19 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="drafting-board paper-texture">
+  <div
+    class="drafting-board paper-texture"
+    :class="{ 'drafting-board--books': isBooksRoute }"
+  >
     <TheHeader />
+    <!-- Phone only: the Books page's sort & filters sit right under the header,
+         above the pile, and stay there while the page scrolls to the list. -->
+    <div
+      v-if="isBooksRoute"
+      class="books-filters"
+    >
+      <RegalBooksFilters />
+    </div>
     <main
       id="main-content"
       class="schematic-area"
@@ -192,6 +203,10 @@ onMounted(async () => {
   grid-template-rows: auto 1fr auto;
   min-height: calc(100vh - 4rem);
   gap: 1rem;
+}
+
+.books-filters {
+  display: none;
 }
 
 .schematic-area {
@@ -406,6 +421,29 @@ onMounted(async () => {
     grid-column: 1 / -1;
     padding: 1.75rem 1rem 1rem;
     border: none;
+  }
+
+  /* /books: the filter bar is a row of its own under the header, sticky for the whole page. */
+  .drafting-board--books {
+    grid-template-rows: none;
+    /* wide content inside must not stretch the page */
+    grid-template-columns: minmax(0, 1fr);
+    /* Regal's filter bar height: books.vue sizes the pile below it */
+    --books-filters: 2.8rem;
+  }
+
+  .schematic-area--fill {
+    padding-top: 0;
+  }
+
+  .books-filters {
+    display: block;
+    grid-column: 1 / -1;
+    min-width: 0;
+    position: sticky;
+    top: 0;
+    /* above the page content (z-10) and the 3D: the open panel is an overlay */
+    z-index: 20;
   }
 
   .data-sidebar {
