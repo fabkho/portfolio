@@ -1,0 +1,14 @@
+tag: TYPESCRIPT
+label: REGAL
+title: Regal
+description: Your reading library as a 3D stack of books
+specs:
+  - TYPESCRIPT
+  - BOOKS
+  - NUXT-LAYER
+  - THREEJS
+url: https://github.com/fabkho/regal
+featured: false
+hidden: false
+stars: 0
+updatedAt: 2026-10-11T23:08:05Z

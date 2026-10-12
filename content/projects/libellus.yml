@@ -1,0 +1,14 @@
+tag: TYPESCRIPT
+label: LIBELLUS
+title: Libellus
+description: "A calm, mobile-first book tracker PWA: reading sessions, progress, quarter-star ratings, offline. Nuxt + Supabase."
+specs:
+  - TYPESCRIPT
+  - BOOK-TRACKER
+  - NUXT
+  - PWA
+url: https://github.com/fabkho/libellus
+featured: false
+hidden: false
+stars: 0
+updatedAt: 2026-10-12T13:35:15Z
