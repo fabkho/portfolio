@@ -1,0 +1,11 @@
+tag: TYPESCRIPT
+label: UI
+title: UI
+description: "@fabkho/ui: the shared UI base (Nuxt layer) for Bookretreats and BetterReads"
+specs:
+  - TYPESCRIPT
+url: https://github.com/fabkho/ui
+featured: false
+hidden: false
+stars: 0
+updatedAt: 2026-10-19T10:54:08Z
