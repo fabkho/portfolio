@@ -1,0 +1,12 @@
+tag: TYPESCRIPT
+label: CHAT
+title: Chat
+description: "Shared chat layer for BetterReads and Trappist: send queue, threads, spoiler veil, Realtime core (Nuxt
+  layer, tag-pinned)."
+specs:
+  - TYPESCRIPT
+url: https://github.com/fabkho/chat
+featured: false
+hidden: false
+stars: 0
+updatedAt: 2026-11-03T19:58:23Z
